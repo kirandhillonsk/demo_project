@@ -1,0 +1,201 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/pet-profile.css' %}" />
+<div class="pet-profile">
+    <div class="row">
+        <div class="col-lg-5">
+            <div class="pet-profile-left mb-20 mb-md-30">
+                <div class="img-name-wrapper">
+                    <div class="img-top-wrapper">
+                        <div class="pet-type">{{ pet.type }}</div>
+                        {% if pet.image.all %}
+                            <div class="img-slider">
+                                {% for pets in pet.image.all %}
+                                <div class="img-wrap">
+                                <img src="{{pets.file.url}}">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <div class="nav-slider">
+                            {% for pets in pet.image.all %}
+                                <div class="img-wrap">
+                                    <img src="{{pets.file.url}}">
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                        <div class="img-slider">
+                            <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/pet-default.jpeg' %}">
+                            </div>
+                        </div>
+                        {% endif %}
+                        </div>
+                    <div class="text-wrapper">
+                        <div class="heading d-flex justify-content-between align-items-center">
+                            <h4 class="media-body pr-10">{% if pet.name %}{{ pet.name }} {% else %}{% endif %}</h4>
+                            {% if not request.GET.details %}
+                            <a href="{% url 'enduser:remove_pet' %}?id={{pet.id}}" class="delete"><i class="far fa-trash-alt"></i></a>
+                            {% endif %}
+                        </div>
+
+                        <div class="pet-mata">
+                            <ul>
+                                <li><strong>Age -</strong>{% if pet.age %} {{ pet.age }} Months {% else %}{% endif %} </li>
+                                <li><strong>Size -</strong>{% if pet.size %} {{ pet.size }} pounds  {% else %}{% endif %}</li>
+                                <li><strong>Breeds -</strong> {% if pet.breed %}{{ pet.breed }} {% else %}{% endif %} </li>
+                                <li><strong>Sex -</strong> {% if pet.pet_gender == 1 %}Male{% elif pet.pet_gender == 2 %}Female{% else %} {% endif %} </li>
+                            </ul>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7">
+            <div class="pet-profile-right">
+                <div class="about-info mb-20 mb-lg-30">
+                    <h4 class="heading">About</h4>
+                    <div class="text-wrap">
+                        <p>{{pet.description}}</p>
+                    </div>
+                </div>
+                <div class="vet-info  mb-20 mb-lg-30">
+                    <h4 class="heading">Vet</h4>
+                    <div class="media align-items-center profile">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/default.png' %}">
+                            <span class="status online"></span>
+                        </div>
+                        <div class="media-body">
+                            <h4 class="text-primary">{{pet.vet_information}}</h4>
+                        </div>
+                    </div>
+
+                    <div class="media align-items-center mail">
+                        <div class="icon-wrap">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="media-body">
+                            <p><strong>Email:</strong> {{pet.vet_email}}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="rvt-info  mb-20 mb-lg-30">
+                    <h4 class="heading">RVT Appointments</h4>
+                    {% if appointments %}
+                    {% for appointment in appointments %}
+                    <a href="{% url 'enduser:appointment_details' %}?id={{appointment.id}}">
+                        <div class="rvt-info-list">
+                            <div class="heading">
+                                <h5>{% if appointment.date %} {{appointment.date}} {% else %}{% endif %}</h5>
+                                {% for service in appointment.service.all%}
+                                <p>{% if service.category.title %}{{service.category.title}}{% else %}{% endif %}</p>
+                                {% endfor %}<span class="d-block"></span>
+                                {% for service in appointment.custom.all %}
+                                <p>{% if service.title %}{{service.title}}{% else %}{% endif %}</p>
+                                {% endfor %}
+
+                            </div>
+                            <div class="rvt">
+                                <div class="media profile align-items-center">
+                                    <div class="img-wrap">
+                                    {% if appointment.created_for.profile_pic %}
+                                        <img src="{{appointment.created_for.profile_pic.url}}">
+                                    {% else %}
+                                        <img src="{% static 'admin-assets/images/default.png' %}">
+                                    {% endif %}
+                                        <span class="status online"></span>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>{% if appointment.created_for.first_name %} {{appointment.created_for.first_name}}{% else %}{% endif %}</p>
+                                    </div>
+                                </div>
+                                {% comment %} <div class="media profile align-items-center">
+                                    <div class="icon-wrap">
+                                        <i class="fal fa-envelope"></i>
+                                    </div>
+                                    <div class="media-body">
+                                        <p>{% if appointment.created_for.email %}{{appointment.created_for.email}}{% else %}{% endif %}</p>
+                                    </div>
+                                </div> {% endcomment %}
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                    {% if appointments.has_other_pages %}
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination">
+                                {% if appointments.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ appointments.previous_page_number }}">&laquo;</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&laquo;</span>
+                                </li>
+                                {% endif %}
+                                {% for i in appointments.paginator.page_range %}
+                                {% if appointments.number == i %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                </li>
+                                {% endif %}
+                                {% endfor %}
+                                {% if appointments.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ appointments.next_page_number }}">&raquo;</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">&raquo;</span>
+                                </li>
+                                {% endif %}
+                            </ul>
+                        </nav>
+                    {% endif %}
+                    {% else %}
+                    <div class="rvt-info-list">
+                        <p>No Data Found</p>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+
+<script>
+    $('.img-slider').slick({
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        fade: true,
+        arrows: false,
+        dots: false,
+        asNavFor: '.nav-slider'
+    });
+    $('.nav-slider').slick({
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        asNavFor: '.img-slider',
+        dots: false,
+        focusOnSelect: true,
+        responsive: [
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 2
+                }
+            }
+        ]
+    });
+</script>

@@ -1,0 +1,31 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/read-more.css' %}" />
+
+<div class="container">
+    <div class="view-wrapper shadow-lg" style="max-width: 80%;">
+        {% if banner %}
+        <div class="view-img-wrapper w-100">
+            {% if banner.image %}
+            <img class="w-100" src="{{ banner.image.url}}" alt="dog image">
+            {% else %}
+            <img class="w-100" src="{% static 'admin-assets/images/user/view-page-dummy-dog-img.jpeg' %}" alt="dog image">
+            {% endif %}
+        </div>
+        <div class="view-content-wrapper">
+            <h2>
+                {{banner.title}}
+            </h2>
+            <p>
+                {{banner.description}}  
+            </p>
+        </div>
+        {% else %}{% endif %}
+    </div>
+</div>
+
+
+{% endblock %}
+{% include "user/includes/footer.html" %}

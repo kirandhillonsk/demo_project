@@ -1,0 +1,704 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/booking.css' %}" />
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<style>
+    #booking_err {
+        color: red !important
+    }
+
+    .data-found {
+        font-size: 20px;
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+    .bank-img img {
+        height: 30px;
+        width: 30px;
+        position: absolute;
+        top: -64px;
+        right: 0;
+    }
+
+    .bank-img {
+        position: relative;
+    }
+
+    .CardForm .form-check {
+        padding-left: 0px !important;
+        padding-top: 25px !important;
+    }
+
+    .CardForm input[type="radio"]~label {
+        padding-left: 40px !important;
+    }
+
+    .service-post {
+        font-size: 14px;
+        color: #191919;
+        font-weight: 600;
+        border-radius: 23px;
+        background-color: #fbcf00;
+        white-space: nowrap;
+        padding-left: 20px;
+    }
+
+    .btn-warning{
+        font-size: 18px;
+        font-weight: 500;
+        padding: 13px 15px;
+        color: black !important;
+        border: 1px solid #5c2580;
+        background-color: #fbcf00 !important
+    }
+
+    .CardForm .check input[type="checkbox"]~label::before {
+        width: 18px !important;
+        height: 18px !important;
+        top: 4px !important;
+    }
+</style>
+
+<div class="TimeSlot mb-20 mb-md-30">
+    <div class="section-heading mb-15">
+        <h4 class="font-22 font_700" id="display_date"></h4>
+           
+        <p> RVT Name: {{user.first_name}} {{user.last_name}}</p>
+        <p> RVT Location: {{user.city}}, {{user.state}}, {{user.country}}</p>
+        <hr>
+        <p> Please note that the times below are in {{rvt_timezone}} Timezone.
+    </div>
+
+    <form id="booking" action="{% url 'enduser:rvt_booking' user.id %}" method="POST"
+        onsubmit="return validateForm(this.id)" name="booking">
+        {% csrf_token %}
+        <input type="hidden" value="{{selected_date | safe}}" name="date">
+        <input type="hidden" value="{{cus_id}}" name="custom_id">
+        <input hidden type="text" class="form-check-input" value="{{rvt_timezone}}" name="rvt_timezone" id="rvt_timezone">
+
+        <div class="section-wrapper">
+            <div class="row" {% if not availability %} style="justify-content:center"{% endif %}>
+                {% if availability %}
+                {% for available in availability %}
+                <div class="col-xxl-3 col-xl-4 col-sm-6 mb-25">
+                    <div class="form-group mb-0">
+                        <input type="radio" class="form-check-input available_id" value="{{available.id}}"
+                            name="time_slot" id="avail{{available.id}}">
+
+                            
+                        <label class="form-check-label font-18 text-dark" for="avail{{available.id}}"> 
+                            {% if available.start_time %}{{available.start_time|date:"g:i a"}}{% else %}{% endif %} - 
+                            {% if available.end_time %}{{available.end_time|date:"g:i a"}}{% else %}{% endif %}</label>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                    <p style="font-size: 18px;font-weight: 500;" class="mb-20">No Availability Found</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="ServicesCheck mb-20 mb-md-30 mt-20">
+            <div class="section-heading mb-15">
+                <h4 class="font-22 font_700">Services</h4>
+                <p> Please click to select all the applicable services needed</p>
+            </div>
+            <div class="section-wrapper">
+                <div class="row">
+                    <div class="col-lg-6">
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap">
+                    {% for service in services %}
+                    <div class="ServiceIcon service-img-box mr-15 mb-15">
+                        <input id="{{service.id}}" class="form-check-input service_id" sid="service" type="checkbox"
+                            name="service" value="{{service.id}}">
+                        <label for="{{service.id}}">
+                            {% if service.category.image %}
+                            <img src="{{service.category.image.url}}" alt="">
+                            {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px"
+                                class="rounded-circle object-cover">
+                            {% endif%}
+                        </label>
+                        
+                        {% if service.category.title %}
+                        <p>{{service.category.title}}</p>
+                        {% endif %}
+                        {% if service.pet.name %}
+                        <p>({{service.pet.name|title}})</p>
+                        <div class="service-post">${{service.price}}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% for service in custom_service %}
+                    <div class="ServiceIcon service-img-box mr-15 mb-15">
+                        <input id="{{service.service_id}}" class="form-check-input  service_id" sid="custom"
+                            type="checkbox" name="custom_service" value="{{service.service_id}}">
+                        <label for="{{service.service_id}}">
+                            {% if service.image %}
+                            <img src="{{service.image.url}}" alt="">
+                            {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px"
+                                class="rounded-circle object-cover">
+                            {% endif%}
+                        </label>
+                        {% if service.title %}
+                        <p>{{service.title}}</p>
+                        {% endif %}
+                        {% if service.pet_type.name %}
+                        <p>({{service.pet_type.name|title}})</p>
+                        <div class="service-post">${{service.price}}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="PetsAdd mb-20 mb-md-30">
+            <div class="section-heading mb-15">
+                <h4 class="font-22 font_700 d-flex align-iteam-center" href="">Pets<a class="pl-2"
+                        href="{% url 'enduser:book_add_pet' %}?user_id={{user.id}}&date={{selected_date | safe}}&cus_id={{cus_id}}"><i
+                            class="far fa-plus-circle"></i></a></h4>
+                    <p> Click on to select pet or add new pet.</p>
+            </div>
+            <div class="section-wrapper">
+                <div class="d-flex flex-wrap">
+                    {% if pets %}
+                    {% for pet in pets %}
+                    <div class="ServiceIcon service-img-box mr-15 mb-15">
+                        <input id="pet{{pet.id}}" class="form-check-input pets_id" type="radio" name="pets"
+                            value="{{pet.id}}">
+                        <label for="pet{{pet.id}}" class="p-0">
+                            {% if pet.image.all %}
+                            <img src="{{ pet.image.all.first.file.url }}" alt="">
+                            {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px"
+                                class="rounded-circle object-cover">
+                            {% endif%}
+                        </label>
+                        <p>{{pet.name}}</p>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <h3 class="w-100 data-found" align="center">No pet found... Please click on the plus icon to add pets.</h3>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="description mb-20 mb-md-30">
+            <div class="section-heading mb-15">
+                <h4 class="font-22 font_700 d-flex align-iteam-center">Description</h4>
+            </div>
+            <div class="section-wrapper pb-25">
+                <div class="form-group mb-0">
+                    <textarea class="form-control" name="booking_description" id="description" rows="6" minlegth="50" required maxlength="300" placeholder="Please describe what you need or provide any relevant information."></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="EarCleaning mb-20 mb-md-30">
+            <div class="section-wrapper pb-25">
+                <div class="col-md-6">
+                    <div class="tableres">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="tbody">
+                            </table>
+                        </div>
+                        <p id="checkout-warning-time" class="text-danger">Please select timeslot</p>
+                        <p id="checkout-warning-pet" class="text-danger">Please select a pet</p>
+                        <p id="checkout-warning-services" class="text-danger">Please select services</p>
+                        <p id="checkout-warning-description" class="text-danger">Please enter service description</p>
+                        <a class="btn btn-theme" style="display: None" id="continue_payment" onclick="validInputs()">Click to Checkout</a>
+                        <a class="btn btn-warning btn-sm" disabled id="continue_payment_temp">Checkout</a>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+            <!-- Modal -->
+            <div class="modal ThemeModal fade" id="ContinuePayment" tabindex="-1" role="dialog"
+                aria-labelledby="ContinuePaymentLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="ContinuePaymentLabel">Payment Option</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="accordion" class="RadioAccordion">
+                                <div class="card">
+                                    <div class="card-header" id="headingOne">
+                                        <h5 class="mb-0">
+                                            Credit / Debit Card
+                                            </button>
+                                        </h5>
+                                    </div>
+                                    <div id="CreditCard" class="collapse show" aria-labelledby="headingOne"
+                                        data-parent="#accordion">
+                                        <div class="card-body">
+                                            <from class="row CardForm">
+                                                <div class="col-12">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="select_card" onclick="GetValue(this.id)" id="cardform" {% if not cards %}checked{% endif %}>
+                                                        <label class="form-check-label" for="cardform">
+                                                            <from class="row CardForm">
+                                                                <div class="col-12">
+                                                                    <div class="form-group">
+                                                                        <input class="form-control cardfield"
+                                                                            onkeypress="return /[0-9]/i.test(event.key)" maxlength="19"
+                                                                            type="text" name="number" id="card_no"
+                                                                            placeholder="Card Number">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-6">
+                                                                    <div class="row">
+                                                                        <div class="col-6">
+                                                                            <div class="form-group">
+                                                                                <input class="form-control cardfield" type="text" name="month"
+                                                                                    maxlength="2" id="month"
+                                                                                    onkeypress="return /[0-9]/i.test(event.key)"
+                                                                                    placeholder="MM">
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-6">
+                                                                            <div class="form-group">
+                                                                                <input class="form-control cardfield" type="text" name="year"
+                                                                                    maxlength="2" id="year"
+                                                                                    onkeypress="return /[0-9]/i.test(event.key)"
+                                                                                    placeholder="YY">
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-lg-5 offset-lg-1">
+                                                                    <div class="form-group cvv-group">
+                                                                        <input class="form-control cardfield" type="text" maxlength="3" name="cvv"
+                                                                            placeholder="CVV" id="cvv">
+                                                                        <a href="#" data-toggle="tooltip" data-placement="right"
+                                                                            title="Tooltip on right">?</a>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-12">
+                                                                    <div class="form-group d-flex check">
+                                                                        <input class="form-check-input" type="checkbox" name="save_card" id="save_card">
+                                                                        <label style="font-size: 14px;" class="form-check-label" for="save_card">Save Card For Future Use</label>
+                                                                    </div>
+                                                                </div>
+                                                                <p id="card_error" style="color:red;margin-left: 15px;"></p>
+                                                            </from>
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                {% for card in cards %}
+                                                <div class="col-12">
+                                                    <div class="form-check">
+                                                        <input {% if default == card.id %} checked {% endif %} onclick="GetValue(this.id)" class="form-check-input" type="radio" name="select_card" id="{{card.id}}" value="{{card.id}}">
+                                                        <label class="form-check-label" for="{{card.id}}"> Use Saved Card: 
+                                                            **** **** **** {{card.last4}}
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                                <input type="hidden" name="card_value" id="card_value" value="{% if default %}{{default}}{% endif %}" />
+                                            </from>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card">
+                                    <div class="tableres">
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="text-center" colspan="2">Selected Services</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="payment_body">
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="total_amount" id="total_amount_id">
+                                <input type="hidden" name="actual_amount" id="actual_amount_id">
+                                <input type="hidden" name="tax_percentage" id="tax_percentage">
+                                <input type="hidden" name="tax_percent" id="tax_percent">
+                                <input type="hidden" name="mileage_fee" id="mileage_fee">
+                                <input type="hidden" name="mileage_rate" id="mileage_rate">
+                                <div class="modal-footer">
+                                    <button class="btn btn-theme btn-block">Pay Now</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+    function GetValue(id){
+        $('#card_value').val(id)
+    }
+    $('#card_no').on('keyup', function (e) {
+        var val = $(this).val();
+        var newval = '';
+        val = val.replace(/\s/g, '');
+        for (var i = 0; i < val.length; i++) {
+            if (i % 4 == 0 && i > 0) newval = newval.concat(' ');
+            newval = newval.concat(val[i]);
+        }
+        $(this).val(newval);
+    });
+</script>
+<script>
+    let ids = []
+    let sm = []
+
+    //time_slot
+    var is_selected_date = false
+    var is_selected_service = false
+    var is_selected_pet = false
+    var is_description = false
+
+    $('#booking').change(function(){
+        availability_id = $('input[name=time_slot]:checked', '#booking').val()
+        $('#payment_body').html('')
+        $('.service_id').each(function () {
+            let ls = $(this).is(':checked');
+            let s_ided = $(this).attr("sid")
+            
+
+            if (s_ided == "service") {
+                service_id = $(this).attr("id")
+                var index = ids.indexOf(service_id);
+                if (ls == true) {
+                    if(!(ids.includes(service_id))){
+                        ids.push(service_id)
+                    }
+                }
+                else{
+                    if (index != -1) {
+                        ids.splice(index, 1);
+                    }
+                }
+            }
+            else{
+                cus_service_id = $(this).attr("id")
+                var index = sm.indexOf(cus_service_id);
+                if (ls == true) {
+                    if(!(sm.includes(cus_service_id))){
+                        sm.push(cus_service_id)
+                    }
+                }
+                else{
+                    if (index != -1) {
+                        sm.splice(index, 1);
+                    }
+                }
+            }
+        })
+
+        // Disbabled button
+        ////////////////////////////////////////////////////////////
+        // services check
+        if(ids.length == 0){
+            is_selected_service = false
+            $('#checkout-warning-services').html('Please select a service')
+            $("#continue_payment").hide()
+            $("#continue_payment_temp").show()
+        }
+        else{
+            is_selected_service = true
+            $('#checkout-warning-services').html('')
+            $("#continue_payment").show()
+            $("#continue_payment_temp").hide()
+        }
+
+        // Pets check
+
+        var all_pets_count = 0
+        $('.pets_id').each(function () {
+            let ls = $(this).is(':checked');
+            if (ls == true) {
+                all_pets_count += 1;
+            }
+        })
+        if(all_pets_count == 0){
+            is_selected_pet = false
+            $('#checkout-warning-pet').html('Please select a pet')
+            $("#continue_payment").hide()
+            $("#continue_payment_temp").show()
+        }
+        else{
+            is_selected_pet = true
+            $('#checkout-warning-pet').html('')
+            $("#continue_payment").show()
+            $("#continue_payment_temp").hide()
+        }
+
+        // avilability check
+        var availability_count = 0
+        if ($('.available_id').length){
+            $('.available_id').each(function () {
+                let ls = $(this).is(':checked');
+                if (ls == true) {
+                    availability_count += 1;
+                }
+                
+            })
+        }
+        if(availability_count == 0){
+            is_selected_date = false
+            $('#checkout-warning-time').html('Please select time slot')
+            $("#continue_payment").hide()
+            $("#continue_payment_temp").show()
+        }
+        else{
+            is_selected_date = true
+            $('#checkout-warning-time').html('')
+            $("#continue_payment").show()
+            $("#continue_payment_temp").hide()
+        }
+
+        // description check
+        if($('#description').val().length == 0){
+            is_description = false
+            $('#checkout-warning-description').html('Please enter a description')
+            $("#continue_payment").hide()
+            $("#continue_payment_temp").show()
+        }
+        else{
+            is_description = true
+            $('#checkout-warning-description').html('')
+            $("#continue_payment").show()
+            $("#continue_payment_temp").hide()
+        }
+        ////////////////////////////////////////////////////////////
+        
+
+        $.ajax({
+            url: "{% url 'enduser:selected_services' %}",
+            type: 'GET',
+            data: { "service": ids, "custom": sm, "availability_id": availability_id },
+            success: function (data) {
+                $('.card_details').empty()
+                $('#tbody').empty()
+                $('#payment_body').empty()
+                for (var i = 0; i < data['data'].name.length; i++) {
+                    bookingview = '<tr><td>' + data['data']['name'][i] + '</td><td>$' + data['data']['price'][i] + '</td></tr>'
+                    payment_view = '<tr><td>' + data['data']['name'][i] + '</td> <td>$' + data['data']['price'][i] + '</td></tr>'
+                    $('#tbody').append(bookingview)
+                    $('#payment_body').append(payment_view)
+                }
+                var total = '<tr><th>Total Cost</th><th class="tt_amount">$' + data['data']['total'][0] + '</th></tr>'
+                var tax = '<tr><th>Service Fee</th><th class="tt_amount">$' + data['data']['tax'][0] + '</th></tr>'
+                
+                var mileage_fee = data['data']['mileage_fee'][0]
+                if(data['data']['mileage_fee'].length == 0){
+                    mileage_fee = 0
+                }
+                
+
+                var mileage = '<tr><th>Travelling Fee</th><th class="tt_amount">$' + mileage_fee +'</th></tr>'
+
+                $('#tbody').append(tax)
+                $('#tbody').append(mileage)
+                $('#tbody').append(total)
+                var total_amount = '<tr><th>Total Cost</th><th >$' + data['data']['total'][0] + '</th></tr>'
+                var tax = '<tr><th>Service Fee</th><th class="tt_amount">$' + data['data']['tax'][0] + '</th></tr>'
+
+                $('#payment_body').append(tax)
+                $('#payment_body').append(mileage)
+                $('#payment_body').append(total_amount)
+                $('#total_amount_id').val(data['data']['total'][0])
+                $('#actual_amount_id').val(data['data']['actual_amount'][0])
+                $('#tax_percentage').val(data['data']['tax'][0])
+                $('#tax_percent').val(data['data']['tax_percent'][0])
+
+                $('#mileage_rate').val(data['data']['mileage_rate'][0])
+                $('#mileage_fee').val(mileage_fee)
+            
+                
+                
+                var test_book = data['card_data']['card_token']
+                $('#test_book').val(test_book)
+                for (var i = 0; i < data['card_data'].account_no.length; i++) {
+                    var card_details = '<h5 class="mb-0"><button type ="button" class="btn btn-link collapsed" data-toggle="collapse" data-target="#" aria-expanded="false" aria-controls="BankCard"><span>' + data['card_data']['card_holder_name'][i] + '</span><p>' + data['card_data']['account_no'][i] + '</p></button><img src="{% static ' / admin - assets / images / cards / visa.png' %}" alt=""></h5>'
+                    $('.card_details').append(card_details)
+                    $('#card_details').append(card_details)
+                }
+            },
+            error: function () {
+                $('#tbody').html('');
+                $('#payment_body').html('');
+            }
+        })
+
+        
+
+    });
+</script>
+<script>
+    choosen_date_by_user = "{{selected_date}}"
+    const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const d = new Date(choosen_date_by_user.trim());
+    let day = weekday[d.getDay()];
+    let months = monthNames[d.getMonth()]
+    var modaldate = day + " " + months + " " + d.getDate() + ", " + d.getFullYear()
+    $('#display_date').html(modaldate);
+</script>
+<script>
+    function validInputs() {
+        var service = $('.service_id')
+        var availability = $('.available_id')
+        var pets = $('.pets_id')
+        let service_count = 0;
+        let availability_count = 0;
+        let pets_count = 0;
+        $('.service_id').each(function () {
+            let ls = $(this).is(':checked');
+            if (ls == true) {
+                service_count = 0;
+                return false;
+            } else {
+                service_count = 1;
+            }
+        })
+        let service_len = $('.service_id').length
+        if ($('.available_id').length){
+            $('.available_id').each(function () {
+                let ls = $(this).is(':checked');
+                if (ls == true) {
+                    availability_count = 0;
+                    return false;
+                } else {
+                    availability_count = 1;
+                }
+            })
+        }else{
+            availability_count = 1;
+        }
+        
+        $('.pets_id').each(function () {
+            let ls = $(this).is(':checked');
+            if (ls == true) {
+                pets_count = 0;
+                return false;
+            } else {
+                pets_count = 1;
+            }
+        })
+        // for not pets
+        let pets_length = $('.pets_id').length
+
+        if (availability_count == 1) {
+            customAlert.alert('Please select time slot !')
+        }
+        else if (service_count == 1) {
+            customAlert.alert("Please select service !")
+        }
+        else if (service_len == 0) {
+            customAlert.alert("Please select service !")
+        }
+        else if (pets_count == 1) {
+            customAlert.alert("Please select pets !")
+        } else if (pets_length == 0) {
+            customAlert.alert("Please add pets first !")
+        } else if ($('#description').val().length == 0) {
+            customAlert.alert("Please add description for the appointment !")
+        } else {
+            let x = IsExist()
+            if (x == "true") {
+                customAlert.alert("This time slot is already booked !")
+            } else if (x == "false") {
+                $('#ContinuePayment').modal()
+            }
+        }
+    }
+</script>
+<script>
+    function IsExist() {
+        let final_result = "false"
+        let id = 0;
+        var user_id = "{{ user.id}}"
+        var date = "{{ selected_date }}"
+        $('.available_id').each(function () {
+            let ls = $(this).is(':checked');
+            if (ls == true) {
+                id = $(this).val();
+            }
+        });
+        $.ajax({
+            url: "{% url 'enduser:availability_check' %}",
+            type: 'GET',
+            async: false,
+            data: {
+                'user_id': user_id,
+                'date': date,
+                'id': id
+            },
+            success: function (data) {
+                let result = data["is_exist"]
+                if (result == "true") {
+                    final_result = "true"
+                }
+            },
+        })
+        return final_result
+    }
+</script>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script type="text/javascript">
+    // enable spacing for credit card number     
+    $('#number').on('keyup', function (e) {
+        var val = $(this).val();
+        var newval = '';
+        val = val.replace(/\s/g, '');
+        for (var i = 0; i < val.length; i++) {
+            if (i % 4 == 0 && i > 0) newval = newval.concat(' ');
+            newval = newval.concat(val[i]);
+        }
+        $(this).val(newval);
+    });
+</script>
+<script type="text/javascript">
+    function validateForm(id) {
+        if ($('#card_value').val()){
+            if ($('#card_value').val() == 'cardform'){
+                if ($('#card_no').val() == '' || $('#month').val() == '' || $('#year').val() == '' || $('#cvv').val() == ''){
+                    $('#card_error').html('Please fill all the card details to proceed further.')
+                    return false;
+                }else{
+                    $('#card_error').html(" ");
+                    Loader(id);
+                    return true;
+                }
+            }else{
+                $('#card_error').html(" ");
+                Loader(id);
+                return true;
+            }
+        }else{
+            if ($('#card_no').val() == '' || $('#month').val() == '' || $('#year').val() == '' || $('#cvv').val() == ''){
+                $('#card_error').html('Please fill all the card details to proceed further.')
+                return false;
+            }else{
+                $('#card_error').html(" ");
+                Loader(id);
+                return true;
+            }
+        }
+    }
+</script>

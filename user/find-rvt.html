@@ -1,0 +1,374 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/find-rvt.css' %}" />
+<div class="find-rvt-page">
+    <div class="row">
+        <div class="col-lg-7 mb-30 mb-lg-0">
+            <div class="search-wrap">
+                <div class="row form-row">
+                    <div class="col-12">
+                        <div class="mb-10">
+                            <input type="text" class="form-control" placeholder="Search Service">
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-10 position-relative">
+                            <div class="icon">
+                                <img src="{% static 'admin-assets/images/user/service-category.png' %}" class="">
+                            </div>
+                            <select class="form-control services">
+                                <option>Nail Clipping</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-10 position-relative">
+                            <div class="icon">
+                                <img src="{% static 'admin-assets/images/user/location.png' %}" class="">
+                            </div>
+                            <select class="form-control location">
+                                <option>City</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-10 position-relative">
+                            <div class="icon">
+                                <img src="{% static 'admin-assets/images/user/location.png' %}" class="">
+                            </div>
+                            <select class="form-control location">
+                                <option>State</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-10 position-relative">
+                            <div class="icon">
+                                <img src="{% static 'admin-assets/images/user/location.png' %}" class="">
+                            </div>
+                            <select class="form-control location">
+                                <option>Country</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="search-list">
+                <h5 class="results-count"><span>5 Results</span> in Ontario, Canada</h5>
+                <div class="search-list-wrap">
+                    <div class="search-list-inner d-md-flex">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/rvt-profile.png' %}/" class="">
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>John Doe <span class="rating">4.1 <i class="fas fa-star"></i></span></h4>
+                                    <ul class="user-mata">
+                                        <li><i class="fas fa-map-marker-alt text-primary"></i> New York, USA</li>
+                                        <li><i class="fas fa-badge-dollar text-primary"></i> $30/Service</li>
+                                    </ul>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="#" class="btn btn-theme">View Profile <i class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary">
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/ear.png' %}/" class="">
+                                    </div>
+                                    <p>Ear Cleaning</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/nail.png' %}/" class="">
+                                    </div>
+                                    <p>Nail trimming</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/teeth.png' %}/" class="">
+                                    </div>
+                                    <p>Teeth Brushing</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/bandaid.png' %}/" class="">
+                                    </div>
+                                    <p>Wound Care</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/syringe.png' %}/" class="">
+                                    </div>
+                                    <p>Injections</p>
+                                </div>
+                                <a class="service-box-wrap" href="#">
+                                    <div class="icon-wrap">
+                                        <span>+</span>
+                                    </div>
+                                    <p>View<br/> More</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-list-inner d-md-flex">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/rvt-profile.png' %}/" class="">
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>John Doe <span class="rating">4.1 <i class="fas fa-star"></i></span></h4>
+                                    <ul class="user-mata">
+                                        <li><i class="fas fa-map-marker-alt text-primary"></i> New York, USA</li>
+                                        <li><i class="fas fa-badge-dollar text-primary"></i> $30/Service</li>
+                                    </ul>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="#" class="btn btn-theme">View Profile <i class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary">
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/ear.png' %}/" class="">
+                                    </div>
+                                    <p>Ear Cleaning</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/nail.png' %}/" class="">
+                                    </div>
+                                    <p>Nail trimming</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/teeth.png' %}/" class="">
+                                    </div>
+                                    <p>Teeth Brushing</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/bandaid.png' %}/" class="">
+                                    </div>
+                                    <p>Wound Care</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/syringe.png' %}/" class="">
+                                    </div>
+                                    <p>Injections</p>
+                                </div>
+                                <a class="service-box-wrap" href="#">
+                                    <div class="icon-wrap">
+                                        <span>+</span>
+                                    </div>
+                                    <p>View<br/> More</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-list-inner d-md-flex">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/rvt-profile.png' %}/" class="">
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>John Doe <span class="rating">4.1 <i class="fas fa-star"></i></span></h4>
+                                    <ul class="user-mata">
+                                        <li><i class="fas fa-map-marker-alt text-primary"></i> New York, USA</li>
+                                        <li><i class="fas fa-badge-dollar text-primary"></i> $30/Service</li>
+                                    </ul>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="#" class="btn btn-theme">View Profile <i class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary">
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/ear.png' %}/" class="">
+                                    </div>
+                                    <p>Ear Cleaning</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/nail.png' %}/" class="">
+                                    </div>
+                                    <p>Nail trimming</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/teeth.png' %}/" class="">
+                                    </div>
+                                    <p>Teeth Brushing</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/bandaid.png' %}/" class="">
+                                    </div>
+                                    <p>Wound Care</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/syringe.png' %}/" class="">
+                                    </div>
+                                    <p>Injections</p>
+                                </div>
+                                <a class="service-box-wrap" href="#">
+                                    <div class="icon-wrap">
+                                        <span>+</span>
+                                    </div>
+                                    <p>View<br/> More</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-list-inner d-md-flex">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/rvt-profile.png' %}/" class="">
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>John Doe <span class="rating">4.1 <i class="fas fa-star"></i></span></h4>
+                                    <ul class="user-mata">
+                                        <li><i class="fas fa-map-marker-alt text-primary"></i> New York, USA</li>
+                                        <li><i class="fas fa-badge-dollar text-primary"></i> $30/Service</li>
+                                    </ul>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="#" class="btn btn-theme">View Profile <i class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary">
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/ear.png' %}/" class="">
+                                    </div>
+                                    <p>Ear Cleaning</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/nail.png' %}/" class="">
+                                    </div>
+                                    <p>Nail trimming</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/teeth.png' %}/" class="">
+                                    </div>
+                                    <p>Teeth Brushing</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/bandaid.png' %}/" class="">
+                                    </div>
+                                    <p>Wound Care</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/syringe.png' %}/" class="">
+                                    </div>
+                                    <p>Injections</p>
+                                </div>
+                                <a class="service-box-wrap" href="#">
+                                    <div class="icon-wrap">
+                                        <span>+</span>
+                                    </div>
+                                    <p>View<br/> More</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-list-inner d-md-flex">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/rvt-profile.png' %}/" class="">
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>John Doe <span class="rating">4.1 <i class="fas fa-star"></i></span></h4>
+                                    <ul class="user-mata">
+                                        <li><i class="fas fa-map-marker-alt text-primary"></i> New York, USA</li>
+                                        <li><i class="fas fa-badge-dollar text-primary"></i> $30/Service</li>
+                                    </ul>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="#" class="btn btn-theme">View Profile <i class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary">
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/ear.png' %}/" class="">
+                                    </div>
+                                    <p>Ear Cleaning</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/nail.png' %}/" class="">
+                                    </div>
+                                    <p>Nail trimming</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/teeth.png' %}/" class="">
+                                    </div>
+                                    <p>Teeth Brushing</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/bandaid.png' %}/" class="">
+                                    </div>
+                                    <p>Wound Care</p>
+                                </div>
+                                <div class="service-box-wrap">
+                                    <div class="icon-wrap">
+                                        <img src="{% static 'assets/images/services/services-theme/syringe.png' %}/" class="">
+                                    </div>
+                                    <p>Injections</p>
+                                </div>
+                                <a class="service-box-wrap" href="#">
+                                    <div class="icon-wrap">
+                                        <span>+</span>
+                                    </div>
+                                    <p>View<br/> More</p>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="map-wrap">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d13722.549287446254!2d76.69927655!3d30.70047885!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sin!4v1645504668844!5m2!1sen!2sin"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "user/includes/footer.html" %}

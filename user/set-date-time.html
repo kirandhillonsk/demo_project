@@ -1,0 +1,143 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/profile.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/profile.css' %}" />
+
+
+<div class="profile-page-wrapper">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+          <div class="set-date-time-wrapper">
+              <div class="inner-page-header">
+                <img src="{% static 'admin-assets/images/rvt/arrow-left.svg' %}/" /> <h2>Choose Time and Services</h2>
+              </div>
+              <div class="inner-page-body">
+                  <h4>29th August(Tuesday) 2021</h4>
+
+                  <div class="custom-checkbox-outer row">
+                    <div class="col-md-12 mb-20">
+                        <div class="custom-checkbox white-back">
+                            <input type="checkbox" id="is_checked" name="is_checked" value="1">
+                            <label class="checkbox-label mb-0">
+                                29th August(Tuesday) 2021
+                                <span class="ml-auto mr-0"></span>
+                            </label>
+                        </div>
+                   </div>
+                   <div class="col-md-6 mb-20">
+                        <div class="custom-checkbox white-back">
+                            <input type="checkbox" id="is_checked" name="is_checked" value="1">
+                            <label class="checkbox-label mb-0">
+                                06:00AM - 08:00AM
+                                <span class="ml-auto mr-0"></span>
+                            </label>
+                        </div>
+                   </div>
+                   <div class="col-md-6  mb-20">
+                        <div class="custom-checkbox white-back">
+                            <input type="checkbox" id="is_checked" name="is_checked" value="1">
+                            <label class="checkbox-label mb-0">
+                                06:00AM - 08:00AM
+                                <span class="ml-auto mr-0"></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-20">
+                        <div class="custom-checkbox white-back">
+                            <input type="checkbox" id="is_checked" name="is_checked" value="1">
+                            <label class="checkbox-label mb-0">
+                                06:00AM - 08:00AM
+                                <span class="ml-auto mr-0"></span>
+                            </label>
+                        </div>
+                   </div>
+                   <div class="col-md-6 mb-20">
+                        <div class="custom-checkbox white-back">
+                            <input type="checkbox" id="is_checked" name="is_checked" value="1">
+                            <label class="checkbox-label mb-0">
+                                06:00AM - 08:00AM
+                                <span class="ml-auto mr-0"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <h4 class="mt-md-30 mt-12">Services</h4>
+                <form>
+                    <div class="form-group">
+                        <div class="custom-search-wrapper">
+                            <input type="search" placeholder="Search Services..." />
+                            <span class="custom-search">
+                                <img src="{% static 'admin-assets/images/rvt/search.svg' %}/" />
+                            </span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <div class="service-checkbox">
+                                <input type="checkbox"/>
+                                <label></label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+              </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade addformModal" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="modal-body">
+                <form onsubmit="Loader(this.id)" id="add-card" action="{% url 'enduser:add_card' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="heading">
+                        <p class="text-center">Add New Cards</p>
+                    </div>
+
+                    <div class="form-group">
+                        <select class="form-control" name="cat_id">
+                            <option value="">Select Card Type</option>
+                            <option value="1">Visa Card</option>
+                            <option value="2">Master Card</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" onkeypress="return /[a-zA-z\s]/i.test(event.key)" name="card_holder_name" maxlength="100" placeholder="Card Holder Name">
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control"  name="ac_no" onkeypress="return /[0-9]/i.test(event.key)" maxlength="19" placeholder="Card Number" id="debit">
+                        <p class="er" style="color:red"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input class="form-control"  name="expire_date" maxlength="7" id="ex_date" placeholder="Expire Date">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input class="form-control"  name="cvv" maxlength="3" placeholder="CVV">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-wrap d-md-flex text-center justify-content-center">
+                        <button class="btn btn-theme-alt rounded"><i class="fas fa-save mr-6"></i> Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+

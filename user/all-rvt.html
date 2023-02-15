@@ -1,0 +1,228 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/user-detail.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<style>
+    .data-found{
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+
+
+    div#map-view {
+        height: 100% !important;
+    }
+
+    @media (max-width: 800px) {
+        div#map-view {
+            height: 700px !important;
+        }
+    }
+
+</style>
+<style>
+    .color {
+        color: red;
+    }
+    .new_ul li{
+        list-style: disc;
+        margin-left: 20px;
+    }
+</style>
+<script src="{% static 'admin-assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'admin-assets/js/jquery.mask.min.js' %}"></script>
+ <script src="https://maps.google.com/maps/api/js?key=AIzaSyAqQxTlaDVSndpLyPl-wMeQEs-TzyyZ7-I" 
+          type="text/javascript"></script>
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="dahboard-boxes-section mb-20 mb-md-30">
+                <div class="card">
+                    <div class="row gutters-20 user-list-header">
+                        <div class="col-lg-8">
+                        </div>
+                        <div class="col-lg-4">
+                            <ul class="nav nav-tabs border-tabs justify-content-md-end mt-md-0 mt-3" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" data-toggle="tab" href="#list-view"><i class="fa fa-list"></i>&nbsp; List View</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" data-toggle="tab" href="#map-view"><i class="fas fa-map-marker-alt"></i>&nbsp; Map View</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tab-content mt-md-30 mt-15" id="myTabContent">
+                        <div class="tab-pane  fade show active" id="list-view" role="tabpanel"
+                            aria-labelledby="list-view-tab">
+                            <div class="row"> 
+                            {% if rvt_user %}
+                                {% for user in rvt_user %}
+                                <div class="col-xl-3 col-lg-6 col-md-6">
+                                    <div class="property-box">
+                                       <div class="item-img">
+                                            {% if user.profile_pic %}
+                                            <a href="{% url 'enduser:user_rvt_profile' user.id %}"> <img src="{{user.profile_pic.url}}"></a>
+                                            {% else %}
+                                            <a href="{% url 'enduser:user_rvt_profile' user.id %}"> <img src="{% static 'admin-assets/images/default.png' %}"></a>
+                                            {% endif %}
+                                            <div class="react-icon">
+                                            {% if user.id in fav %}
+                                                <i class="fas fa-heart color" id="fav{{user.id}}" onclick="GetUserID({{user.id}})" ></i>
+                                            {% else %}
+                                                <i class="fas fa-heart" id="fav{{user.id}}" onclick="GetUserID({{user.id}})" ></i>
+                                            {% endif %}   
+                                            </div>
+                                        </div>
+                                        <div class="item-content">
+                                            <div class="verified-area d-block">
+                                                <h3 class="item-title">
+                                                    <a href="{% url 'enduser:user_rvt_profile' user.id %}">{% if user.first_name %} {{user.first_name}} {% else %}{% endif %}</a>
+                                                </h3>
+                                                <ul class="new_ul">
+                                                <a href="{% url 'enduser:user_rvt_profile' user.id %}">
+                                                    {% for i in rvt_services %}
+                                                        {% if user.id == i.created_by_id %}
+                                                            {% if i.category.title %}
+                                                            <li>{{ i.category.title }} ({{i.pet.name}})</li>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    {% for i in rvt_custom_services %}
+                                                        {% if user.id == i.created_by_id %}
+                                                            {% if i.title %}
+                                                            <li>{{ i.title }} ({{i.pet_type.name}})</li>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                    </ul>       
+                                                </a>                                  
+                                            </div>
+                                            <div class="location-area ml-2">
+                                                <i class="fas fa-map-marker-alt"></i>{% if user.city %}{{user.city}}{% else %}{% endif %},{% if user.state %}{{user.state}}{% else %}{% endif %}
+                                            </div>
+                                            <div class="item-categoery3">
+                                                <ul>
+                                                   <li><i class="far fa-dollar-sign"></i>Start from 
+                                                    ${% for price in min_price %}
+                                                        {% if user.id == price.created_by_id %}
+                                                        {{price.price}}/Service
+                                                        {% endif %}
+                                                    {% endfor %}</li> 
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                             {% endfor %}
+                             {% else %}
+                             <p class="w-100 data-found" align="center">No RVT found</p>
+
+                            {% endif %}
+                            </div>
+
+                        </div>
+                        <div class="tab-pane fade" id="map-view" role="tabpanel" aria-labelledby="map-view-tab">
+                            <div id="map" style="width: 98%;height: 98%;" class="map-view">
+                            {% comment %} <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3430.1858846545847!2d76.70748391513095!3d30.713174281644086!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390f954ea4b2c735%3A0x44c7b39d86228a72!2sToXSL%20-%20Mobile%20App%20Development%20And%20Web%20Development%20Company!5e0!3m2!1sen!2sin!4v1656490609811!5m2!1sen!2sin" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> {% endcomment %}
+                            <div id="map" style="width: 98%;height: 98%;" ></div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+
+
+<script>
+function GetUserID(id){
+        $.ajax({
+            url:"{% url 'enduser:add_favourite_rvt' %}",
+            type:'GET',
+            data:{"rvt_id":id},
+            success:function(data){
+            let is_fav= data['status']
+            let ids = "#fav" + id
+            if(is_fav == "added"){
+                $(ids).addClass("color")
+            }
+            else{
+                $(ids).removeClass("color")
+            }
+        }
+        })
+}
+</script>
+
+
+
+<script type="text/javascript">
+    var locations = [
+        {% for i in map_rvt %}
+            ['', '{{i.created_by.latitude}}', '{{i.created_by.longitude}}', 4],
+        {% endfor %}
+    ];
+
+    var info_list = [
+        {% for i in map_rvt %}
+            `<div class="d-flex align-items-center map-data">
+                <div id="content" class="map-data-img">
+                {% if i.created_by.profile_pic %}
+                        <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %}><img src=" {{i.created_by.profile_pic.url}}" class="rounded-circle object-cover"></a>
+                    {% else%}
+                        <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %}><img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"></a>
+                    {% endif %}
+                </div>
+
+                <div id="bodyContent" class="map-data-content">
+                    <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %} ><h6 id="firstHeading" class="firstHeading">{% if i.created_by.first_name %}{{i.created_by.first_name|title}} {% elif i.created_by.last_name %}{{i.created_by.last_name|title}}{% endif %}</h6></a>
+                    <!--span class="d-block service-name">{% if i.category.title %}{{i.category.title}}{% else %}{{i.title}}{% endif %}...</span-->
+                    <p class="location d-flex align-items-center"><i class="fas fa-map-marker-alt"></i> {% if i.created_by.address %} {{i.created_by.city}},{{i.created_by.state}} {% else %}-{% endif %}</p>
+                    <div class="d-flex align-items-center">
+                        <p class="pricing"><span>$</span>Starting from <b>${{i.price}}</b></p>
+                        <p class="ml-auto rating">{% if i.created_by.average_rating %}<i class="fas fa-star"></i> {{i.created_by.average_rating}}{% endif %}</p>
+                    </div>
+                </div>
+                </div>
+            </div>`,
+        {% endfor %}
+    ]
+    
+
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 3,
+        allow: "fullscreen",
+        fullscreenControl: true,
+        center: new google.maps.LatLng(
+            {% if request.user.latitude and request.user.longitude %}
+            {{request.user.latitude}}, {{request.user.longitude}}
+            {% else %}49.2608724, -123.113952{% endif %}
+        ),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+      
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(info_list[i]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+</script> 

@@ -1,0 +1,667 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+{% load humanize %}
+<style>
+    p.image_error {
+        color: red;
+    }
+    .popup{
+        width: 900px;
+        margin: auto;
+        text-align: center
+    }
+    .popup img{
+        width: 200px;
+        height: 200px;
+        cursor: pointer
+    }
+    .show{
+        z-index: 999;
+        display: none;
+    }
+    .show .overlay{
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,.66);
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .show .img-show{
+        width: 600px;
+        height: 400px;
+        background: #FFF;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        overflow: hidden
+    }
+    .img-show span{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 99;
+        cursor: pointer;
+    }
+    .img-show img{
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .cross {
+        background: red;
+        color: #fff;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        padding: 3px;
+        padding-left: 5px;
+        margin-left: 10px;
+        font-size: 13px;
+    }
+    /*End style*/
+    @media (max-width: 991.98px) {
+        .setting-page-wrap .sidebar-wrap {
+            display: none;
+        }
+    }
+    
+</style>
+<script>
+    function ConvertGTime(createdate, createtime) {
+        var d = createdate + "T" + createtime + "Z";
+        const date = d;
+        const local = moment.utc(date).local().format("Do MMM  YYYY hh:mm A");
+        return local;
+    }
+</script> 
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/rvt-chat.css' %}" />
+
+<div class="setting-page-wrap media">
+    <div class="sidebar-wrap">
+        <div class="chat-left-header">
+            <div class="header-buttons d-flex align-items-center justify-content-between">
+                <div class="check-wrap d-flex justify-content-between align-items-center">
+         
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="" type="button" class="btn btn-sm btn-secondary"><i class="far fa-redo-alt"></i></a>
+                    <button type="button" class="btn btn-sm btn-secondary active"><i class="fas fa-eye"></i></button>
+                </div>
+            </div>
+         
+        </div>
+        <ul class="userList" id ="userList" >
+            {% if last_message %}
+                {% for user in last_message %}
+                {% if user.sender.id == request.user.id %}
+                    <a href="{% url 'enduser:users_chat_screen' %}?id={{user.receiver.id}}" >
+                        <li class="media-wrap {% if user.receiver.id == to.id %} active {% endif %} ">
+                            <div class="media align-items-center">
+                                <div class="icon-wrap">
+                                    {% if user.receiver.profile_pic %}
+                                        <img src="{{user.receiver.profile_pic.url}}" class="rounded-circle object-cover"
+                                            alt="">
+                                    {% else %}
+                                        <img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"
+                                        alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="media-body pl-10">
+                                    <h5>{{user.receiver.first_name}} {{user.receiver.last_name}}</h5>
+                                </div>
+                            </div>
+                            <div class="text-wrap">
+                                {% if user.message %}
+                                    <p>{{user.message}}</p>
+                                {% else %}
+                                    <p>Image File</p>
+                                {% endif %}
+                            </div>
+                            <div class="chat-mata d-flex justify-content-between align-items-center">
+                                <div class="check-wrap d-flex justify-content-between align-items-center">
+                             
+                                    <div class="rating">
+                                        {% if user.receiver.average_rating == '1' %}
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '2' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '3' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '4' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '5' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <h6></h6>
+                                        {% endif %}
+                                    </div>
+
+                                </div>
+                           <div class="time">
+                            <script>
+                                var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                                document.write(date);
+                            </script>
+                            </div> 
+
+                                
+                            </div>
+                        </li>
+                    </a>
+                {% else %}
+                    <a href="{% url 'enduser:users_chat_screen' %}?id={{user.sender.id}}" >
+                        <li class="media-wrap {% if user.sender.id == to.id %} active {% endif %} ">
+                            <div class="media align-items-center">
+                                <div class="icon-wrap">
+                                    {% if user.sender.profile_pic %}
+                                        <img src="{{user.sender.profile_pic.url}}" class="rounded-circle object-cover"
+                                            alt="">
+                                    {% else %}
+                                        <img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"
+                                        alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="media-body pl-10">
+                                    <h5>{{user.sender.first_name}} {{user.sender.last_name}}</h5>
+                                </div>
+                            </div>
+                            <div class="text-wrap">
+                                {% if user.message %}
+                                <p>{{user.message}}</p>
+                            {% else %}
+                                <p>Image File</p>
+                            {% endif %}
+                            </div>
+                            <div class="chat-mata d-flex justify-content-between align-items-center">
+                                <div class="check-wrap d-flex justify-content-between align-items-center">
+                                    <div class="form-check">
+                                     
+                                    </div>
+                                   <div class="rating">
+                                        {% if user.receiver.average_rating == '1' %}
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '2' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '3' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '4' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '5' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <h6></h6>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <script>
+                                var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                                document.write(date);
+                            </script>
+                            </div>
+                        </li>
+                    </a>
+                {% endif %}
+                    
+                {% endfor %}
+            {% else %}
+                <li class="media-wrap active">
+                    <div class="media align-items-center">
+                        <div class="media-body pl-10">
+                            <h5 align="center">No User Found</h5>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="settings-main-wrap media-body card">
+        <div class="setting-wrpper d-flex flex-column h-100 position-relative">
+            <div class="chat-profile-header">
+                <div class="media align-items-center">
+                    <div class="icon-wrap d-flex align-items-center">
+                        <button class="switch-toggle d-lg-none mr-10"><i class="fas fa-chevron-left"></i></button>
+                        {% if to.profile_pic %}
+                            <img src="{{to.profile_pic.url}}" class="rounded-circle object-cover"
+                                alt="">
+                        {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"
+                            alt="">
+                        {% endif %}
+                    </div>
+                    <div class="media-body pl-13">
+                        <h5>{{to.first_name}} {{to.last_name}}</h5>
+                    </div>
+                    <button class="btn btn-xs btn-theme float-right" data-toggle="modal" href="#sharedappts" role="button" aria-expanded="false" aria-controls="sharedappts">Appointments </button>
+
+                    <div class="modal fade bd-example-modal-lg noshow" id="sharedappts" tabindex="-1" role="dialog" aria-labelledby="sharedapptsLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="sharedapptsLabel">{{to.first_name}} {{to.last_name}} appointments</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                              </button>
+                            </div>
+                            <div class="modal-body">
+                                
+
+            
+                                <table class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                        <th scope="col">ID</th>
+                                        <th scope="col"> Amount </th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for appointment in shared_appointments %}
+                                        <tr>
+                                        <th scope="row">  {{appointment.id}}
+                                           
+
+
+                                        </th>
+                                        <td>${{appointment.actual_amount}}</td>
+                                        <td>{{appointment.date}}</td>
+
+
+                                        {% if appointment.status == '0' %}
+                                        <td>Pending</td>
+                                        {% elif appointment.status == '1'  %}
+                                        <td>Scheduled</td>
+                                        {% elif appointment.status == '2'  %}
+                                        <td>Completed</td>
+                                        {% elif appointment.status == '3'  %}
+                                        <td>Cancelled</td>
+                                        {% elif appointment.status == '4'  %}
+                                        <td>Accepted</td>
+                                        {% elif appointment.status == '5'  %}
+                                        <td>Rejected</td>
+                                        {% else %}
+                                        <td>Unavailabled</td>
+                                        {% endif %}
+
+
+                                        {% if user.id == appointment.created_by.id%}
+                                        <td>
+                                            <a href="{% url 'enduser:appointment_details' %}?id={{appointment.id}}" target="__blank">
+                                            <i class="fas fa-eye "></i> View </a>
+                                        </td>
+                                        {% elif user.id == appointment.created_for.id %}
+                                        <td>
+                                            <a  href="{% url 'rvt_lvt:rvt_appointment_details' %}?id={{appointment.id}}" target="__blank">
+                                            <i class="fas fa-eye "></i> View </a>
+                                        </td>
+                                        {% endif %}
+                                        
+                                        </tr>
+                                        {% endfor %}
+
+                                        
+                                    </tbody>
+                                </table> 
+                                
+                            </div>
+                            
+                          </div>
+                        </div>
+                    </div>
+
+
+                    
+                </div>
+               
+            </div>
+            <div class="chat-body flex-1 h-100">
+                <div class="chat-body-inner" id="chat-panel">
+                    {% for msg in all_message %}
+                        {% if request.user == msg.sender %}
+                            <div class="message message-out">
+                                <div class="message-inner">
+                                    {% if msg.message %}
+                                        <div class="message-body">
+                                            <p>{{msg.message}}</p>
+                                        </div>
+                                    {% else %}
+                                        <div class="message-body p-0">
+                                            {% for m in   msg.images.all %}
+                                            <img src="{{m.images.url}}">
+                                            {% endfor %}
+                                        </div>
+                                        <div class="show">
+                                            <div class="overlay"></div>
+                                            <div class="img-show">
+                                              <span>X</span>
+                                              <img src="">
+                                            </div>
+                                          </div>
+                                    {% endif %}
+
+                                    <div class="message-footer">
+                                        <span>{{msg.created_on|naturaltime}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% else %}
+                            <div class="message">
+                                <div class="avatar avatar-responsive">
+                                    {% if msg.sender.profile_pic %}
+                                        <img src="{{msg.sender.profile_pic.url}}"
+                                            class="rounded-circle object-cover" alt="">
+                                    {% else %}
+                                        <img src="{% static 'admin-assets/images/default.png' %}"
+                                            class="rounded-circle object-cover" alt="">
+                                        
+                                    {% endif %}
+                                </div>
+
+                                <div class="message-inner">
+                                    {% if msg.message %}
+                                        <div class="message-body">
+                                            <p>{{msg.message}}</p>
+                                        </div>
+                                    {% else %}
+                                        <div class="message-body p-0">
+                                            {% for m in   msg.images.all %}
+                                            <img src="{{m.images.url}}">
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div class="message-footer">
+                                        <span>{{msg.created_on|naturaltime}}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+
+                    
+                
+
+            </div>
+            <div class="chat-footer position-absolute">
+                <!-- Chat: Form -->
+                <p class="image_error pb-3"></p>
+                <form id="send-message-form"  class="chat-form" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" value="{{to.id}}" name="id">
+                    <div class="row custom-row">
+                        <div class="col-auto file-upload">
+                            <label class="text-primary">
+                                <i class="far fa-paperclip"></i>
+                                <input type="file" id="mediaCapture" name="image" class="d-none">
+                            </label>
+                        </div>
+                        <div class="col">
+                            <div class="input-group d-flex">
+                                
+                                <input class="form-control" name="message" id="my-message" placeholder="Write a message here..."
+                                    rows="1">
+                                    <input type="hidden" value="{{to.id}}" id="message-input" name="id">
+                                </div>
+                        </div>
+                        <div class="col-auto">
+                            <button  type="submit" class="btn btn-icon d-flex align-items-center justify-content-center">
+                                <i class="far fa-paper-plane" ></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                <!-- Chat: Form -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<script type="text/javascript">
+    var message = $('#my-message').val();
+    var id = $('#message-input').val();
+
+    $(document).on('submit', '#send-message-form', function (e) {
+        var message = $('#my-message').val();
+        e.preventDefault();
+        $.ajax({
+            type: 'POST',
+            url: "{% url 'enduser:send_message_rvt' %}",
+            data: {
+                message: $("#my-message").val(),
+                id: $("#message-input").val(),
+                csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: function(result) {
+                if(message){
+                        var appenMsg =`<div class="message message-out">
+                                <div class="message-inner">
+                                    
+                                        <div class="message-body">
+                                            <p>${message}</p>
+                                        </div>
+                                    
+                                    <div class="message-footer">
+                                        <span>a minute ago</span>
+                                    </div>
+                                </div>
+                            </div>`;
+                        let chat_panel = $("#chat-panel");
+                        chat_panel.append(appenMsg);
+                        $('#my-message').val('');
+                        scrolllastmessageintoView();
+                        //load_users();
+                }
+            else
+            {
+
+            }
+                    },
+        })
+    });
+      
+</script>
+
+<script>
+    $(function () {
+        "use strict";
+        $(".message-body img").click(function () {
+            var $src = $(this).attr("src");
+            $(".show").fadeIn();
+            $(".img-show img").attr("src", $src);
+        });
+        
+        $("span, .overlay").click(function () {
+            $(".show").fadeOut();
+        });
+        
+    });
+</script>
+
+<script>
+    jQuery('.switch-toggle').on('click', function () {
+        jQuery('.sidebar-wrap').addClass('open-sidebar');
+    });
+    jQuery('.userList li').on('click', function () {
+        jQuery('.sidebar-wrap').removeClass('open-sidebar');
+    });
+</script>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+
+
+
+<script>
+    function RemoveMsg(){
+        $(".image_error").html("");
+    }
+</script>
+<script>
+    function onMediaFileSelected(event) {
+        event.preventDefault();
+        var file = event.target.files[0];
+        var imageFormElement = document.getElementById('send-message-form');
+        // Clear the selection in the file picker input.
+        imageFormElement.reset();
+    
+        // Check if the file is an image.
+        if (!file.type.match('image.*')) {
+            $(".image_error").append("This file format is not supported for images<i class='fal fa-times cross' onclick='RemoveMsg()'></i>");
+            return;
+        }
+        
+        saveImageMessage(file);
+        
+    }
+    
+    document.getElementById('mediaCapture').addEventListener('change', onMediaFileSelected);
+
+    function saveImageMessage(file) {
+        var form = $('#send-message-form')[0];
+        var data = new FormData(form);
+        data.append('image', file);
+        var to_user_id = $('#message-input').val();
+        data.append('id', to_user_id);
+        $.ajax({
+            url: "{% url 'enduser:send_message_rvt' %}",
+            type: "POST",
+            enctype: 'multipart/form-data',
+            processData: false, 
+            contentType: false,
+            cache: false,
+            data: data,
+            success: function(result) {
+                //Loader();
+                location.reload();
+            }
+        });
+    }
+</script>
+
+<script defer async>
+    let message_send_btn = document.getElementById("message-send-btn");
+    let reply_message = "";
+    let message_input = document.getElementById("message-input");
+    let interval = 0;
+    let load_counter = 0;
+    let current_interval = 2000;
+
+
+    function construct_reply_events() {
+        let reply_btns = document.getElementsByClassName("reply-btn");
+        for (reply_btn of reply_btns) {
+            reply_btn.removeEventListener("click", reply_btn_event_handler);
+            reply_btn.addEventListener("click", reply_btn_event_handler);
+        }
+    }
+    construct_reply_events();
+    function load_messages() {
+        fetch("{% url 'enduser:ajax_load_get_group_messages_singer' to.id %}").then(e => e.json()).then(messages => {
+            if (messages.length > 0) {
+                for (message of messages) {
+                    
+                    var id = messages.id;
+                    var d = message["date_created"];
+                    var m = message["message"];
+                    var image = message["image"];
+                    var si = message["sender_image"];
+                    var currentUserId = message['current_user'];
+                    var user_type = "receiver";
+                    if(currentUserId == message["sender_id"]) {
+                        user_type = "sender";
+                    } else {
+                        receiver_msg_load(m,image ,id, d,user_type,si);   
+                       fetch("{% url 'enduser:singer_ajax_load_group_message_update' to.id %}").then(e => e.json()).then(messages => {
+                       });                       
+                    }                    
+                }
+            }
+            construct_reply_events();
+        }).catch(e => console.log(e));
+    }
+    function receiver_msg_load(m, image , pkid, d, user_type,si,sent) {
+        var classDynamic = "message message-out";
+        if(user_type == "receiver") {
+                classDynamic ="message";     
+            }
+            if (image == '' ){
+                var appenMsg =`<div class="message">
+                    <div class="avatar avatar-responsive">
+                            <img src="${si}" class="rounded-circle object-cover" alt="">
+                    </div>
+                    <div class="message-inner">
+                            <div class="message-body">
+                                <p>${m}</p>
+                            </div>
+                        <div class="message-footer">
+                            <span>2&nbsp;seconds ago</span>
+                        </div>
+                    </div>
+                </div>`;
+
+            }else{
+                var appenMsg =`<div class="${classDynamic}">
+                    <div class="avatar avatar-responsive">
+                            <img src="${si}"
+                                class="rounded-circle object-cover" alt="">
+                    </div>
+                    <div class="message-inner">
+                            <div class="message-body">
+                                
+                                <img src="${image}">
+                            </div>
+                        <div class="message-footer">
+                            <span>{{msg.created_on|naturaltime}}</span>
+                        </div>
+                    </div>
+                </div>`;
+                
+            }
+
+        let chat_panel = $("#chat-panel");
+        chat_panel.append(appenMsg);
+        //scrolllastmessageintoView();
+        location.reload();
+    }
+    function scrolllastmessageintoView() {
+        let messages = document.getElementsByClassName("message");
+        if (messages.length > 0) {
+            messages[messages.length - 1].scrollIntoView();
+        }
+    }
+    scrolllastmessageintoView()
+    interval = setInterval(load_messages, current_interval);
+</script>
+

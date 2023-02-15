@@ -1,0 +1,662 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/datepicker/jquery-ui.min.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/datepicker/jquery-ui.theme.min.css' %}" />
+<script src="{% static 'admin-assets/datepicker/jquery-ui.min.js' %}"></script>
+
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/rvt-profile.css' %}" />
+
+{% if rvt_user %}
+<div class="rvt-profile-top">
+    <div class="top-image-info">
+        <div class="d-md-flex align-items-center">
+            <div class="img-wrap">
+                {% if rvt_user.profile_pic %}
+                    <img src="{{rvt_user.profile_pic.url}}" alt="">
+                {% else %}
+                    <img src="{% static 'admin-assets/images/default.png' %}" alt="">
+                {% endif %}
+            </div>
+            <input type = "hidden" id = "userID" value="{{rvt_user.id}}">
+            <div class="media-body pl-0 pl-md-25 pt-10 pt-md-0">
+                <h4>
+                    {% if rvt_user.first_name %}{{rvt_user.first_name}}{% endif %} 
+                    {% if rvt_user.average_rating %}
+                    <a href="{% url 'enduser:view_rating' %}?id={{rvt_user.id}}">
+                        <small>{% if rvt_user.average_rating %} {{rvt_user.average_rating}}{% else %}0{% endif %}<i class="fas fa-star"></i></small>
+                    </a>
+                    {% else %}
+                    <small>{% if rvt_user.average_rating %} {{rvt_user.average_rating}}{% else %}0{% endif %}<i class="fas fa-star"></i></small>
+                    {% endif %}
+                </h4>
+                <ul class="mata">
+                    <li class="d-flex bdge">
+                    {% if rvt_user.badge.image %}
+                        <img style="margin-left: -3px; width: 20px;" src="{{rvt_user.badge.image.url}}"><div class="data-name">{{rvt_user.badge.title}}</div>
+                    {% endif %}
+                    </li>
+                    <li class="d-flex status active">
+                        {% if rvt_user.status == True %}
+                        <div class="icon"><span class="status-circle"></span></div>
+                        <div class="data-name">Active</div>
+                        </li>
+                        {% else %}
+                        <li class="d-flex status inactive">
+                        <div class="icon"><span class="status-circle"></span></div>
+                        <div class="data-name">Inactive</div>
+                        </li>
+                        {% endif %}
+                    
+                    <li class="d-flex location">
+                        <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="data-name">{% if rvt_user.city %}{{rvt_user.city}}{% else %}{% endif %},{% if rvt_user.state %} {{rvt_user.state}}{% else %}{% endif %}</div>
+                    </li>
+                </ul>
+            </div>
+            <div class="btn-wrap">
+        <a href="{% url 'enduser:users_chat_screen' %}?id={{rvt_user.id}}" class="action-wrap green"><i class="fas fa-paper-plane"></i> Message</a> 
+
+        <a href="javascriptvoid(0); " class="action-wrap primary" data-toggle="modal" data-target="#ChooseDatesModal">
+          <i class="fas fa-user-check"></i> Book
+        </a>
+      </div>
+
+        </div>
+    </div>
+    <div class="tabs-wrap">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="About-tab" data-toggle="tab" href="#About" role="tab"
+                    aria-controls="About" aria-selected="true">About</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="Services-tab" data-toggle="tab" href="#Services" role="tab"
+                    aria-controls="Services" aria-selected="false">Services</a>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<div class="tabs-data-wrap">
+
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="About" role="tabpanel" aria-labelledby="About-tab">
+            <div class="profile-overview">
+                <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-envelope"></i> Email Address</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.email %}{{rvt_user.email}}{% else %}{% endif %}</div>
+                </div>
+                <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-phone-alt"></i> Phone Number</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.mobile_no %}{{rvt_user.mobile_no}}{% else %}-{% endif %}</div>
+                </div>
+                {% comment %} <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-map-marker-alt"></i> Address</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.address %}{{rvt_user.city}}, {{rvt_user.state}}{% else %}-{% endif %}</div>
+                </div> {% endcomment %}
+                <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-map-marker-alt"></i> City/Town</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.city %}{{rvt_user.city}}{% else %}-{% endif %}</div>
+                </div>
+                <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-map-marker-alt"></i> State</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.state %}{{rvt_user.state}}{% else %}-{% endif %}</div>
+                </div>
+                <div class="profile-list d-md-flex">
+                    <div class="heading"><i class="fas fa-comment-alt-exclamation"></i> About Me</div>
+                    <div class="data media-body pl-md-20">{% if rvt_user.about_me %}{{rvt_user.about_me}}{% else %}-{% endif %} </div>
+                    <input type='hidden' value='{{ rvt_user.id}}' id="rvt_id"  >
+                </div>
+
+            </div>
+        </div>
+        <div class="tab-pane fade" id="Services" role="tabpanel" aria-labelledby="Services-tab">
+            <div class="services-list">
+                <div class="row">
+                {% if services or custom_service %}
+                    {% for service in services %}
+                    <div class="col service-col">
+                        <div class="service-inner text-center">
+                            <div class="service-img">
+                            {% if service.category.image %}
+                                <img src="{{service.category.image.url}}" class="img-fluid" alt="Nail Cutter">
+                            {% else%}
+                                <img src="{% static 'admin-assets/images/rvt/service-slider/1.png' %}" class="img-fluid" alt="Nail Cutter">
+                            {% endif %}
+                                <div class="service-post">$ {% if service.price %}{{ service.price }}/Service{% else %}{% endif %}</div>
+                            </div>
+                            <h3>{% if service.category.title %}{{ service.category.title }}{% else %}{% endif %}</h3>
+                            <h3>Pet Type - {% if service.pet.name %}{{ service.pet.name|title }}{% else %}{% endif %}</h3>
+                        </div>
+                    </div>
+                    {% endfor %}
+                     {% for service in custom_service %}
+                    <div class="col service-col">
+                        <div class="service-inner text-center">
+                            <div class="service-img">
+                            {% if service.image %}
+                                <img src="{{service.image.url}}" class="img-fluid" alt="Nail Cutter">
+                            {% else%}
+                                <img src="{% static 'admin-assets/images/rvt/service-slider/1.png' %}" class="img-fluid" alt="Nail Cutter">
+                            {% endif %}
+                                <div class="service-post">$ {% if service.price %}{{ service.price }}/Service{% else %}{% endif %}</div>
+                            </div>
+                            <h3>{% if service.title %}{{ service.title }}{% else %}{% endif %}</h3>
+                            <small>{% if service.pet_type.name %}({{ service.pet_type.name|title }}){% else %}{% endif %}</small>
+
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <p align="center">No Service Found</p>
+                    {% endif %}
+                    </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade ThemeModal" id="ChooseDatesModal" tabindex="-1" role="dialog" aria-labelledby="ChooseDatesModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title text-center">Select the dates highlighted in yellow. <br>
+
+        </h5>
+
+        
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <small class="font-12 text-center">Please note that RVT is only available on the specific dates. However, you can try messaging for accomodation.</small>
+        <hr>
+
+        <div class="custom-datepicker">
+          <div id="datepicker"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<input type="hidden" id="local_time_zone">
+<script>
+    $( document ).ready(function() {
+    var x = document.getElementById('local_time_zone');
+    x.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+});
+</script>
+
+
+ <script type="text/javascript">
+    $(function () {
+        $("#datepicker").datepicker({ 
+            dateFormat: 'dd/mm/yy',
+            onSelect: function (dateString) {
+                DisplayDate(dateString);
+                YellowColor();
+
+            },
+            
+        });
+    });
+
+ function DisplayDate(date) {
+    var user_id =  $("#userID").val();
+    let selected_date = date.substring(0, 2);
+    var local_time=$('#local_time_zone').val()
+
+
+    $(".dated").each(function(){
+        var htmldates = $(this).attr('data-date');
+        let cl = $(this).attr('class');
+
+        if(htmldates.length ==1){
+            htmldates = "0"+ htmldates
+        }
+
+
+        if(selected_date == htmldates){
+            location.href = "{% url 'enduser:bookings' %}?user_id="+user_id+","+date+","+local_time             
+        } 
+    });
+    };
+
+ function YellowColor() {
+        let current = new Date;
+        let today_d = current.getDate().toString()
+
+        if(today_d.length < 2){
+            today_d = "0" + today_d
+        }
+
+        let current_month = (current.getMonth() + 1).toString()
+        if(current_month.length < 2){
+            current_month = "0" + current_month
+        }
+
+
+        let month = $('.ui-datepicker-month').html()
+        let months = ['0', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        month = (months.indexOf(month)).toString()
+        if (month.length == 1) {
+            month = "0" + month
+        }
+
+        let year = $('.ui-datepicker-year').html();
+        let selected_month_year = year + "-" + month + "-" + "01"
+
+        //next
+
+        let next_month = $('.ui-datepicker-month').html()
+        let next_months = ['0', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        next_month = (months.indexOf(next_month) + 1).toString()
+        if (next_month.length == 1) {
+            next_month = "0" + next_month
+        }
+
+        let same_year = $('.ui-datepicker-year').html();
+        let next_month_year = year + "-" + next_month + "-" + "01"
+        var user_id = $("#userID").val();
+
+        let url = "{% url 'enduser:rvt_availability_ajax' %}"
+        $.get(url, {
+            user_id: user_id,
+            selected: selected_month_year,
+            next: next_month_year
+        }).done(function(data) {
+
+            for (let i = 0; i < data.date.length; i++) {
+                let dates = data.date[i]
+                let only_date = dates.substring(8, 10);
+
+                //
+                 $(".ui-state-default").each(function(){
+                    var htmldates = $(this).attr('data-date');
+                    if(htmldates.length==1){
+                        htmldates = "0"+htmldates
+                    }
+                    if (htmldates == only_date) {
+
+                        if(current_month > month){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                        }else if( current_month == month ){
+                            if(only_date < today_d){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                            }else{
+
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+                            }
+
+
+
+                        }else{
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+
+                        }
+
+                        
+                    
+                    }
+                    
+                });
+            }
+
+        })
+    }
+
+    // for show service date 
+
+    
+</script>
+
+<script>
+    $(document).ready(function() {
+
+        let current = new Date;
+        let today_d = current.getDate().toString()
+        if(today_d.length < 2){
+            today_d = "0" + today_d
+        }
+
+        let month = $('.ui-datepicker-month').html()
+        let months = ['0', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        month = (months.indexOf(month)).toString()
+        if (month.length == 1) {
+            month = "0" + month
+        }
+
+        let year = $('.ui-datepicker-year').html();
+        let selected_month_year = year + "-" + month + "-" + "01"
+
+        //next
+
+        let next_month = $('.ui-datepicker-month').html()
+        let next_months = ['0', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
+        next_month = (months.indexOf(next_month) + 1).toString()
+        if (next_month.length == 1) {
+            next_month = "0" + next_month
+        }
+
+        let same_year = $('.ui-datepicker-year').html();
+        let next_month_year = year + "-" + next_month + "-" + "01"
+        var user_id = $("#userID").val();
+
+        let url = "{% url 'enduser:rvt_availability_ajax' %}"
+
+
+        $.get(url, {
+            user_id: user_id,
+            selected: selected_month_year,
+            next: next_month_year
+        }).done(function(data) {
+
+            for (let i = 0; i < data.date.length; i++) {
+                let dates = data.date[i]
+                let only_date = dates.substring(8, 10);
+                //
+                $(".ui-state-default").each(function() {
+                    var htmldates = $(this).attr('data-date');
+                    if (htmldates.length == 1) {
+                        htmldates = "0" + htmldates
+                    }
+                    if (htmldates == only_date) {
+                        if(only_date < today_d){
+                            $(this).css({
+                            "background-color": "red"
+                        });
+                        $(this).css({
+                            "class": "red"
+                        });
+
+                        }else{
+
+                        $(this).css({
+                            "background-color": "yellow"
+                        });
+                        $(this).css({
+                            "class": "yellow"
+                        });
+                        $(this).attr("class", "dated")
+
+                        }
+                    
+                    }
+
+                });
+            }
+
+        })
+
+    });
+</script>
+
+<script>
+    // before click
+    $(document).on('click', '.ui-datepicker-prev', function () {
+        let current = new Date;
+        let today_d = current.getDate().toString()
+
+        let current_month = (current.getMonth() + 1).toString()
+        if(current_month.length < 2){
+            current_month = "0" + current_month
+        }
+
+
+        if(today_d.length < 2){
+            today_d = "0" + today_d
+        }
+        
+
+        var user_id =  $("#userID").val();
+
+        let month = $('.ui-datepicker-month').html()
+        let months = ['0','January','February','March','April','May','June','July','August','September','October','November','December']
+        
+        month = (months.indexOf(month)).toString()
+        if(month.length==1){
+            month = "0"+month
+        }
+
+        let year = $('.ui-datepicker-year').html();
+        let selected_month_year = year+"-"+month + "-"+ "01"
+
+        // next month important  
+
+        
+
+        let next_month = $('.ui-datepicker-month').html()
+        let next_months = ['0','January','February','March','April','May','June','July','August','September','October','November','December']
+        
+        next_month = (months.indexOf(next_month)+1).toString()
+        if(next_month.length==1){
+            next_month = "0"+next_month
+        }
+
+        let same_year = $('.ui-datepicker-year').html();
+        let next_month_year = year+"-"+next_month + "-"+ "01"
+
+        // function 
+
+        // compair currnt month and getted month 
+
+
+
+        let url = "{% url 'enduser:rvt_availability_ajax' %}"
+
+
+        $.get(url,{user_id:user_id,selected:selected_month_year,next:next_month_year}).done(function(data){
+        
+            for(let i=0; i<data.date.length; i++){
+                let dates = data.date[i]
+                let only_date = dates.substring(8, 10);
+                
+                //
+                $(".ui-state-default").each(function(e){
+                    var htmldates = $(this).attr('data-date');
+                    if(htmldates.length==1){
+                        htmldates = "0"+htmldates
+                    }
+                    if (htmldates == only_date) {
+
+                        if(current_month > month){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                        }else if( current_month == month ){
+                            if(only_date < today_d){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                            }else{
+
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+                            }
+
+
+
+                       $(this).css({
+                           "class": "red"
+                        });
+                        
+                        }else{
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+
+                        }
+
+                        
+                    
+                    }
+                    
+                });
+            }
+
+        })
+    })
+      
+
+    //next click
+    $(document).on('click', '.ui-datepicker-next', function () {
+        let current = new Date;
+        let today_d = current.getDate().toString()
+        let current_month_my = (current.getMonth() + 1).toString()
+
+        let current_month = (current.getMonth() + 1).toString()
+        if(current_month.length < 2){
+            current_month = "0" + current_month
+        }
+        if(today_d.length < 2){
+            today_d = "0" + today_d
+        }
+
+        var user_id =  $("#userID").val();
+
+        let month = $('.ui-datepicker-month').html()
+        let months = ['0','January','February','March','April','May','June','July','August','September','October','November','December']
+        
+        month = (months.indexOf(month)).toString()
+        if(month.length==1){
+            month = "0"+month
+        }
+
+        let year = $('.ui-datepicker-year').html();
+        let selected_month_year = year+"-"+month + "-"+ "01"
+
+        // next month 
+
+        let next_month = $('.ui-datepicker-month').html()
+        let next_months = ['0','January','February','March','April','May','June','July','August','September','October','November','December']
+        
+        next_month = (months.indexOf(next_month)+1).toString()
+        if(next_month.length==1){
+            next_month = "0"+next_month
+        }
+
+        let same_year = $('.ui-datepicker-year').html();
+        let next_month_year = year+"-"+next_month + "-"+ "01"
+
+        // function 
+
+        let url = "{% url 'enduser:rvt_availability_ajax' %}"
+
+        $.get(url,{user_id:user_id,selected:selected_month_year,next:next_month_year}).done(function(data){
+        
+            for(let i=0; i<data.date.length; i++){
+                let dates = data.date[i]
+                let only_date = dates.substring(8, 10);
+                //
+                $(".ui-state-default").each(function(){
+                    var htmldates = $(this).attr('data-date');
+                    if(htmldates.length==1){
+                        htmldates = "0"+htmldates
+                    }
+                    if (htmldates == only_date) {
+
+                        if(current_month > month){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                        }else if( current_month == month ){
+                            if(only_date < today_d){
+                            $(this).css({
+                            "background-color": "red"
+                            });
+                            $(this).css({
+                                "class": "red"
+                            });
+
+                            }else{
+
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+                            }
+
+
+
+                        }else{
+                            $(this).css({
+                                "background-color": "yellow"
+                            });
+                            $(this).css({
+                                "class": "yellow"
+                            });
+                            $(this).attr("class", "dated")
+
+                        }
+
+                        
+                    
+                    }
+                    
+                });
+            }
+
+        })
+
+    })
+</script>
+
+{% endblock %}
+{% include "user/includes/footer.html" %}

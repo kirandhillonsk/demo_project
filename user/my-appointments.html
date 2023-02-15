@@ -1,0 +1,529 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/fullcalendar/fullcalendar.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-appointments.css' %}" />
+<script src="{% static 'admin-assets/fullcalendar/moment.min.js' %}"></script>
+<script src="{% static 'admin-assets/fullcalendar/fullcalendar.min.js' %}"></script>
+<script src="{% static 'calender/main.js' %}"></script>
+<link href="{% static 'calender/main.css' %}" rel="stylesheet" />
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> 
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+<style>
+    .sync-btn{
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 25px;
+        margin-right: 12px;
+    }
+    @media (min-width: 1600px) {
+        .calendar-header{
+            display:flex;
+        }
+    }
+    @media (max-width: 1200px) {
+        .submit-appointment-btn{
+            margin-top: 10px !important;
+        }
+    }
+</style>
+<div class="my-appointment-page">
+    <div class="row sync-btn">
+        {% comment %} <a onclick="Loader()" href="{% url 'gcalender:sync_user_data' %}" class="btn btn-theme ml-2" name="reset" value="reset"><i class="fas fa-sync-alt"></i> Sync With Google Calendar</a> {% endcomment %}
+    </div>
+    <div class="appointment-calendar-table mb-30">
+        <div class="calendar-header flex-wrap align-items-center">
+            <div class="d-flex flex-wrap align-items-center calendar-arrows-wrap mr-0 mr-xl-40 mb-10 mb-xl-0">
+                <div class="tabs-header mb-10 mb-xl-0">
+                    <ul class="nav nav-tabs" id="calendarTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="calendar-tab"
+                                data-toggle="tab" href="#calendarr" role="tab" aria-controls="calendarr"
+                                aria-selected="false"><i class="far fa-calendar-alt"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="list-tab"
+                                data-toggle="tab" href="#list" role="tab" aria-controls="list" aria-selected="true"><i
+                                    class="fas fa-list"></i></a>
+                         </li>
+                    </ul>
+                </div>
+
+                <div class="d-flex align-items-center mb-10 mb-xl-0">
+                    <div class="arrows-wrap" >
+                        <a onclick="check_button1()" ><i class="fal fa-angle-left"></i></a>
+                        <a onclick="check_button2()"><i class="fal fa-angle-right"></i></a>
+                    </div>
+
+                    <h5 class="mb-0 calender-date" id="myMonth"></h5>
+                </div>
+
+                   <div class="d-flex align-items-center mb-10 mb-xl-0">
+                  
+                    <h5 class="mb-0" id="myMonth"></h5> 
+                </div>
+            </div>
+            <div class="header-right media-body">
+                <form onsubmit="Loader(this.id)" action="{% url 'enduser:user_appointments' %}" method="GET" class="table-serach mr-auto pr-3 mb-20">
+                    <div class="form-fields">
+                        <div class="form-fields row form-row mt-2 pt-2">
+
+                            <div class="col-xl rvt-name col-lg-3 col-sm-6 mb-10 mb-lg-0">
+                                <input type="text" class="search-input form-control" name="name"  {% if name %}
+                                value="{{name}}"{% endif %}
+                                    placeholder="Name">
+                            </div>
+                           
+                            <div class="col-xl rvt-services col-lg-3 col-sm-6 mb-10 mb-lg-0">
+                                <select class="form-control" name="service" onchange="this.form.submit()">
+                                    <option value="">Select Services</option>
+                                     {% if service_category %}
+                                    {% for category in service_category %} 
+                                        <option {% if service == category.id %}selected {% endif %}  value="{{category.id}}">{{category.title}}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                        <td align="center" colspan="7">No Appointment Found</td>
+                                    {% endif %} 
+                                    {% if cus_service_title %}
+                                    {% for custom in cus_service_title %}
+                                    {{custom}}
+                                        <option {% if service == custom.service_id %}selected {% endif %}  value="{{custom.service_id}}">{{custom.title}}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                        <td align="center" colspan="7">No Appointment Found</td>
+                                    {% endif %}
+                                </select>
+                            </div>
+
+                            <div class="col-xl rvt-services col-lg-3 col-sm-6 mb-10 mb-lg-0">
+                                <select  class="form-control" name="month" onchange="this.form.submit()">
+                                        <option value="">All Months</option>
+                                        <option {% if month == '1' %}selected {% endif %} value="1" >January</option>
+                                        <option  {% if month == '2' %}selected {% endif %} value="2">February</option>
+                                        <option  {% if month == '3' %}selected {% endif %}value="3">March</option>
+                                        <option  {% if month == '4' %}selected {% endif %}value="4">April</option>
+                                        <option  {% if month == '5' %}selected {% endif %}value="5">May</option>
+                                        <option  {% if month == '6' %}selected {% endif %}value="6">June</option>
+                                        <option  {% if month == '7' %}selected {% endif %}value="7">July</option>
+                                        <option  {% if month == '8' %}selected {% endif %}value="8">August</option>
+                                        <option  {% if month == '9' %}selected {% endif %}value="9">September</option>
+                                        <option  {% if month == '10' %}selected {% endif %}value="10">October</option>
+                                        <option  {% if month == '11' %}selected {% endif %}value="11">November</option>
+                                        <option  {% if month == '12' %}selected {% endif %}value="12">December</option>
+                                </select>
+                            </div>
+                            <div class="col-xl rvt-services col-lg-3 col-sm-6 mb-10 mb-lg-0">
+                               <select class="form-control"  name="status" onchange="this.form.submit()">
+                                    <option value="">All Status</option>
+                                    <option {% if status == '2' %}selected {% endif %}  value="2">Complete</option>
+                                    <option {% if status == '3' %}selected {% endif %}  value="3">Cancelled</option>
+                                    <option {% if status == '1' %}selected {% endif %}  value="1">Confirmed</option>
+                                </select>
+                            </div>
+                            <div class="col-xl rvt-services col-lg-3 col-sm-6 mb-10 mb-lg-0 d-flex submit-appointment-btn">
+                                <input class="btn btn-theme" type="submit" value="Go">
+                                <button class="btn btn-theme ml-2" name="reset" value="reset">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </form>
+            </div>
+            </div>
+        </div>
+
+        <div class="box-wrapper">
+            <div class="tab-content" id="calendarTabsContent">
+                <div class="tab-pane fade show active" id="calendarr" role="tabpanel" aria-labelledby="calendar-tab">
+                    <div class="calendar-wrapper appointment-wrapper">
+                        <button class="btn btn-theme pt-2 pb-2" style="min-width: 100px;" id="back_btn" onclick="location.reload()">Go Back</button>
+                        <div id='calendar'></div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="list" role="tabpanel" aria-labelledby="list-tab">
+                    <div class="theme-table">
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="author">RVT</th>
+                                        <th scope="col">Service</th>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Time</th>
+                                        {% comment %} <th scope="col">Location</th> {% endcomment %}
+                                        <th scope="col">Amount</th>
+                                         <th scope="col">Status</th>
+                                        <th scope="col">Action</th> 
+
+                                    </tr>
+                                </thead>
+                                
+                                <tbody id="tbody">
+                                {% if custom_service %}
+                                {% for cust in custom_service %}
+                                    <input type="hidden" value="{{cust.service_id}}" id="cust_id">
+                                    
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                             <img src="/static/admin-assets/images/default.png" width="42px"
+                                                    height="42px" class="rounded-circle object-cover border" alt="">
+                                                <div class="media-body pl-10 text-wrap">
+                                                    <p class="text-purple font-lg-14 font_500">
+                                                    Un-assigned
+                                                    </p>
+                                                </div>
+                                        </td>
+                                        <td class="text-purple font-lg-14 font_500">{{ cust.title }}({{cust.pet_type.name}})</td>
+                                        <td class="text-purple font-lg-14 font_500">{{ cust.date }}</td>
+                                        <td class="text-purple font-lg-14 font_500">--</td>                                        
+                                        <td class="text-purple font-lg-14 font_500">--</td>
+
+                                        <td class="text-purple font-lg-14 font_500">
+                                        <p class="badge badge-danger custom-btn">Requested</p>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="far fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                                    <a class="btn btn-theme w-100 mt-10" href="{% url 'enduser:applicants_details' %}?id={{cust.service_id}}">View Requests</a>
+                                                </div>
+                                            </div>
+                                        </td> 
+                                    </tr>
+                                    {% endfor %}
+                              {% endif %}
+                                {% if appointments %}
+                                    {% for appointment in appointments %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                            {% if appointment.created_for.profile_pic %}
+                                              <a href="{% url 'enduser:user_rvt_profile' appointment.created_for.id %}"> <img src="{{appointment.created_for.profile_pic.url }}" width="42px"
+                                                    height="42px" class="rounded-circle object-cover border" alt=""></a>
+                                            {% else %}
+                                                 <a href="{% url 'enduser:user_rvt_profile' appointment.created_for.id %}"><img src="/static/admin-assets/images/default.png" width="42px"
+                                                    height="42px" class="rounded-circle object-cover border" alt=""></a>
+                                            {% endif %}
+                                                <div class="media-body text-wrap pl-2">
+                                                    <p class="text-purple font-lg-14 font_500">
+                                                         {% if appointment.created_for.first_name %} {{appointment.created_for.first_name }}{% else %} {% endif %}</p>
+                                                </div>
+                                        </td>
+                                     <td class="text-purple font-lg-14 font_500">
+                                         <span class="d-block">
+                                     
+                                            {% for service in appointment.service.all %}
+                                                {{service.category.title}}({{service.pet.name}})<span class="d-block"></span>
+                                               
+                                            {% endfor %}
+                                            <span class="d-block"></span>
+
+                                            {% for cus_service in appointment.custom.all %}
+                                                    {{cus_service.title }}({{cus_service.pet_type.name}})<span class="d-block"></span>
+                                               
+                                            {% endfor %}
+                                            </span>
+                                        </td>
+                                        <td class="text-purple font-lg-14 font_500">
+                                             {% if appointment.date %}  {{ appointment.date }}{% else %}{% endif %}
+                                        </td>
+
+                                        <td class="text-purple font-lg-14 font_500">
+                                            {% if appointment.start_time or appointment.end_time %}
+                                                {{ appointment.start_time|date:"g:i a"}} - {{ appointment.end_time|date:"g:i a"}}  {% if appointment.timezone %}  ({{appointment.timezone}}) {% endif %}
+                                            {% else %}
+                                            {% endif %}
+                                        </td>
+                                        {% comment %} <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.address %}
+                                            {{ appointment.address }}
+                                        {% else %}
+                                            {% if appointment.created_for.address %}
+                                            {{ appointment.created_for.address |truncatechars:50}}
+                                             {% else %}
+                                            <p><b>  </b></p>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        </td> {% endcomment %}
+                                        <td class="text-purple font-lg-14 font_500">
+                                            {% if appointment.amount %}${{ appointment.amount }} {% else %}{% endif %}
+                                        </td>
+                                        <td class="text-purple font-lg-14 font_500">
+                                            {% if appointment.status == '1' %}
+                                                    <p class="badge badge-warning custom-btn w-100">Confirmed</p>
+                                            {% elif appointment.status == '2' %}
+                                                    <p class="badge badge-success custom-btn w-100" >Completed</p>
+                                            {% elif appointment.status == '3' %}
+                                                    <p class="badge badge-danger custom-btn w-100">Cancelled</p>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="far fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                                    <a class="btn btn-theme w-100 mt-10" href="{% url 'enduser:appointment_details' %}?id={{appointment.id}}">View Appointment</a>
+                                                </div>
+                                                
+                                            </div>
+                                        </td> 
+                                    </tr>
+                                    {% endfor %}
+                
+                                {% endif %}
+                                </tbody>
+                            </table>
+
+                            {% if appointments.has_other_pages %}
+                            <nav aria-label="Page navigation">
+                                <ul class="pagination">
+                                    {% if appointments.has_previous %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ appointments.previous_page_number }}">&laquo;</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&laquo;</span>
+                                    </li>
+                                    {% endif %}
+                                    {% for i in appointments.paginator.page_range %}
+                                    {% if appointments.number == i %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                                    </li>
+                                    {% endif %}
+                                    {% endfor %}
+                                    {% if appointments.has_next %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ appointments.next_page_number }}">&raquo;</a>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">&raquo;</span>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </nav>
+                            {% endif %}
+                            
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Button trigger modal -->
+<!-- Modal -->
+ <div class="modal fade addformModal modal-back" id="exampleModals" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+        aria-labelledby="addScheduleTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+            <div class="modal-content ear-learn">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                    <input type="hidden" id="sid" name="cust_id" >
+                <div class="modal-body-two">
+                    <h4 class="modal-header-text-two text-left" id="service_title" style="margin-right: 25px;"></h4>
+                    <p><span id="date"></span></p>
+                            
+                          <ul>
+                          <li><i class="fas fa-user"></i>&nbsp;
+                            <span id="name"></span>
+                          </li>
+                           <li><i class="fas fa-clock"></i>&nbsp;
+                            <span id="start"></span>-<span id="end"></span>
+                          </li>
+                           {% comment %} <li> <i class="fas fa-map-marker-alt"></i>&nbsp;
+                                <span id="address"></span>
+                          </li>  {% endcomment %}
+                          <li><i class="fas fa-phone-alt"></i>&nbsp;
+                            <span id="phone"></span>
+                          </li>
+                          </ul>
+                        <div id ="slot"  class="row form-row align-items-center">    
+                        </div>
+                        <br>
+                </div>
+                <div class="button-wrap ">
+                    <a id="app_id" class="btn btn-theme m-0 "  role="button"> View More <i class="fal fa-long-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script type="text/javascript">
+      $("#add_schedule").validate({
+          rules: {
+              start_time: {
+                  required: true,
+              },
+              input_date: {
+                  required: true,
+              },
+              end_time: {
+                  required: true,
+              },
+          },
+          messages: {
+              start_time: {
+                  required: "Please enter start time",
+              },
+              end_time: {
+                  required: "Please enter end time",
+              },
+                input_date: {
+                  required: "Please enter date",
+              },
+          }
+      });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        var calendarEl = document.getElementById('calendar');
+        var today = new Date();
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title',
+            right: ''
+        },
+        initialDate: today,
+        navLinks: true, // can click day/week names to navigate views
+        selectable: true,
+        selectMirror: true,
+        select: function(arg) {
+            var modal = document.getElementById('eventModal')
+           // modal.style.display = 'block'
+            calendar.unselect()
+        },
+        eventClick: function(arg) {
+            var eventObj = arg.event;
+            var app_id = eventObj.id
+            if (app_id) {
+                jQuery.noConflict();
+                modelcontents(app_id);
+                $('#exampleModals').modal('show');
+
+            }
+        },
+        dayMaxEvents: true,
+            events: [
+                {% for service_list,date,app_id in calender_data %}
+                  {                 
+      
+                        title: '{{service_list}}', 
+                        start: '{{date |safe }}',
+                        id: '{{app_id}}'            
+                  }, 
+                  {% endfor %} 
+                     
+                ]        
+        });
+        calendar.render();
+    });
+    const closeBtn1 = document.getElementById('modalClose1');
+    const closeBtn2 = document.getElementById('modalClose2');
+
+</script>
+
+
+
+
+
+<script>
+    function check_button1(){
+        var element = document.querySelector('[aria-label="prev"]');
+        element.click()
+    } 
+    function check_button2(){
+        var element = document.querySelector('[aria-label="next"]');
+        element.click()
+    } 
+
+$( document ).ready(function() {
+    $('.fc-button-group').addClass('fc-button-group d-none')
+});
+</script>
+
+<script>
+$( document ).ready(function() {
+    var cus_id=$('#cust_id').val()
+    let url = "{% url 'enduser:hide_custom_row' %}"
+        $.get(url,{cus_id:cus_id}).done(function(data){
+           
+            let dt = data.appointmnet
+                if(dt == 'true'){
+                    $('#table_row').css('display','none');
+                }
+                else
+                {
+                     $('#table_row').css('display','block');
+                }
+        })
+});
+</script>
+
+
+ <script>
+    function modelcontents(id) {
+        app_id = id;
+        $.ajax({
+            url: "{% url 'enduser:appointment_modal' %}",
+            type: 'GET',
+            data: { 'app_id': app_id },
+            success: function (data) {
+                $('#app_detail').html('')
+                var service = data["services"]
+                var name = data["name"]
+                var start = data["start_time"]
+                var end = data["end_time"]
+                var address = data["location"]
+                var phone = data["phone"]
+                var date = data["date"]
+                var app_id = data["app_id"]
+                start_time = start
+                var start = moment(start_time, 'HH:mm').format("HH:mm");
+                const local_start_time = moment(start, 'hh:mm A').local().format("hh:mm a");
+                end_time = end
+                var end = moment(end_time, 'HH:mm').format("HH:mm");
+                const local_end_time = moment(end, 'hh:mm A').local().format("hh:mm a");
+
+                $('#service_title').html(service)
+                $('#name').html(name)
+                $('#start').html(local_start_time)
+                $('#end').html(local_end_time)
+                $('#address').html(address)
+                $('#phone').html(phone)
+                var app_id = "{% url 'enduser:appointment_details'%}?id="+app_id
+                $('#app_id').attr("href",app_id)
+            choosen_date_by_user =date
+            const weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const d = new Date(choosen_date_by_user);
+            let day = weekday[d.getDay()];
+            let months = monthNames[d.getMonth()]
+            var modaldate = day + " " + months + " " + d.getDate() + ", " + d.getFullYear()
+            $('#date').html(modaldate);
+            }
+        })
+    }
+</script>   

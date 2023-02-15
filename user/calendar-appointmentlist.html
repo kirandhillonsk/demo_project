@@ -1,0 +1,208 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/fullcalendar/fullcalendar.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-appointments.css' %}" />
+<script src="{% static 'admin-assets/fullcalendar/moment.min.js' %}"></script>
+<script src="{% static 'admin-assets/fullcalendar/fullcalendar.min.js' %}"></script>
+<script src="{% static 'calender/main.js' %}"></script>
+<link href="{% static 'calender/main.css' %}" rel="stylesheet" />
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+<script>
+    function ConvertstartTime(starttime) {
+        start = starttime
+        var start = moment(start, 'HH:mm').format("HH:mm");
+        const start_time = moment.utc(start, 'hh:mm A').local().format("HH:mm a");
+        return start_time;
+    }
+</script>
+<script>
+    function ConvertendTime(endtime) {
+        end = endtime
+        var end = moment(end, 'HH:mm').format("HH:mm");
+        const end_time = moment.utc(end, 'hh:mm A').local().format("HH:mm a");
+        return end_time;
+    }
+</script>
+<style>
+    #timeslot_err {
+        color: red !important
+    }
+
+    #removeRow {
+        padding: 10px 2px 10px 2px;
+        margin: 10px;
+        margin-top: -6px;
+    }
+</style>
+<div class="my-appointment-page ">
+
+
+    <div class="appointment-calendar-table ">
+        <div class="theme-table">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col" class="author">USER</th>
+                            <th scope="col">Service</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Location</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Action</th> 
+                        </tr>
+                    </thead>
+                    <tbody id="tbody">
+                        {% if appointments %}
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                {% if appointment.created_for.profile_pic %}
+                                <a class="d-flex align-items-center" href="{% url 'enduser:user_rvt_profile' appointment.created_for.id %}"> 
+                                    <img src="{{appointment.created_for.profile_pic.url}}" width="42px"  height="42px" class="rounded-circle object-cover border" alt="">
+                                {% else%}</a>
+                                <a class="d-flex align-items-center" href="{% url 'enduser:user_rvt_profile' appointment.created_for.id %}"> 
+                                    <img src="{% static 'admin-assets/images/default.png' %}" width="42px"  height="42px" class="rounded-circle object-cover border" alt="">
+                                </a>
+                                {% endif %}
+                                    <div class="media-body pl-10 text-wrap">
+                                        <p class="text-purple font-lg-14 font_500">
+                                            {% if appointment.created_for.first_name %} {{appointment.created_for.first_name }}  {% else %}{% endif %}</p>
+                                    </div>
+                            </td>
+                            <td class="text-purple font-lg-14 font_500">
+                        
+                                {% for service in appointment.service.all %}
+                                    {{service.category.title }} <span class="d-block"></span>
+                                    
+                                {% endfor %}
+                                
+                            <span class="d-block"></span>
+
+                            {% for cus_service in appointment.custom.all %}
+                                {{cus_service.title }} <span class="d-block"></span>
+                            
+                        {% endfor %}
+
+                        </td>
+                            <td class="text-purple font-lg-14 font_500">
+                                {{ appointment.date }}
+                            </td>
+
+                                <td class="text-purple font-lg-14 font_500">
+                            {% if appointment.start_time or appointment.end_time %}
+                            {{ appointment.start_time|date:"g:i a" }} - {{ appointment.end_time|date:"g:i a" }}
+                            {% else %}
+                            {% endif %}
+                            </td>
+
+                            <td class="text-purple font-lg-14 font_500">
+                                {% if appointment.address %}
+                            {{ appointment.address }}
+                            {% else %}
+                                {% if appointment.created_for.address %}
+                                {{ appointment.created_for.address |truncatechars:50 }}
+                                {% else %}
+                                <p><b> - </b></p>
+                                {% endif %}
+                                {% endif %}
+                            </td>
+                            <td class="text-purple font-lg-14 font_500">
+                                {% if appointment.address %}
+                                
+                                {% else %}
+                                    ${{ appointment.amount }}
+                                {% endif %}
+                            </td>
+                            <td class="text-purple font-lg-14 font_500">
+                                {% if appointment.status == '1' %}
+                                        <p class="badge badge-warning custom-btn w-100">Confirmed</p>
+                                {% elif appointment.status == '2' %}
+                                        <p class="badge badge-success custom-btn w-100" >Completed</p>
+                                {% elif appointment.status == '3' %}
+                                        <p class="badge badge-danger custom-btn w-100">Cancelled</p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="addclass"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class="far fa-ellipsis-v"></i>
+                                    </button>
+                                        
+                                    <div id="showclass" class="dropdown-menu dropdown-menu-right" >
+                                        <a class="btn btn-theme w-100 mt-10" href="{% url 'rvt_lvt:rvt_appointment_details' %}?id={{appointment.id}}">Appointment</a>
+                                    </div>
+                                    
+                                </div>
+                            </td> 
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <td align="center" colspan="8">No Appointment Found</td>
+                        {% endif %}
+                    </tbody>
+                </table>
+
+                {% if appointments.has_other_pages %}
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if appointments.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ appointments.previous_page_number }}">&laquo;</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo;</span>
+                        </li>
+                        {% endif %}
+                        {% for i in appointments.paginator.page_range %}
+                        {% if appointments.number == i %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                        {% if appointments.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ appointments.next_page_number }}">&raquo;</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&raquo;</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
+                
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade addformModal" id="addSchedule" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="addScheduleTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" id = "empty" onclick="return location.reload();" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+
+{% include "rvt/includes/footer.html" %}
+{% endblock %}

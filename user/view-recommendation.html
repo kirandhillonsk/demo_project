@@ -1,0 +1,25 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+
+<div class="title">
+    {% if recommendation %}
+        <div class="title-main">
+        <br>
+            <label for="title"><h4>{{recommendation.title}}  </span>&nbsp;<span style="font-size: 14px;"class="badge badge-success">User</span></h4></label>
+        </div>
+       
+        <br>
+
+        <div class="title-main">
+            <label for="title"><h4>Description</h4></label>
+            <p>{{recommendation.description}}</p>
+        </div> 
+      </div>
+
+        {% endif %}
+        </div>
+</div>
+
+
+{% endblock %}
+{% include "user/includes/footer.html" %}

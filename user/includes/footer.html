@@ -1,0 +1,55 @@
+{% load static %}
+</div>
+</div>
+<!-- <div class="overlay"></div> -->
+</main>
+
+<!-- common -->
+<script src="{% static 'admin-assets/js/common.js' %}"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+</body>
+
+</html>
+<script>
+    function Loader(formID) {
+        if ($('#'+formID).length){
+            if ($('#'+formID).valid()){
+                $('body').append('<div id="loading" style="z-index:99999999999"><i class="fas fa-spinner"></i></div>');
+                $('body').css('pointer-events','none');
+                $('.btn').css('pointer-events','none');
+            }
+        }else{
+            $('body').append('<div id="loading" style="z-index:99999999999"><i class="fas fa-spinner"></i></div>');
+            $('body').css('pointer-events','none');
+            $('.btn').css('pointer-events','none');
+        }
+    }
+</script>
+<script>
+    function CustomAlert(){
+        this.alert = function(message,title){
+            document.body.innerHTML = document.body.innerHTML + `<div id="dialogoverlay"></div><div id="dialogbox" class="slit-in-vertical"><div><div id="dialogboxhead"></div><div id="dialogboxbody"></div><div id="dialogboxfoot"></div></div></div>`;
+            let dialogoverlay = document.getElementById('dialogoverlay');
+            let dialogbox = document.getElementById('dialogbox');
+            let winH = window.innerHeight;
+            dialogoverlay.style.height = winH+"px";
+            dialogbox.style.top = "100px";
+            dialogoverlay.style.display = "block";
+            dialogbox.style.display = "block";
+            document.getElementById('dialogboxhead').style.display = 'block';
+            if(typeof title === 'undefined') {
+                document.getElementById('dialogboxhead').style.display = 'none';
+            } else {
+                document.getElementById('dialogboxhead').innerHTML = '<i class="fa fa-exclamation-circle" aria-hidden="true"></i> '+ title;
+            }
+            document.getElementById('dialogboxbody').innerHTML = message;
+            document.getElementById('dialogboxfoot').innerHTML = '<button class="btn btn-theme" onclick="customAlert.ok()">OK</button>';
+        }
+        this.ok = function(){
+            document.getElementById('dialogbox').style.display = "none";
+            document.getElementById('dialogoverlay').style.display = "none";
+        }
+    }
+    let customAlert = new CustomAlert();
+</script>

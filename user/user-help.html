@@ -1,0 +1,175 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/rvt-help.css' %}" />
+
+<div class="help-wrapper">
+    
+    <div class="help-topics">
+        <div class="help-header mb-lg-30 mb-20">
+            <h2>Browse help topics</h2>
+        </div>
+        <div class="help-topicspwrap">
+            <div class="row">
+                <div class="col-lg-4 d-none d-lg-inline-block">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        {% if help_type  %}
+                        {% for topic in help_type %}
+                        <a class="nav-link active " onclick="GetTopicId('{{topic.id}}')"  id="v-pills-1-tab" data-toggle="pill" href="#v-pills-1" role="tab"
+                            aria-controls="v-pills-1" aria-selected="true">{{topic.title}}</a>
+                        {% endfor %}
+                        {% else %}
+                            <p align="center">No topics found</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-lg-8">
+                    <div id="helpAccordion">
+                        <div class="tab-content" id="v-pills-tabContent">
+                           
+                        <div class="tab-pane fade show active" id="v-pills-1" role="tabpanel"
+                                aria-labelledby="v-pills-1-tab">
+                                <div class="collapse-wrapper question-type">
+                                
+                                    <button class="heading" data-toggle="collapse" data-target="#collapse1" aria-expanded="true">
+                                        <span id="recommended_title"><span><br><br><br>
+                                        <p>Browse help topics to view recommendation</p>
+                                    </button>
+                                    <div id="collapse1" class="collapse collapse-box show" data-parent="#helpAccordion">
+                                            <div id ="help_topic"> </div>
+                                    </div>
+                                </div>
+                            </div>
+                     
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="container mt-5">
+
+    <button class="message-link-wrapper mx-auto d-flex align-items-center">
+        <span class="leave-a-message-bar">Leave a Message</span>
+        <span class="ml-auto"><img src="{% static 'admin-assets/images/help/chat-icon.svg' %}" alt=""></span>
+    </button>
+    <div class="message-box-wrapper">
+        <div class="message-box-content">
+            <form onsubmit="Loader(this.id)" id='msgvalidate' action = "{% url 'enduser:help_message' %}" method="POST">
+                <textarea placeholder="Message" name="complain" id="complain" maxlength='200' cols="30" rows="10"></textarea>
+                <span class="d-block"></span>
+                <button type="submit" id="btn" class="send-msg-button">Send</button>
+                <button class="close-msg-box">
+                    <i class="fal fa-times"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+    </div>
+    <div class="overlay-big"></div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $(".message-link-wrapper").click(function () {
+            $(".overlay-big").toggleClass("d-block");
+            $(".message-box-wrapper").toggleClass("bottom-0");
+        });
+        $(".overlay-big").click(function () {
+            $(this).toggleClass("d-block");
+            $(".message-box-wrapper").toggleClass("bottom-0");
+        });
+        $(".close-msg-box").click(function () {
+            $(".overlay-big").toggleClass("d-block");
+            $(".message-box-wrapper").toggleClass("bottom-0");
+        });
+    });
+</script>
+
+
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script>
+function GetTopicId(id){
+$.ajax({
+        url: "{% url 'enduser:recommended_user_content' %}",
+        type: 'GET',
+        data: {
+            'topic_id': id,
+        },
+        success: function(data) {
+            $('#recommended_title').html('') 
+            $('#help_topic').html('')
+        
+        if(data["help_topic"].length < 1){
+            $('#help_topic').append('No Recommendation Found !')
+        }
+        else{
+        for (var i = 0; i < data.help_topic.length; i++) {
+            
+            var help_topic = data['help_topic'][i]
+            var recommended_title= data['title'][i]
+            
+          
+            var ids = data["id"][i]
+            let url = `<li><a href="{% url 'enduser:view_user_recommendation' %}?id=`+ids+`">`+help_topic+` </a></li>`
+            $('#help_topic').append(url)
+            $('#recommended_title').append(recommended_title)  
+        }
+
+        }
+            
+        }
+    })
+}
+</script>
+
+<script>
+    $(document).ready(function () {
+        $(".accordian-wrapper").click(function () {
+            // remove this line to keep what is opened
+            $(".accordian-wrapper")
+                .not(this.closest(".accordian-wrapper"))
+                .removeClass("expand-para");
+            $(this)
+                .closest(".accordian-wrapper")
+                .toggleClass("expand-para");
+        });
+    });
+</script>
+
+
+<script>
+    function faqid(id){
+        $.ajax({
+            url:"{% url 'enduser:faq_count'%}",
+            type:"GET",
+            data:{'faq_id':id},
+            success:function(data){
+            }
+        })
+    }
+</script>
+
+<script>
+    $("#msgvalidate").validate({
+        rules:{
+            complain:{
+                required:true,
+                maxlength:200,
+            },
+        },
+        messages:{
+            complain:{
+                required:"Plaese enter a message",
+                maxlength:'Please enter message less than 200 words',
+            },
+        },
+    })
+</script>

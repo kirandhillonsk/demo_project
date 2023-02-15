@@ -1,0 +1,99 @@
+
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/notifications-list.css' %}" />
+<form onsubmit="Loader(this.id)" action="{% url 'enduser:search_notification_user' %}" method = 'POST'>
+    <div class="search-wrap top-search mb-10 mb-md-10">
+        <div class="d-md-flex align-items-center">
+            <div class="media-body pr-md-8">
+                <div class="searchpicker form-group">
+                    <input type="text" name= 'search' placeholder="Type your keyword here..." class="form-control">
+                </div>
+            </div>
+            <div class="select-wrap">
+                <div class="form-group">
+                    <button type="submit" name="reset" value="reset" class="btn btn-success p-2">Reset Filter</button>
+                    <a href="{% url 'notification:mark_all_read' %}" class="btn btn-success p-2 ml-1">
+                        <i class="far fa-check-double mr-1"></i>Mark All Read
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<div class="notifications-list-wrapper">
+    {% if notifications %}
+    {% for noc in notifications %}
+    <a href="{% url 'notification:read_notification' noc.id %}">
+        <div class="notifications-list d-md-flex align-items-center">
+            {% if noc.created_by.profile_pic %}
+            <div class="icon-wrap">
+                <img src="{{noc.created_by.profile_pic.url}}" class="rounded-circle object-cover border">
+                {% else %}
+                <div class="icon-wrap">
+                <img src="/static/admin-assets/images/default.png" class="rounded-circle object-cover border">
+                {% endif %}
+            </div>
+            <div class="media-body pl-0 pl-md-20 pt-10 pt-md-0 mb-10 mb-md-0">
+                <h4 class="text-primary font-15 font_400">{{noc.title}}</h4>
+                <p class="ml-0 pl-0">{{noc.description}}</p>
+            </div>
+            <div class="date text-right align-self-start" style="display: flex;flex-direction: column;">
+                <script>
+                    var date = ConvertGTime("{{ noc.created_on|date:'Y-m-d' }}", "{{noc.created_on|time:'H:i'}}");
+                    document.write(date);
+                </script>
+                {% if noc.is_read %}
+                <i style="font-size:20px; margin-top:10px; color: green;" class="far fa-check-double"></i>
+                {% else %}
+                <i style="font-size:16px; margin-top:10px;color:var(--primary-color);" class="far fa-check"></i>
+                {% endif %}
+            </div>
+        </div>
+    </a>
+    {% endfor %}
+    {% endif %}
+    {% if notifications.has_other_pages %}
+    <nav aria-label="Page navigation">
+        <ul class="pagination">
+            {% if notifications.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ notifications.previous_page_number }}">&laquo;</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+            {% for i in notifications.paginator.page_range %}
+            {% if notifications.number == i %}
+            <li class="page-item active">
+                <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+            </li>
+            {% else %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+            {% if notifications.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ notifications.next_page_number }}">&raquo;</a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+{% endblock %}
+{% include "user/includes/footer.html" %}

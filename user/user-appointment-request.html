@@ -1,0 +1,373 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-appointments.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/appointment-custom-requests.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<style>
+.modal-backdrop {
+  position: fixed;
+  top: ;
+  left: ;
+  z-index: 1040;
+  width: unset;
+  height: 100vh;
+  background-color: unset;
+}
+.applicant {
+  padding: 26px;
+  text-align: center;
+}
+.applicants .card .applicant-list .applicant-innner .img-wrap img {
+    width: 80px;
+    height: 70px;
+    border-radius: 50%;
+    box-shadow:None;
+}
+</style>
+<div class="appointment-details-wrap">
+     <div class="confirmation-box d-flex flex-wrap align-items-right">
+         
+{% if  applied_by %}
+{% else %}
+<h5></h5>
+{% endif %}
+<div class="action-btns">   
+        </div>
+    </div>
+
+{% if applied_rvt %}
+{% for rvt in applied_rvt %}
+    <div class="profile-content">
+        <div class="row mb-15 mb-md-20">
+            <div class="col-lg-5">
+                <div class="d-md-flex profile-media">
+                    <div class="img-wrap">
+                    {% if rvt.assigend_to.profile_pic %}
+                    <img src="{{rvt.assigend_to.profile_pic.url}}">
+                    {% else%}
+                        <img src="{% static 'admin-assets/images/rvt/user-1.png' %}">
+                    {% endif %}
+                        <span class="status"></span>
+                    </div>
+                    <div class="text-wrap media-body">
+                        <h4>{% if rvt.assigend_to.first_name %}{{rvt.assigend_to.first_name}} {% endif %} <small><i class="fas fa-star"></i> 0</small></h4>
+                        <ul class="mata-list">
+                            <li><i class="far fa-calendar-week"></i> {% if rvt.created_on %} {{rvt.created_on}}{% endif %}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-7">
+                <ul class="mata-list list-right">
+                    <li><i class="fas fa-map-marker-alt"></i>{% if rvt.assigend_to.address %}  {{rvt.assigend_to.address}}{% endif %}</li>
+                    <li><i class="fas fa-phone-alt"></i> <a href="tel:+1 (123) 456-7890"> {% if rvt.assigend_to.mobile_no %}{{rvt.assigend_to.mobile_no}}{% endif %}</a></li>
+                    <li><i class="far fa-calendar-plus"></i> <span>Date Added:</span> 11/09/2021</li>
+                    <li>
+                        <i class="far fa-clock"></i>
+                        <a href="mailto:robertwilliamson@gmail.com">{% if rvt.assigend_to.email %}{{rvt.assigend_to.email}}{% endif %}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="button-wrap text-right">
+            
+        </div>
+        
+    </div>
+    {% endfor %}
+
+{% endif %}
+
+    <div class="service-wrapper" style="display: flex;justify-content: space-between;">
+        <div>
+        {% if description %}
+            {% for srv in description%}
+            <h4 class="ml-2 mb-2 service">{{srv.title}}<h4>
+            <p class="ml-3">{{srv.description}}</p>
+            {% endfor %}
+        {% endif %}
+            </div>
+        <a data-toggle="modal" data-target="#cancelModal" class="btn-cancel btn mt-10"><i class="far fa-times-circle"></i> Cancel</a>
+    </div>
+        </div>
+        <div class="applicants mt-3">
+        {% if not  applied_rvt %}
+            <div class="card">
+                {% if not applied_by %}
+                 <div class="d-md-flex align-items-center">
+                    <div class=" applicant media-body inner mb-15 mb-md-0">
+                    No Applicants Found                                
+                    </div>
+                {% else %}
+                <div class="card-header">Applicants</div>
+
+                
+                <div class="card-body">
+                    <div class="applicant-list">
+                    {% if applied_by %}
+                      {% for applicant in applied_by%}
+                        <div class="applicant-innner media align-items-md-center">
+                            <div class="img-wrap">
+                            <input type="hidden" id ="custom_date" value="{{applicant.custom_id.date | safe}}">
+                            <input type="hidden" id ="custom_id" value="{{applicant.custom_id.service_id}}">
+
+                            {% if applicant.applied_by.profile_pic %}
+                                <img src="{{applicant.applied_by.profile_pic.url}}">
+                            {% else%}
+                                <img src="{% static 'admin-assets/images/default.png' %}">
+                            {% endif %}
+                            
+                            </div>
+                            <div class="media-body outer">
+                                <div class="d-md-flex align-items-center">
+                            
+                                    <div class="media-body inner mb-15 mb-md-0">
+                                        <h6>{% if applicant.applied_by.first_name %} {{applicant.applied_by.first_name}} {{applicant.applied_by.last_name}} {% endif %}
+                                            <small>({% if applicant.applied_by.city %} {{applicant.applied_by.city}}  {% endif %},{% if applicant.applied_by.state %} {{applicant.applied_by.state}}  {% endif %})</small>
+                                             {% if applicant.applied_by.average_rating %}<i class="fas fa-star"></i> {{applicant.applied_by.average_rating}}{% endif %}</small></h6>
+                                <p>  
+                                    {% for srv in rvt_service %}
+                                        {% if applicant.applied_by == srv.created_by %}
+                                        <ul>
+                                                <li>{{srv.category.title}}</li>
+                                        </ul>
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                                    </div>
+                                    <div class="button-wrap">
+                                    {% if applicant.status == 2 %}
+                                        <a class="btn btn-warning" role="button">Rejected</a> 
+                                    {% elif applicant.status == 1 %}
+                                        <a class="btn btn-theme" role="button" data-toggle="modal">Accepted</a> 
+                                    {% else %}
+
+                                    <a class="btn btn-warning" href="{% url 'enduser:reject_rvt'  %}?user_id={{applicant.applied_by.id}},{{applicant.custom_id.service_id}}" role="button" onclick="Loader()">Reject</a> 
+                                    <a href="{% url 'enduser:bookings' %}?user_id={{applicant.applied_by.id}},{{applicant.custom_id.date | safe}},{{applicant.custom_id.local_time_zone}}&custom_id={{applicant.custom_id.id}}" class="btn btn-theme" role="button">Accept</a>    
+
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    {% endif %}
+
+
+                        
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endif %}
+        </div>
+        
+        {% for rvt in applied_rvt %}
+        <div class="serv">
+            <h3 class="serv-heading">Services</h3>
+            <div class="service-list-wrapper row mb-20 mb-md-30">
+            
+            {% for srv in rvt_service %}
+                <div class="col-lg-4 mb-20">
+
+                    <div class="service-box d-md-flex align-items-center">
+                        <div class="icon d-flex align-items-center justify-content-center">
+                            <img src="{% static 'admin-assets/images/services/teeth.svg' %}">
+                        </div>
+                        <div class="media-body pl-0 pl-md-15 pr-0 pr-md-10 pt-10 pb-10 pt-md-0 pb-md-0">
+                        {% if rvt.assigend_to == srv.created_by %}               
+                            <h5>{% if srv.category.title %}{{srv.category.title}} {% endif %}</h5>
+                        {% endif %}
+                        </div>
+                         {% if rvt.assigend_to == srv.created_by %} 
+                        <h4>${% if srv.price %}{{srv.price}} {% endif %}</h4>
+                      {% endif %}
+                      </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="button-wrap text-center">
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="pets-lists">
+           
+    </div>
+<div class="modal fade addformModal" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered delete-modal-width" role="document">
+        <div class="modal-content">
+            <form onsubmit="Loader(this.id)" id="cancelRequest" action="{% url 'enduser:cancel_cus_request'  %}" method="POST">
+                {% csrf_token %}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <input type="hidden"  id="submit_cus" name="cus_id" value="{{service_id}}">
+                <div class="modal-body delete-wrap text-center">
+                    <div class="icon-wrap">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="text-wrap">
+                        <p>You are about to cancel this custom request <br>(ID: {{service_id}})<br /> Are you sure?</p>
+                    </div>
+                    <div class="modal-actions">
+                        
+                        <a data-dismiss="modal" aria-label="Close" class="btn-cancel btn rounded">No</a>
+                        <button class="btn-delete btn rounded">Yes</button>
+                       
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+    <div class="modal fade addformModal modal-back" id="aviallist" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog"
+        aria-labelledby="addScheduleTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+            <div class="modal-content">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                 <form onsubmit="Loader(this.id)" id="slot_form" action="{% url 'enduser:custom_appointment' %}" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" id="sid" name="cust_id" >
+                <div class="modal-body">
+                    <h4 class="modal-header-text text-center"><span id="modal_date">Please Choose Time</span></h4>
+                    {% csrf_token %}
+                        <div class="heading">
+                        </div>
+
+                        <input type ="hidden" id="user_id" name="user_id">
+                        <input type ="hidden" id ="slot_id">
+                        <input type ="hidden" id ="slot_date">
+
+
+                        <div id="avail_data">
+                        <div id ="slot"  class="row form-row align-items-center">
+                        </div>
+                        <br>
+                
+                </div>
+                <div class="button-wrap">
+                        <button type="" onclick ="validInputs();" class="btn btn-theme rounded m-0"><i class="fas fa-save mr-6"></i>
+                            Save</button>
+                    </div>
+            </form>
+
+            </div>
+        </div>
+
+    </div>
+
+
+ <script>
+
+function AcceptRVT(id) {
+    var custom_date=$('#custom_date').val()
+   $.ajax({
+          url: "{% url 'enduser:accept_rvt' %}",
+          
+                    type: 'GET',
+                    async: false,
+                    data: {
+                        'user_id': id,
+                        'custom_date':custom_date
+                    },
+                    success: function(data) {
+                    $('#slot').html('')
+                    
+                    //let id = data[0]["user"].id
+                    for (var i = 0; i < data.id.length; i++) {
+                       
+                        let start_time = data['start_time'][i]
+                        let end_time = data['end_time'][i]
+                        let id = data['id'][i]
+                        let user_id = data['user_id'][i]
+                        start_time = start_time
+                        var start = moment(start_time, 'HH:mm').format("HH:mm");
+                        const local_start_time = moment(start, 'hh:mm A').local().format("hh:mm a");
+                        end_time = end_time
+                        var end = moment(end_time, 'HH:mm').format("HH:mm");
+                        const local_end_time = moment(end, 'hh:mm A').local().format("hh:mm a");
+                     
+                    new_div ='<div class="col-md-6 col-6 text-center"><div class="form-group mb-0"><input type="radio" class=" is_check form-check-input available_id" value="'+id+'" name="time_slot" id="'+id+'"><label class="form-check-label font-18 text-dark" for="'+id+'">'+local_start_time+'-'+local_end_time+'</label></div></div>'
+                
+                    $('#slot').append(new_div)
+                    $('#slot_id').val(id)
+               
+                    $('#slot_date').val(data['date'][i])
+                    }
+                    $('#user_id').val(id)
+                    $('#aviallist').modal()
+                    }
+                })
+}
+
+</script>
+
+{% endblock %}
+{% include "user/includes/footer.html" %}
+
+<script >
+function validInputs()
+{
+    var is_check = $('.is_check')
+    is_check_count = 0
+    $('.is_check').each(function(){
+    let ls = $(this).is(':checked');
+    if(ls==true){
+        is_check = 0;
+        return false;
+    }else{
+        is_check = 1;
+    }
+    })
+    if(is_check == 1  ){
+        customAlert.alert("Please select time slot !")
+        customAlert.$('#slot_form').attr("onsubmit","return false")
+    }else{
+        CheckAvail()
+        //$('#slot_form').removeAttr("onsubmit")
+    }
+}
+
+function CheckAvail() {
+    var rvt_id = $('#user_id').val()
+    var slot_id = $('#slot_id').val()
+    var slot_date = $('#slot_date').val()
+    $.ajax({
+        url: "{% url 'enduser:check_availability_app' %}",
+        type: 'GET',
+        async: false,
+        data: {
+            'user_id': rvt_id,
+            'slot_date':slot_date,
+            'slot_id':slot_id
+        },
+        success: function(data) {
+            let dt = data.is_exist
+            if(dt == 'true'){
+                customAlert.alert("This slot is already booked!")
+                $('#slot_form').attr("onsubmit","return false")
+            }
+            else
+            {
+                $('#slot_form').removeAttr("onsubmit")
+            }      
+        }
+    })
+}
+</script>
+{% comment %} <script>
+var cus_id=$('#custom_id').val()
+$('#submit_cus').val(cus_id)
+</script> {% endcomment %}

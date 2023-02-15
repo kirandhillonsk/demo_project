@@ -1,0 +1,204 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/user-detail.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<style>
+    .data-found{
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--primary-color);
+        margin-bottom: 20px;
+    }
+</style>
+<style>
+    .color {
+        color: red;
+    }
+</style>
+
+<script src="{% static 'admin-assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'admin-assets/js/jquery.mask.min.js' %}"></script>
+ <script src="https://maps.google.com/maps/api/js?key=AIzaSyAqQxTlaDVSndpLyPl-wMeQEs-TzyyZ7-I" 
+          type="text/javascript"></script>
+    <div class="row">
+        <div class="col-md-12 mx-auto">
+            <div class="dahboard-boxes-section mb-20 mb-md-30">
+                <div class="card">
+                    <div class="row gutters-20 user-list-header">
+                        <div class="col-lg-8">
+                            <form action="" method="POST">
+                                <div class="form-group custom-search mb-0">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="col-lg-4">
+                            <ul class="nav nav-tabs border-tabs justify-content-md-end mt-md-0 mt-3" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="list-view-tab" data-toggle="tab" href="#list-view"
+                                        role="tab" aria-controls="list-view" aria-selected="false">
+                                        <svg width="17" height="12" viewBox="0 0 17 12" fill="none"
+                                            xmlns="https://www.w3.org/2000/svg">
+                                            <path
+                                                d="M16.1538 7.38459H5.07689C4.82194 7.38459 4.61536 7.178 4.61536 6.92305V5.07689C4.61536 4.82194 4.82194 4.61536 5.07689 4.61536H16.1538C16.4088 4.61536 16.6154 4.82194 16.6154 5.07689V6.92305C16.6154 7.178 16.4088 7.38459 16.1538 7.38459Z"
+                                                fill="#444444" />
+                                            <path
+                                                d="M16.1538 11.9999H5.07689C4.82194 11.9999 4.61536 11.7934 4.61536 11.5384V9.69225C4.61536 9.4373 4.82194 9.23071 5.07689 9.23071H16.1538C16.4088 9.23071 16.6154 9.4373 16.6154 9.69225V11.5384C16.6154 11.7934 16.4088 11.9999 16.1538 11.9999Z"
+                                                fill="#444444" />
+                                            <path
+                                                d="M16.1538 2.76923H5.07689C4.82194 2.76923 4.61536 2.56265 4.61536 2.30769V0.461538C4.61536 0.206585 4.82194 0 5.07689 0H16.1538C16.4088 0 16.6154 0.206585 16.6154 0.461538V2.30769C16.6154 2.56265 16.4088 2.76923 16.1538 2.76923Z"
+                                                fill="#444444" />
+                                            <path
+                                                d="M2.30769 2.76923H0.461538C0.206585 2.76923 0 2.56265 0 2.30769V0.461538C0 0.206769 0.206585 0 0.461538 0H2.30769C2.56265 0 2.76923 0.206769 2.76923 0.461538V2.30769C2.76923 2.56265 2.56265 2.76923 2.30769 2.76923Z"
+                                                fill="#444444" />
+                                            <path
+                                                d="M2.30769 7.38459H0.461538C0.206585 7.38459 0 7.178 0 6.92305V5.07689C0 4.82213 0.206585 4.61536 0.461538 4.61536H2.30769C2.56265 4.61536 2.76923 4.82213 2.76923 5.07689V6.92305C2.76923 7.178 2.56265 7.38459 2.30769 7.38459Z"
+                                                fill="#444444" />
+                                            <path
+                                                d="M2.30769 11.9999H0.461538C0.206585 11.9999 0 11.7934 0 11.5384V9.69225C0 9.4373 0.206585 9.23071 0.461538 9.23071H2.30769C2.56265 9.23071 2.76923 9.4373 2.76923 9.69225V11.5384C2.76923 11.7934 2.56265 11.9999 2.30769 11.9999Z"
+                                                fill="#444444" />
+                                        </svg>
+                                        List View </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link " id="map-view-tab" data-toggle="tab" href="#map-view" role="tab"
+                                        aria-controls="map-view" aria-selected="true">
+                                        <svg width="11" height="15" viewBox="0 0 11 15" fill="none"
+                                            xmlns="https://www.w3.org/2000/svg">
+                                            <path
+                                                d="M9.0001 1.2616C7.97349 0.41185 6.6746 -0.0355997 5.34424 0.00221499C4.01389 0.0400297 2.74232 0.560543 1.76531 1.46725C0.788297 2.37395 0.172116 3.60534 0.0310112 4.93309C-0.110094 6.26085 0.233451 7.5949 0.997948 8.6879L5.36289 14.9285C5.37834 14.9506 5.39886 14.9686 5.42273 14.9811C5.44659 14.9935 5.4731 15 5.49999 15C5.52689 15 5.55339 14.9935 5.57726 14.9811C5.60112 14.9686 5.62165 14.9506 5.6371 14.9285L10.002 8.6879C10.7974 7.55079 11.136 6.15455 10.9503 4.77794C10.7645 3.40133 10.0681 2.14565 9.0001 1.2616ZM5.49999 8.33328C4.94145 8.33328 4.39546 8.16711 3.93105 7.85577C3.46664 7.54444 3.10468 7.10194 2.89094 6.58421C2.6772 6.06649 2.62127 5.4968 2.73024 4.94719C2.8392 4.39757 3.10816 3.89272 3.50311 3.49647C3.89805 3.10023 4.40125 2.83038 4.94905 2.72105C5.49686 2.61173 6.06467 2.66784 6.58069 2.88228C7.09671 3.09673 7.53776 3.45989 7.84807 3.92583C8.15838 4.39177 8.324 4.93956 8.324 5.49994C8.324 6.25139 8.02647 6.97206 7.49687 7.50341C6.96726 8.03477 6.24896 8.33328 5.49999 8.33328Z"
+                                                fill="#444444" />
+                                        </svg>
+                                        Map View</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="tab-content mt-md-30 mt-15" id="myTabContent">
+                        <div class="tab-pane  fade show active" id="list-view" role="tabpanel"
+                            aria-labelledby="list-view-tab">
+                            <div class="row">
+                            {% if rvt_user %}
+                                {% for user,services,min_price in rvt_user %}
+                                <div class="col-xl-3 col-lg-6 col-md-6">
+                                    <div class="property-box">
+                                       <div class="item-img">
+                                            {% if user.created_by.profile_pic %}
+                                            <a href="{% url 'enduser:user_rvt_profile' user.created_by.id %}"> <img src="{{user.created_by.profile_pic.url}}"></a>
+                                            {% else %}
+                                            <a href="{% url 'enduser:user_rvt_profile' user.created_by.id %}"> <img src="{% static 'admin-assets/images/default.png' %}"></a>
+                                            {% endif %}
+                                            <div class="react-icon">
+                                            {% if user.created_by.id in favt %}
+                                                <i class="fas fa-heart color" id="fav{{user.created_by.id}}" onclick="GetUserID({{user.created_by.id}})" ></i>
+                                            {% else %}
+                                                <i class="fas fa-heart" id="fav{{user.created_by.id}}" onclick="GetUserID({{user.created_by.id}})" ></i>
+                                            {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="item-content">
+                                            <div class="verified-area d-block">
+                                                <h3 class="item-title">
+                                                    <a href="#0">{% if user.created_by.first_name %} {{user.created_by.first_name}} {% else %}{% endif %}</a>
+                                                </h3>
+                                                <p>
+                                                    {% for ser in services %}
+                                                    {% if forloop.last %}
+                                                    {{ser.category.title }}
+                                                    {% elif forloop.counter|divisibleby:3 %}
+                                                    {{ser.category.title }} <br>
+                                                    {% else %}
+                                                    {{ser.category.title }}, 
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </p>                                                    
+                                            </div>
+                                            <div class="location-area">
+                                                <i class="fas fa-map-marker-alt"></i>{% if user.created_by.city %}{{user.created_by.city}}{% else %}{% endif %},{% if user.created_by.state %}{{user.created_by.state}}{% else %}{% endif %}
+                                            </div>
+                                            <div class="item-categoery3">
+                                                <ul>
+                                                    <li><i class="far fa-dollar-sign"></i>Start from ${% if min_price.price %}{{min_price.price}}{% else %}{% endif %}</li>
+                                                    <li><i class="far fa-dog"></i>Pet Type - {% if user.pet.name %}{{user.pet.name|title}}{% else %}{% endif %}</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="w-100 data-found" align="center">No RVT found</p>
+                            {% endif %}
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="map-view" role="tabpanel" aria-labelledby="map-view-tab">
+                            <div id="map" style="width: 98%;height: 98%;" class="map-view">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script type="text/javascript">
+    var locations = [
+    {% for i in rvt_users %}
+      ['', '{{i.created_by.latitude}}', '{{i.created_by.longitude}}', 4],
+    {% endfor %}
+    ];
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 10,
+        center: new google.maps.LatLng(
+            {% if request.GET.latitude and request.GET.longitude %}
+            {{request.GET.latitude}}, {{request.GET.longitude}}
+            {% else %}
+            49.2608724, -123.113952
+            {% endif %}
+        ),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+    
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+    
+    for (i = 0; i < locations.length; i++) {  
+      marker = new google.maps.Marker({
+        position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+        map: map
+      });
+      
+      google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          infowindow.setContent(locations[i][0]);
+          infowindow.open(map, marker);
+        }
+      })(marker, i));
+    }
+  </script>
+
+<script>
+function GetUserID(id){
+
+        $.ajax({
+            url:"{% url 'enduser:add_favourite_rvt' %}",
+            type:'GET',
+            data:{"rvt_id":id},
+            success:function(data){
+            let is_fav= data['status']
+            let ids = "#fav" + id
+            if(is_fav == "added"){
+                $(ids).addClass("color")
+            }
+            else{
+                $(ids).removeClass("color")
+            }
+        }
+        })
+}
+</script>
+
+

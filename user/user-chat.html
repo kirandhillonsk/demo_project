@@ -1,0 +1,201 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<script>
+    function ConvertGTime(createdate, createtime) {
+        var d = createdate + "T" + createtime + "Z";
+        const date = d;
+        const local = moment.utc(date).local().format("Do MMM  YYYY hh:mm A");
+        return local;
+    }
+</script>
+
+
+
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/rvt-chat.css' %}" />
+<div class="setting-page-wrap media chat-screen">
+    <div class="sidebar-wrap">
+        <div class="chat-left-header">
+            <div class="header-buttons d-flex align-items-center justify-content-between">
+                <div class="check-wrap d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                       
+                    </div>
+                </div>
+                <div class="btn-group" role="group">
+                    <a href="" type="button" class="btn btn-sm btn-secondary"><i class="far fa-redo-alt"></i></a>
+                    <button type="button" class="btn btn-sm btn-secondary active"><i class="fas fa-eye"></i></button>
+                </div>
+            </div>
+
+        </div>
+        <ul class="userList" id="userList">
+            {% if last_message %}
+            {% for user in last_message %}
+            {% if user.sender.id == request.user.id %}
+                <a href="{% url 'enduser:users_chat_screen' %}?id={{user.receiver.id}}" >
+                    <li class="media-wrap {% if user.receiver.id == to.id %} active {% endif %} ">
+                        <div class="media align-items-center">
+                            <div class="icon-wrap">
+                                {% if user.receiver.profile_pic %}
+                                    <img src="{{user.receiver.profile_pic.url}}" class="rounded-circle object-cover"
+                                        alt="">
+                                {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"
+                                    alt="">
+                                {% endif %}
+                            </div>
+                            <div class="media-body pl-10">
+                                <h5>{{user.receiver.first_name}} {{user.receiver.last_name}}</h5>
+                            </div>
+                        </div>
+                        <div class="text-wrap">
+                            {% if user.message %}
+                            <p>{{user.message}}</p>
+                        {% else %}
+                            <p>Image File</p>
+                        {% endif %}
+                        </div>
+                        <div class="chat-mata d-flex justify-content-between align-items-center">
+                            <div class="check-wrap d-flex justify-content-between align-items-center">
+                                
+                            <div class="rating">
+                                        {% if user.receiver.average_rating == '1' %}
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '2' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '3' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '4' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '5' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <h6></h6>
+                                        {% endif %}
+                                    </div>
+                            </div>
+                            <div class="time">
+                            <script>
+                                var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                                document.write(date);
+                            </script>
+                            </div>
+                        </div>
+                    </li>
+                </a>
+            {% else %}
+                <a href="{% url 'enduser:users_chat_screen' %}?id={{user.sender.id}}" >
+                    <li class="media-wrap {% if user.sender.id == to.id %} active {% endif %} ">
+                        <div class="media align-items-center">
+                            <div class="icon-wrap">
+                                {% if user.sender.profile_pic %}
+                                    <img src="{{user.sender.profile_pic.url}}" class="rounded-circle object-cover"
+                                        alt="">
+                                {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"
+                                    alt="">
+                                {% endif %}
+                            </div>
+                            <div class="media-body pl-10">
+                                <h5>{{user.sender.first_name}} {{user.sender.last_name}}</h5>
+                            </div>
+                        </div>
+                        <div class="text-wrap">
+                            {% if user.message %}
+                            <p>{{user.message}}</p>
+                        {% else %}
+                            <p>Image File</p>
+                        {% endif %}
+                        </div>
+                        <div class="chat-mata d-flex justify-content-between align-items-center">
+                            <div class="check-wrap d-flex justify-content-between align-items-center">
+                           
+                               <div class="rating">
+                                        {% if user.receiver.average_rating == '1' %}
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '2' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '3' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '4' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% elif user.receiver.average_rating == '5' %}
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        {% else %}
+                                        <h6></h6>
+                                        {% endif %}
+                                    </div>
+                            </div>
+                            <script>
+                                var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                                document.write(date);
+                            </script>
+                        </div>
+                    </li>
+                </a>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+                <li class="media-wrap active">
+                    <div class="media align-items-center">
+                        <div class="media-body pl-10">
+                            <h5 align="center">No User Found</h5>
+                        </div>
+                    </div>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+    <div class="settings-main-wrap media-body card">
+        <div class="setting-wrpper d-flex flex-column h-100 position-relative">
+            <div class="chat-body flex-1 h-100">
+                <div class="setting-wrpper d-flex  h-100 position-relative no-msg-screen align-items-center justify-content-center">
+                    <div class="no-msg-wrap text-center">
+                        <div class="img-wrap">
+                            <img src="{% static 'admin-assets/images/no-message.jpg' %}"
+                            alt="">
+                        </div>
+                        <div class="text-wrap">
+                            <h4>You dont have any message to show!!</h4>
+                            <p>Pick a person from left menu to start conversation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- if there is no msg-->
+    </div>
+</div>
+<script>
+    jQuery('.switch-toggle').on('click', function () {
+        jQuery('.sidebar-wrap').addClass('open-sidebar');
+    });
+    jQuery('.userList li').on('click', function () {
+        jQuery('.sidebar-wrap').removeClass('open-sidebar');
+    });
+</script>
+{% endblock %}
+{% include "user/includes/footer.html" %}

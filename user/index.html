@@ -1,0 +1,859 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<style>
+    .color {
+        color: red;
+    }
+
+  
+.highlight-green {
+  /* Cell */
+  background-color: yellow;
+}
+ui-state-default, .ui-widget-content .ui-state-default, .ui-widget-header .ui-state-default, .ui-button, html .ui-button.ui-state-disabled:hover, html .ui-button.ui-state-disabled:active {
+	border: 0 !important;
+	background: #fff !important;
+	text-align: center !important;
+}
+.highlight-green {
+	background: transparent !important;
+}
+.custom-datepicker .ui-datepicker-inline .ui-datepicker-calendar td a {
+	background: #7f2bb5 !important;
+	color: #fff !important;
+	border: 4px solid #7f2bb5 !important;
+}
+</style>
+
+<link rel="stylesheet" href="{% static 'admin-assets/datepicker/jquery-ui.min.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/datepicker/jquery-ui.theme.min.css' %}" />
+<script src="{% static 'admin-assets/datepicker/jquery-ui.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/index.css' %}" />
+<div class="d-lg-flex">
+    <div class="pr-lg-30 left-bar-part media-body">
+        {% if banners %}
+        <div class="carousel-wrapper">
+            <div class="user-panel-carousel">
+                {% for banner in banners %}
+                {% if banner.image %}
+                <div class="carousel-item d-flex align-items-center" style="background-image:url('{{banner.image.url}}')">
+                {% else %}
+                <div class="carousel-item d-flex align-items-center" style="background-image:url('{% static 'admin-assets/images/user/carousel-1.webp' %}')">
+                {% endif %}
+                    <div class="inner-carousel-wrapper">
+                        <div class="row w-100">
+                            <div class="col-12">
+                                <h1>{{banner.title}}</h1>
+                                <p style="max-width:60%">{{banner.description|truncatechars:150}}</p>
+                                <a href="{% url 'enduser:read_more_user' %}?id={{banner.id}}" class="btn btn-theme btn-lg arrow-circle">View More <i class="fal fa-angle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="services-section mb-20 mb-md-30">
+            <div class="section-heading mb-15">
+                <h4 class="font-22 font_700">Top Services</h4>
+            </div>
+            <div class="services-wrapper">
+                {% if service_category %}
+                    <div class="services-slider slick-arrows mb-30">
+                        {% for cat in service_category %}
+                        
+                        <div class="item">
+                            <div class="service-inner text-center ">
+                                <a href="{% url 'enduser:rvt_user_details' %}?id={{cat.id}}"> <div class="service-img">
+                                {% if cat.image %}
+                                     <img src="{{cat.image.url}}" class="img-fluid" alt="Nail Cutter"> 
+                                {% else %}
+                                <img src="{% static 'admin-assets/images/default.png' %}/" class="">
+                                {% endif %}
+                                </div></a>
+                                <a href="{% url 'enduser:rvt_user_details' %}?id={{cat.id}}"> <h3> {% if cat.title %}{{cat.title}}{% else %}  {% endif %}</h3></a>
+                            </div>
+                        </a>
+
+                        </div>
+
+                        {% endfor %}
+                    </div>
+                    <div class="button-wrap text-center">
+                        <a href="#addService" class="btn btn-theme btn-lg arrow-circle" data-toggle="modal">Request a
+                            Service <i class="fal fa-angle-right"></i></a>
+                    </div>
+                {% else %}
+                    <div class="service-inner text-center ">
+                        <h3>No Service Found</h3>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+         <div class="nearby services-section mb-20 mb-md-30">
+            <div class="section-heading d-flex justify-content-between align-items-center mb-15">
+                <h4 class="font-22 font_700">Book Nearby RVTs</h4>
+                <a href="{% url 'enduser:view_all_rvt' %}" class="btn-link p-0 font-lg-16 font_500 text-primary text-decoration-underline">View
+                    All</a>
+            </div>
+            <div class="services-wrapper">
+               <div class="rvt-slider slick-arrows">
+                    {% if r_user %}
+                        {% for user in r_user %}
+                        <div class="item">
+                            <div class="rvt-wrap">
+                                <a href="{% url 'enduser:user_rvt_profile' user.id %}">
+                                    {% if user.profile_pic %}
+                                    <img src="{{ user.profile_pic.url }}" class="rounded-circle object-cover" alt="">
+                                    {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}"
+                                        class="rounded-circle object-cover" alt="">
+                                    {% endif %}
+                                    {% if user.status == True %}
+                                    <span class="status online"></span>
+                                     {% endif %}
+                            </div>
+                            <h6> {{user.first_name}}</h6>                 
+                            <p style="font-size: 11px"><i class="fas fa-map-marker-alt"></i> {{user.city}}</p>
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="service-inner text-center ">
+                            <h3>No Rvt Found</h3>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="services-section mb-20 mb-md-30">
+            <div class="section-heading d-flex justify-content-between align-items-center mb-15">
+                <h4 class="font-22 font_700">Upcoming Appointments</h4>
+                <a href="{% url 'enduser:user_appointments'%}" class="btn-link p-0 font-lg-16 font_500 text-primary text-decoration-underline">View
+                    All</a>
+            </div>
+            <div class="theme-table">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="author">User</th>
+                                <th scope="col">Service</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                {% comment %} <th scope="col">Location</th> {% endcomment %}
+                                <th scope="col">Amount</th>
+                                <th scope="col">Status</th> 
+                                <th scope="col">Action</th> 
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if custom_appointments or appointments %}
+                                {% for cust in custom_appointments %}                                    
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                            <img src="/static/admin-assets/images/default.png" width="42px"
+                                                    height="42px" class="rounded-circle object-cover border" alt="">
+                                            <div class="media-body pl-10 text-wrap">
+                                                <p class="text-purple font-lg-14 font_500">
+                                                Un-assigned
+                                                </p>
+                                            </div>
+                                        </td>
+                                        <td class="text-purple font-lg-14 font_500">{{ cust.title }}({{cust.pet_type.name}})</td>
+                                        <td class="text-purple font-lg-14 font_500">{{ cust.date }}</td>
+                                        <td class="text-purple font-lg-14 font_500">--</td>                                        
+                                        <td class="text-purple font-lg-14 font_500">--</td>
+
+                                        <td class="text-purple font-lg-14 font_500">
+                                        <p class="badge badge-danger custom-btn">Requested</p>
+                                        </td>
+                                        <td>
+                                            <div class="dropdown">
+                                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                    <i class="far fa-ellipsis-v"></i>
+                                                </button>
+                                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                                    <a class="btn btn-theme w-100 mt-10" href="{% url 'enduser:applicants_details' %}?id={{cust.service_id}}">View Requests</a>
+                                                </div>
+                                            </div>
+                                        </td> 
+                                    </tr>
+                                {% endfor %}
+                                {% for appointment in appointments %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                        {% if appointment.created_for.profile_pic %}
+                                         <a href="{% url 'enduser:user_rvt_profile' appointment.created_for.id %}"><img src="{{appointment.created_for.profile_pic.url}}" width="42px" height="42px"
+                                                class="rounded-circle object-cover border" alt=""></a>
+                                        {% else %}
+                                           <a href = "{% url 'enduser:user_rvt_profile' appointment.id %}">
+                                           <img src="{% static 'admin-assets/images/default.png' %}" width="42px" height="42px"  class="rounded-circle object-cover border" alt="">
+                                            </a>
+                                        {% endif %}
+                                          <div class="media-body pl-10 text-wrap">
+                                                <p class="text-purple font-lg-14 font_500">{% if appointment.created_for.first_name %}
+                                                    {{appointment.created_for.first_name}}{% else %} {% endif %}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.custom_title %}  
+                                            {{ appointment.custom_title }}
+                                            <span class="d-block"></span>
+                                        {% else %}
+                                            {% for service_cat in appointment.service.all %}
+                                                    {{service_cat.category.title}}({{service_cat.pet.name}})
+                                                <span class="d-block"></span>
+                                            {% endfor %}
+                                            <span class="d-block"></span>
+                                            {% for custom in appointment.custom.all %}
+                                                {{custom.title }}({{custom.pet_type.name}})
+                                                <span class="d-block"></span>
+                                            {% endfor %}
+                                            <span class="d-block"></span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                       {% if appointment.date %}{{appointment.date}}{% else %}-{% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.start_time %} 
+                                        {{appointment.start_time|date:"g:i a"}}{% else %}-{% endif %}-
+                                        {% if appointment.end_time %}{{appointment.end_time|date:"g:i a"}}{% else %}-{% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.amount %}${{appointment.amount}}{% else %} {% endif %}
+                                    </td>
+                                   <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.status == '1' %}
+                                                <p class="badge badge-warning custom-btn w-100 ">Confirmed</p>
+                                        {% elif appointment.status == '2' %}
+                                                <p class="badge badge-success custom-btn w-100 " >Completed</p>
+                                        {% elif appointment.status == '3' %}
+                                                <p class="badge badge-danger custom-btn w-100">Cancelled</p>
+                                        {% endif %}
+                                    </td> 
+                                    <td>
+                                        <div class="dropdown">
+                                            <button class="btn btn-secondary dropdown-toggle" type="button" id="addclass"
+                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                <i class="far fa-ellipsis-v"></i>
+                                            </button>
+                                                
+                                            <div id="showclass" class="dropdown-menu dropdown-menu-right" >
+                                                <a class="btn btn-theme w-100 mt-10" href="{% url 'enduser:appointment_details' %}?id={{appointment.id}}">View</a>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <td colspan="8" align="center">No Appointments Found<td>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if appointments.has_other_pages %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% if appointments.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page1={{ appointments.previous_page_number }}">&laquo;</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                            {% endif %}
+                            {% for i in appointments.paginator.page_range %}
+                            {% if appointments.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page1={{ i }}">{{ i }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if appointments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page1={{ appointments.next_page_number }}">&raquo;</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+
+
+         <div class="services-section mb-20 mb-md-30">
+            <div class="section-heading d-flex justify-content-between align-items-center mb-15">
+                <h4 class="font-22 font_700">Past Appointments</h4>
+                <a href="{% url 'enduser:user_appointments'%}" class="btn-link p-0 font-lg-16 font_500 text-primary text-decoration-underline">View
+                    All</a>
+            </div>
+            <div class="theme-table">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col" class="author">User</th>
+                                <th scope="col">Service</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                {% comment %} <th scope="col">Location</th> {% endcomment %}
+                                <th scope="col">Amount</th>
+                             <th scope="col">Status</th> 
+                             <th scope="col">View</th> 
+                            </tr>
+                        </thead>
+                        <tbod>
+                            {% if past_appointments %}
+                                {% for appointment in past_appointments %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <img src="/static/admin-assets/images/default.png" width="42px" height="42px"
+                                                class="rounded-circle object-cover border" alt="">
+                                            <div class="media-body pl-10 text-wrap">
+                                                <p class="text-purple font-lg-14 font_500">{% if appointment.created_for.first_name %}
+                                                    {{appointment.created_for.first_name}}{% else %} {% endif %}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.custom_title %}  
+                                            {{ appointment.custom_title }}
+                                            <span class="d-block"></span>
+                                        {% else %}
+                                            {% for service_cat in appointment.service.all %}
+                                                    {{service_cat.category.title}}({{service_cat.pet.name}})
+                                                <span class="d-block"></span>
+                                            {% endfor %}
+                                            <span class="d-block"></span>
+                                            {% for custom in appointment.custom.all %}
+                                                {{custom.title }}({{custom.pet_type.name}})
+                                                <span class="d-block"></span>
+                                            {% endfor %}
+                                            <span class="d-block"></span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                       {% if appointment.date %}{{appointment.date}}{% else %} {% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.start_time %} {{appointment.start_time|date:"g:i a"}}{% else %} {% endif %}-{% if appointment.end_time %}{{appointment.end_time|date:"g:i a"}}{% else %} {% endif %}
+                                    </td>
+                                    <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.amount %}{{appointment.amount}}{% else %} {% endif %}
+                                    </td>
+                                     <td class="text-purple font-lg-14 font_500">
+                                        {% if appointment.status == '1' %}
+                                                <p class="badge badge-warning custom-btn w-100 ">Confirmed</p>
+                                        {% elif appointment.status == '2' %}
+                                                <p class="badge badge-success custom-btn w-100" >Completed</p>
+                                        {% elif appointment.status == '3' %}
+                                                <p class="badge badge-danger custom-btn w-100">Cancelled</p>
+                                        {% endif %}
+                                    </td> 
+                                    <td class="text-purple font-lg-14 font_500">
+                                        <a href="{% url 'enduser:appointment_details' %}?id={{appointment.id}}"><i class="fas fa-eye"> View </i></a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            {% else %}
+                                <td colspan="6" align="center">No Appointments Found<td>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if past_appointments.has_other_pages %}
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            {% if past_appointments.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page2={{ past_appointments.previous_page_number }}">&laquo;</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&laquo;</span>
+                            </li>
+                            {% endif %}
+                            {% for i in past_appointments.paginator.page_range %}
+                            {% if past_appointments.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page2={{ i }}">{{ i }}</a>
+                            </li>
+                            {% endif %}
+                            {% endfor %}
+                            {% if past_appointments.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page2={{ past_appointments.next_page_number }}">&raquo;</a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">&raquo;</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="right-sidebar">
+        <div class="card theme-card mb-15 mb-md-20 custom-datepicker">
+            <div class="card-header">Appointments</div>
+            <div class="card-body">
+                <div id="datepicker"></div>
+            </div>
+        </div>
+        <div class="card theme-card mb-15 mb-md-20 latest-feed">
+            <div class="card-header">
+                My RVTs
+            </div>
+            <div class="card-body">
+                <div class="feed-wrapper">
+                    {% if my_rvts %}
+                        {% for rvt_service,name,rating,price,address,city,state,user_id,image in my_rvt_data %}
+                        <div class="feed-list d-flex">
+                            <div class="feed-inner d-flex media-body pr-0p pr-md-10">
+                                <div class="img-wrap">
+                                {% if image %}
+                                <a href="{% url 'enduser:user_rvt_profile' user_id %}"><img src="{{image.url}}" width="48px" height="48px"
+                                    class="rounded-circle object-cover" alt=""></a>
+                                {% else %}
+                                    <img src="/static/admin-assets/images/default.png" width="48px" height="48px"
+                                        class="rounded-circle object-cover" alt="">
+                                {% endif %}
+                                </div>
+                                <div class="text-wrap media-body pl-0 pl-md-10">
+                                    <a href="{% url 'enduser:user_rvt_profile' user_id %}"><h4>{% if name %} {{name}}{{id}}{% endif %}</h4></a>
+                                    <input type="hidden" value="{{id}}" id="rvt_id" > 
+                                    <p>{% if rvt_service %} {{rvt_service}}{% endif %}
+                                    </p>
+                                    <div class="d-flex">
+                                        <div class="media-body">
+                                            <div class="meta">
+                                                <p><i class="fas fa-map-marker-alt"></i>{% if address %} {{city}}, {{state}} {% endif %} </p>
+                                                {% comment %} <p><i class="fas fa-usd-circle"></i> Start from <strong>${{price}}/Service</strong></p> {% endcomment %}
+                                            </div>
+                                        </div>
+                                        <div class="rating">
+                                            <i class="fas fa-star"></i> {% if rating %}{{rating}}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <a class="heart text-right" href="javascript:void(0);">
+                                {% if user_id in fav %}
+                                <i class="fas fa-heart color" id="fav{{user_id}}" onclick="GetUserID({{user_id}})" ></i>
+                                {% else %}
+                                <i class="fas fa-heart" id="fav{{user_id}}" onclick="GetUserID({{user_id}})" ></i>
+                                {% endif %}
+                            </a>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <div class="feed-list d-flex">
+                        <div class="feed-inner d-flex media-body pr-0p pr-md-10">
+                            <div class="text-wrap media-body pl-0 pl-md-10">
+                                <h4 align="center">No Rvt Found</h4>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade addformModal" id="addService" tabindex="-1" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="addServiceTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-custom-width"  role="document">
+        <div class="modal-content" >
+            <button type="button" class="close" data-dismiss="modal"  aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="modal-body">
+                <form autocomplete="off" id="add-service" action="{% url 'enduser:custom_service' %}" method="POST" enctype="multipart/form-data" onsubmit="return CheckLatLong()" >
+                    {% csrf_token %}
+                    <div class="heading">
+                        <p class="text-center">Service Request</p>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" name="title" class="form-control" maxlength="50" placeholder="Title">
+                    </div>
+          
+                    <div class="form-group">
+                        <select class="form-control"id ="pet_type" name ="pet_type">
+                            <option value="">Select Pets</option>
+                            {% for pet in pets %}
+                                <option value="{{pet.id}}">{{pet.name}}</option>
+                           {% endfor %}
+                        </select>
+                        <div class="form-group" id="newdiv" style="display:none;margin-top:13px;">
+                        <input type="text" placeholder ="enter pet type"  onkeypress="return /[a-zA-Z\s]/i.test(event.key)" name ="other_name" maxlength = "40" class="form-control">
+                        </div>
+                        <a class="text-primary mt-10 add-another d-inline-block">
+                        </a>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" rows="3" name="description" maxlength="450"
+                            placeholder="Service Description"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <input autocomplete="off" type="text" name="location" id="address" class="form-control" maxlength="500" placeholder="Start typing address and select below.">
+                        <p class="address-error error" style="color: red;"></p>
+                    </div>
+                    <input type="hidden" name="latitude"  id="lat">
+                      <input type="hidden" name="longitude"  id="long">
+                      <input type="hidden" id="city" maxlength="50" name="city">
+                      <input type="hidden" id="state" maxlength="50" name="state">
+                      <input type="hidden" id="country" maxlength="50" name="country">
+                      <input type="hidden" id="local_time_zone" name="local_time_zone">
+                    
+                      
+                      
+                    <div class="form-group datepicker-field position-relative">
+                        <i class="far fa-calendar-alt text-primary"></i>
+                        <input type="date" id ="input_date" name="input_date" class="form-control" maxlength="" placeholder="Date">
+                    </div>
+                    <div class="button-wrap d-md-flex text-center justify-content-center">
+                        <button class="btn btn-theme rounded"><i class="fas fa-paper-plane"></i> Post Now</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function CheckLatLong(){
+        if ($('#lat').val() && $('#long').val()){
+            $('.address-error').html("");
+            Loader();
+            return true;
+        } else {
+            $('.address-error').html("Please type the address and select from dropdown");
+            $('#lat').val("");
+            $('#long').val("");
+            return false;
+        }
+    }
+
+    $('.services-slider').slick({
+        slidesToShow: 5,
+        arrows: true,
+        slidesToScroll: 1,
+        dots: false,
+        responsive: [
+            {
+                breakpoint: 1500,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 576,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+
+
+    $('.rvt-slider').slick({
+        slidesToShow: 9,
+        arrows: true,
+        slidesToScroll: 1,
+        dots: false,
+        responsive: [
+            {
+                breakpoint: 1700,
+                settings: {
+                    slidesToShow: 7
+                }
+            },
+            {
+                breakpoint: 1500,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 992,
+                settings: {
+                    slidesToShow: 5
+                }
+            },
+            {
+                breakpoint: 767,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 400,
+                settings: {
+                    slidesToShow: 2
+                }
+            }
+        ]
+    });
+
+</script>
+
+
+<script type="text/javascript"
+    src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+<script type='text/javascript'>
+    $("#add-service").validate({
+        rules: {
+            title: {
+                required: true,
+                maxlength: 50,
+            },
+            cat_id: {
+                required: true,
+            },
+            pet: {
+                required: true,
+            },
+            description: {
+                required: true,
+                maxlength: 450,
+
+            },
+            location: {
+                required: true,
+            },
+             other_name: {
+                required: true,
+                maxlength: 30,  
+            },
+            pet_type:{
+                required: true,
+            },
+            input_date:{
+                required: true,
+            },
+        },
+        messages: {
+            title: {
+                required: "Please enter the title",
+                maxlength: "You can enter only 50 character",
+
+            },
+            cat_id: {
+                required: "Please select the service category",
+            },
+            pet: {
+                required: "Please select the pet type",
+            },
+            description: {
+                required: "Please enter the description",
+                maxlength: "You can enter only 150 character",
+
+            },
+            location: {
+                required: "Please select the location",
+            },
+            other_name: {
+                required: "Please enter the pet type",
+            },
+             pet_type: {
+                required: "Please enter the pet type",
+            },
+             input_date: {
+                required: "Please enter the date",
+            },
+        },
+    });
+</script>
+<script
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAqQxTlaDVSndpLyPl-wMeQEs-TzyyZ7-I&libraries=places"></script>
+<script>
+    var options = {
+        types: ['(cities)'],
+        componentRestrictions: { country: ["in", "us"] }
+    };
+    var autocomplete2 = new google.maps.places.Autocomplete($("#address")[0], {});
+
+    google.maps.event.addListener(autocomplete2, 'place_changed', function () {
+        var place = autocomplete2.getPlace();
+        $('#lat').val(place.geometry.location.lat());
+        $('#long').val(place.geometry.location.lng());
+        var len = place.address_components.length;
+
+        if (len == 8){
+            $('#zipcode').val(place.address_components[len-1].long_name)
+            $('#country').val(place.address_components[len-2].long_name)
+            $('#state').val(place.address_components[len-3].long_name)
+            $('#city').val(place.address_components[len-4].long_name)
+
+        }else{
+            $('#state').val(place.address_components[len-2].long_name)
+            $('#city').val(place.address_components[len-3].long_name)
+            $('#country').val(place.address_components[len-1].long_name)
+        }
+
+    });
+</script>
+
+
+<script>
+    $(function () {
+        var dtToday = new Date();
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+
+        var maxDate = year + '-' + month + '-' + day;
+        $('#input_date').attr('min', maxDate);
+    });
+</script>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+
+
+<script>
+function GetUserID(id){
+        $.ajax({
+            url:"{% url 'enduser:add_favourite_rvt' %}",
+            type:'GET',
+            data:{"rvt_id":id},
+            success:function(data){
+            let is_fav= data['status']
+            let ids = "#fav" + id
+            if(is_fav == "added"){
+                $(ids).addClass("color")
+            }
+            else{
+                $(ids).removeClass("color")
+            }
+        }
+        })
+}
+</script>
+
+<script>
+    $('.user-panel-carousel').slick({
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: true,
+        autoplaySpeed: 6000,
+        dots: true,
+    });
+</script>
+
+<script>
+ $(document).ready(function () {
+    const enableDays = []
+    $.ajax({
+        url: "{% url 'enduser:my_appointment_calendar' %}",
+        type: 'GET',
+        success: function (data) {
+            for (var i = 0; i < data.date.length; i++) {
+                var d = data.date[i]
+                enableDays.push(d)
+            }
+
+    function enableAllTheseDays(date) {
+        var fDate = $.datepicker.formatDate('dd-mm-yy', date);
+        var result = [false, ""];
+        $.each(enableDays, function(k, d) {
+            if (fDate === d) {
+                result = [true, "highlight-green"];
+                
+            }
+        });
+        return result;
+    }
+
+    $("#datepicker").datepicker({
+        dateFormat: "dd/MM/yy",
+        beforeShowDay: enableAllTheseDays,
+        showOn: "button",
+        buttonImage: "http://jqueryui.com/resources/demos/datepicker/images/calendar.gif",
+        buttonImageOnly: true,
+        onSelect: function (date) {
+           $.ajax({
+            url: "{% url 'enduser:user_appointments_ajax' %}",
+            type: 'GET',
+            data:{'datee':date},
+
+            success: function (data) {
+                for (var i = 0; i < data.date.length; i++) {
+                    date=data['date'][0]
+                location.href = "{% url 'enduser:user_calendar_appointment_list' %}?date="+date   
+                }          
+            }
+        })                  
+        }
+        
+        
+    });
+
+    }
+})  
+
+});
+</script>
+
+<script>
+    $( document ).ready(function() {
+    var x = document.getElementById('local_time_zone');
+    x.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+});
+</script>

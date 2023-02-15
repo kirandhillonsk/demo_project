@@ -1,0 +1,259 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/add-pet.css' %}"/>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+
+{% if pet %}
+<div class="profile-page-wrapper">
+    <div class="form-wrapper theme-form">
+        <form onsubmit="Loader(this.id)" id = "edit_pet" action = "{% url 'enduser:edit_pet' pet.id %}" method = "POST" enctype="multipart/form-data" >
+        {% csrf_token %}
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-paw-alt"></i> Pet Name</label>
+                        <input type="text" onkeypress="return /[a-zA-Z\s]/i.test(event.key)" name ="pet_name" value = "{% if pet.name %}{{ pet.name}}{% else %}{% endif %}"  maxlength="40" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-calendar-alt"></i> Birthdate</label>
+                        <input type="date" name ="pet_age" id="pet_age" value = "{% if pet.age %}{{ pet.age}}{% else %}{% endif %}"  maxlength="25" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+    
+                     <div class="form-group">
+                        <label><i class="far fa-list"></i> Type</label>
+                        <select class="form-control" id="pet_type" name ="pet_type">
+                        {% for p in pets %}
+                            <option {% if p.id == pet.pet_type.id %}selected{% endif %} value="{{p.id}}">{{p.name}}</option>
+                        {% endfor %}
+
+                        </select>
+                        
+                    </div>
+                <div class="form-group" id="newdiv" style="display:none">
+                    <input type="text" placeholder = "enter pet type" onkeypress="return /[a-zA-Z\s]/i.test(event.key)" name ="other_name" maxlength = "40" class="form-control">
+                </div>
+
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-weight"></i> Weight (in pounds)</label>
+                        <input type="text" name ="size" onkeypress="return /[0-9.]/i.test(event.key)" value = "{% if pet.size %}{{ pet.size}}{% else %}{% endif %}" maxlength = "4" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Breed</label>
+                        <input type="text" onkeypress="return /[a-zA-Z\s]/i.test(event.key)"  name ="pet_breed" value = "{% if pet.breed %}{{ pet.breed }}{% else %}{% endif %}" maxlength="70" class="form-control">
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="fas fa-venus-mars"></i> Sex</label>
+                        {% if pet.pet_gender == 1 %}
+                        <select class="form-control" name ="pet_gender">
+                            <option selected value="1">Male</option>
+                            <option value="2">Female</option>
+                        </select>
+                        {% elif pet.pet_gender == 2  %}
+                        <select class="form-control" name ="pet_gender">
+                            <option  value="1">Male</option>
+                            <option selected value="2">Female</option>
+                        </select>
+                        {% endif %}
+                    </div>
+                </div> 
+           
+                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Vet Name</label>
+                        <input type="text" onkeypress="return /[a-zA-Z\s]/i.test(event.key)"  name ="vet_name" value = "{% if pet.vet_name %}{{ pet.vet_name}}{% else %}{% endif %}" maxlength = "70" class="form-control">
+                    </div>
+                </div>
+                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Vet Email</label>
+                        <input type="text" name ="vet_email" value = "{% if pet.vet_email %}{{ pet.vet_email}}{% else %}{% endif %}" class="form-control">
+                    </div>
+                </div>
+                 <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Vet Phone</label>
+                        <input type="text" name ="vet_number" minlength="5" maxlength = "12" value = "{% if pet.vet_number %}{{ pet.vet_number}}{% else %}{% endif %}" onkeypress="return /[0-9]/i.test(event.key)" maxlength = "12" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Vet Address</label>
+                        <input autocomplete="off" type="text" name ="vet_address" value = "{% if  pet.vet_adrress %}{{ pet.vet_adrress}} {% else %} {% endif %}" maxlength = "500" class="form-control">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> About</label>
+                        <textarea id="txt1" rows="4"  placeholder ="Please describe any medical conditions, allergies, temperament and any other information you would like to share" cols="50" name ="about"  class="form-control">
+                        {% if pet.description %}{{ pet.description }}{% endif %}
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Vaccines</label>
+                        <textarea id="txt2" rows="4"  placeholder="Please enter all vaccines that your pet has had in the past" cols="50" name="vaccines"  class="form-control" >
+                        {% if pet.vaccines %}{{ pet.vaccines }}{% endif %}
+                        </textarea>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label><i class="far fa-dog"></i> Pet Image</label>
+                        <input type="file" name="pet_image" id="pet_image" multiple class="form-control">
+                        <p class="er2" id ="upload_file_name" style="color:green !important;font-size: 15px;"></p>
+                    </div>
+                </div>
+                
+            </div>
+
+            <div class="button-wrap mt-15 mt-md-25 mt-xl-60 text-right">
+                <a href="{% url 'enduser:user_profile' %}" class="btn btn-cancel"><i class="fal fa-long-arrow-left"></i> Cancel</a>
+                <button type ="submit" class="btn btn-theme ml-10">Save <i class="fal fa-long-arrow-right"></i></button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+<script>
+    if ($('#txt1').val()){
+        $('#txt1').val($('#txt1').val().trim())
+    }
+    if ($('#txt2').val()){
+        $('#txt2').val($('#txt2').val().trim())
+    }
+</script>
+<script>
+    $("#pet_image").change(function () {
+        var fileExtension = ['jpeg', 'jpg', 'png'];
+        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            $(".er2").html("Please upload file in these format only (jpg, jpeg, png)");
+            $(".btn").prop('disabled', true);
+        }
+        else{
+            $(".er2").html("");
+            $(".btn").prop('disabled', false);
+        }
+    });
+</script>
+<script>
+    $(function () {
+        var dtToday = new Date();
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+        var maxDate = year + '-' + month + '-' + day;
+        $('#pet_age').attr('max', maxDate);
+    });
+    $(function () {
+        var dtToday = new Date();
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear() - 15;
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+        var maxDate = year + '-' + month + '-' + day;
+        $('#pet_age').attr('min', maxDate);
+    });
+</script>
+<!--form validation-->
+ <script type="text/javascript">
+      $("#edit_pet").validate({
+          rules: {
+              pet_name: {
+                  required: true,
+              },
+              pet_age: {
+                  required: true,
+              },
+             
+              vet_info: {
+                  required: true,
+              },
+             vet_email:{
+                 email:true
+             },
+              size:{
+                  min:1,
+                  number: true,
+                  max:120
+              },
+              
+             
+            pet_gender: {
+                  required: true,
+              },
+              pet_type:{
+                  required:true,
+              },
+            other_name:{
+                  required:true,
+              },
+          },
+          messages: {
+              pet_name: {
+                  required: "Please enter pet name",
+              },
+              pet_age: {
+                  required: "Please enter pet year",
+
+              },
+              pet_type:{
+                  required: "Please select pet type"
+              },
+             
+              
+            vet_info: {
+                  required: "Please enter vet info",
+              },
+             
+        pet_gender: {
+                  required: "Please slect gender",
+                 
+              },
+        other_name: {
+                  required: "Please enter pet name",
+                 
+              },
+          }
+      });
+
+</script> 
+
+<script>
+
+    $('#pet_image').change(function(){
+   
+        let file_name = $('#pet_image')
+
+        for (let i = 0 ; i < file_name[0]['files'].length +1 ; i++){
+            let nm = file_name[0]['files'][i].name
+            $('#upload_file_name').append(nm +" <br>")
+            
+        }
+        
+     
+
+    });
+</script>
+{% endblock %}
+{% include "user/includes/footer.html" %}

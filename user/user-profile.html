@@ -1,0 +1,1113 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/profile.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<link rel="stylesheet" href="{% static 'admin-assets/user-css/profile.css' %}" />
+
+<script src="{% static 'admin-assets/js/jquery.min.js' %}"></script>
+<script src="{% static 'admin-assets/js/jquery.mask.min.js' %}"></script>
+
+<div class="profile-page-wrapper">
+    <div class="row">
+        <div class="col-lg-5 col-xxl-4">
+            <div class="profile-left-wrapper">
+                <div class="top-info">
+                    <div class="info-media d-md-flex align-items-center">
+                        <form onsubmit="Loader(this.id)" action="{% url 'enduser:user_profile_image' %}" method="POST"
+                            enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="img-wrapper">
+                                {% if user.profile_pic %}
+                                <img src="{{user.profile_pic.url}}" class="rounded-circle object-cover">
+                                {% else %}
+                                <img src="{% static 'admin-assets/images/default.png' %}/"
+                                    class="rounded-circle object-cover">
+                                {% endif %} <label for="uploadDP"><i class="fas fa-camera" style="font-size: 16px;"></i></label>
+                                <input type="file" name="profile_pic" id="uploadDP" onchange="this.form.submit()">
+                            </div>
+                        </form>
+                        <div class="media-body pl-0 pl-md-25 pt-10 pt-md-0">
+                            <h4>{% if user.first_name %}{{user.first_name}}{% else %} {% endif %}</h4>
+                            <ul class="mata">
+                                <li class="d-flex bdge">
+                                    {% if user.badge.image %}
+                                        <img style="margin-left: -3px; width: 20px;" src="{{user.badge.image.url}}"><div class="data-name">{{user.badge.title}}</div>
+                                    {% endif %}
+                                </li>
+                                {% if user.status == True %}
+                                <li class="d-flex status active">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Active</div>
+                                </li>
+                                {% else %}
+                                <li class="d-flex status inactive">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Inactive</div>
+                                </li>
+                                {% endif %}
+                                <li class="d-flex location">
+                                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="data-name">{% if user.state and user.city %}{{user.state}},{{user.city}}{% else %} - {% endif %}</div>
+                                </li>
+                            </ul>
+                           <div class="become-rvt">
+                                {% if user.applied_for == null or user.applied_for == 2 %} 
+                                    {% if user.address == null or user.address == "" %}
+                                        <button type="button" class=" btn btn-success" data-toggle="modal" data-target="#rvt_complete_profile_modal">Click for RVT Application</button>
+                                    {% else %}
+                                        <button type="button" class=" btn btn-success" data-toggle="modal" data-target="#rvt_modal">Click for RVT Application</button>
+                                    {% endif %}
+                                {% elif user.applied_for == "3" and user.is_verified == 0 %}
+                                    <button type="button" class=" btn btn-success">Application Pending</button>
+                                {% elif user.applied_for == "3" and user.is_verified == 1 %}
+                                    <a href="{% url 'enduser:change_to_rvt' %}" class=" btn btn-success">RVT Dashboard</a>
+                                {% elif user.applied_for == "3" and user.is_verified == 2 %}   
+                                    <button type="button" class=" btn btn-success">Application Declined</button>
+                                {% elif user.applied_for == "3" and user.is_verified == 3 %}
+                                    <button type="button" class=" btn btn-danger" data-toggle="modal" data-target="#edit_rvt_application">Application Rejected</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div> 
+
+                    <!-- Modal -->
+                    <div class="modal fade addformModal" id="edit_rvt_application" tabindex="-1"    role="dialog" aria-labelledby="addServiceTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <div class="modal-body">
+                                    <form onsubmit="Loader(this.id)" action="{% url 'enduser:become_an_rvt' %}" id="becomervt" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="heading">
+                                            <p class="text-center">Edit RVT Application</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">Year of Experience</label>
+                                            <div class="icon-find">
+                                                <img src="{% static 'assets/images/rating.png' %}" alt="">
+                                                <select class="custom-select form-control" id="experience" name="year_of_experience">
+                                                    <option value="">Choose...</option>
+                                                    <option value="0">Less than 1 Year</option>
+                                                    <option value="1">1 Year</option>
+                                                    <option value="2">2 Years</option>
+                                                    <option value="3">3 Years</option>
+                                                    <option value="4">4 Years</option>
+                                                    <option value="5">5+ Years</option>
+                                                </select>
+                                            </div>
+                                            </div>
+                                            <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">License Number(Optional)</label>
+                                            <div class="icon-find">
+                                                <img src="{% static 'assets/images/registration.png' %}" alt="">
+                                                <input type="text" class="form-control" id="Registration" aria-describedby="Registration" maxlength="30" minlength="1" name="registration_no" placeholder="Enter License Number" value={{data.registration_no}}>
+                                            </div>
+                                            </div>
+                                            {% comment %} <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">Expiry Date</label>
+                                                <input type="date" class="form-control" id="expiry_date" aria-describedby="Registration" maxlength="15" name="expiry_date" placeholder="">
+                                            </div> {% endcomment %}
+                                            <div class="form-group">
+                                                <label class="font-18" for="InputPassword1">Upload Resume</label>
+                                                <div class="file-upload">
+                                                <label class="file-select d-flex align-items-center" for="chooseFile">
+                                                    <div class="file-select-name mr-auto pl-15" id="noFile">Choose File</div>
+                                                    <span class="px-3"><img src="{% static 'assets/images/file.png' %}" alt=""> </span>
+                                                </label>
+                                                <input type="file" name="resume" id="chooseFile">
+                                                <p class="text-left" id="resume_er"  style="color:red !important"></p>
+                                                <p class="text-left" id="upload_file_name" style="color:green !important;font-size: 15px;"></p>
+                                                </div>
+                                            </div>
+                                        <div class="button-wrap d-md-flex text-center justify-content-center">
+                                            <button type="submit" class="butn btn btn-theme-alt rounded" ><i class="fas fa-save mr-6"></i> Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                    <!-- Modal -->
+                    <div class="modal fade addformModal" id="rvt_modal" tabindex="-1"    role="dialog" aria-labelledby="addServiceTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+                            <div class="modal-content">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <div class="modal-body">
+                                    <form onsubmit="Loader(this.id)" action="{% url 'enduser:become_an_rvt' %}" id="becomervt" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <div class="heading">
+                                            <p class="text-center">RVT DashBoard</p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">Year of Experience</label>
+                                            <div class="icon-find">
+                                                <img src="{% static 'assets/images/rating.png' %}" alt="">
+                                                <select class="custom-select form-control" id="experience" name="year_of_experience">
+                                                    <option value="">Choose...</option>
+                                                    <option value="0">Less than 1 Year</option>
+                                                    <option value="1">1 Year</option>
+                                                    <option value="2">2 Years</option>
+                                                    <option value="3">3 Years</option>
+                                                    <option value="4">4 Years</option>
+                                                    <option value="5">5+ Years</option>
+                                                </select>
+                                            </div>
+                                            </div>
+                                            <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">License Number(Optional)</label>
+                                            <div class="icon-find">
+                                                <img src="{% static 'assets/images/registration.png' %}" alt="">
+                                                <input type="text" class="form-control" id="Registration" aria-describedby="Registration" maxlength="30" minlength="1" name="registration_no" placeholder="Enter License Number" value={{data.registration_no}}>
+                                            </div>
+                                            </div>
+                                            {% comment %} <div class="form-group">
+                                            <label class="font-18" for="InputEmail1">Expiry Date</label>
+                                                <input type="date" class="form-control" id="expiry_date" aria-describedby="Registration" maxlength="15" name="expiry_date" placeholder="">
+                                            </div> {% endcomment %}
+                                            <div class="form-group">
+                                                <label class="font-18" for="InputPassword1">Upload Resume</label>
+                                                <div class="file-upload">
+                                                <label class="file-select d-flex align-items-center" for="chooseFile">
+                                                    <div class="file-select-name mr-auto pl-15" id="noFile">Choose File</div>
+                                                    <span class="px-3"><img src="{% static 'assets/images/file.png' %}" alt=""> </span>
+                                                </label>
+                                                <input type="file" name="resume" id="chooseFile">
+                                                <p class="text-left" id="resume_er"  style="color:red !important"></p>
+                                                <p class="text-left" id="upload_file_name" style="color:green !important;font-size: 15px;"></p>
+                                                </div>
+                                            </div>
+                                        <div class="button-wrap d-md-flex text-center justify-content-center">
+                                            <button type="submit" class="butn btn btn-theme-alt rounded" ><i class="fas fa-save mr-6"></i> Submit</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div> 
+                    <div class="data-wrap text-center">
+                        <div class="row form-row">
+                            <div class="jobs-completed col-6">
+                                <h5>{% if completed_jobs %}{{completed_jobs}}{% else %}0{% endif %}</h5>
+                                <p>Jobs Completed</p>
+                            </div>
+                            <div class="jobs-rating col-6">
+                                <h5>0</h5>
+                                <p>Ratings</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tabs-wrapper">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <a class="nav-link {% if not secondTab and not petTab and not request.GET.thirdTab %} active {% endif %}"  id="v-pills-details-tab" data-toggle="pill" href="#v-pills-details"
+                            role="tab" aria-controls="v-pills-details" aria-selected="{% if not secondTab and not request.GET.thirdTab %} true {% else %} false {% endif %}">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="far fa-user"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Your Profile</h4>
+                                    <p>Details about your personal information</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="nav-link {% if petTab %} active {% endif %}" id="v-pills-pets-tab" data-toggle="pill" href="#v-pills-pets" role="tab"
+                            aria-controls="v-pills-pets" aria-selected="false">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="far fa-paw-alt"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Pets</h4>
+                                    <p>You can add your pets here</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a class="nav-link {% if secondTab %} active {% endif %}" id="v-pills-billing-tab" data-toggle="pill" href="#v-pills-billing"
+                            role="tab" aria-controls="v-pills-billing" aria-selected="{% if not secondTab %} true {% else %} false {% endif %}">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="far fa-credit-card"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Billing</h4>
+                                    <p>You can setup your payment method</p>
+                                </div>
+                            </div>
+                        </a>
+                        {% comment %} <a class="nav-link {% if request.GET.thirdTab %} active {% endif %}" id="v-pills-bank-tab" data-toggle="pill" href="#v-pills-bank"
+                        role="tab" aria-controls="v-pills-bank" aria-selected="{% if request.GET.thirdTab %} true {% else %} false {% endif %}">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Connect Stripe Account</h4>
+                                    <p>You can add your bank</p>
+                                </div>
+                            </div>
+                        </a> {% endcomment %}
+                        <a class="nav-link" id="v-pills-notifications-tab" data-toggle="pill"
+                            href="#v-pills-notifications" role="tab" aria-controls="v-pills-notifications"
+                            aria-selected="false">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="far fa-bell"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Notification Setting</h4>
+                                    <p>Customize your notifications</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 col-xxl-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade {% if not secondTab and not petTab and not request.GET.thirdTab %} show active {% endif %}" id="v-pills-details" role="tabpanel"
+                    aria-labelledby="v-pills-details-tab">
+                    <div class="profile-tab-wrap">
+                        <div class="d-flex align-items-center justify-content-between mb-20">
+                            <h4 class="tab-heading">My Details</h4>
+                            <div class="button-wrap">
+                                <a class="btn btn-theme" data-toggle="pill" href="#v-pills-edit-profile" role="tab"
+                                    aria-controls="v-pills-edit-profile" aria-selected="false">Edit Profile <i
+                                        class="fal fa-long-arrow-right ml-10"></i>
+                                </a>
+                                {% comment %} <a data-toggle="modal" href="#DeleteProfile" class="btn btn-theme" role="tab">Delete Account</a> {% endcomment %}
+                            </div>
+                        </div>
+                            {% if user %}
+                        <div class="profile-overview">
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-envelope"></i> Email Address</div>
+                                <div class="data media-body pl-md-20">{% if user.email %} {{user.email}} {% else %}{% endif %}</div>
+                            </div>
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-phone-alt"></i> Phone Number</div>
+                                <div class="data media-body pl-md-20">{% if user.mobile_no %}{{user.mobile_no}}{% else %}-{% endif %}</div>
+                            </div>
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-map-marker-alt"></i> Address</div>
+                                <div class="data media-body pl-md-20">{% if user.address %}{{user.address}}{% else %}-{% endif %}</div>
+                                
+
+                            </div>
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-map-marker-alt"></i> City/Town</div>
+                                <div class="data media-body pl-md-20">{% if user.city %}{{user.city}}{% else %}-{% endif %}</div>
+                            </div>
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-map-marker-alt"></i> State</div>
+                                <div class="data media-body pl-md-20">{% if user.state %}{{user.state}}{% else %}-{% endif %}</div>
+                            </div>
+                             <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-map-marker-alt"></i> Country</div>
+                                <div class="data media-body pl-md-20">{% if user.country %}{{user.country}}{% else %}-{% endif %}</div>
+                            </div>  
+                            <div class="profile-list d-md-flex">
+                                <div class="heading"><i class="fas fa-comment-alt-exclamation"></i> About Me</div>
+                                <div class="data media-body pl-md-20">{% if user.about_me %}{{user.about_me}} {% else %}-{% endif %}</div>
+                            </div>
+
+                        </div>
+                        {% endif  %}
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade {% if secondTab %} show active {% endif %}" id="v-pills-billing" role="tabpanel" aria-labelledby="v-pills-billing-tab">
+                    <div class="profile-tab-wrap">
+                        <h4 class="tab-heading">Billing</h4>
+                        
+                        <div class="billing-row row">
+                            {% for card in cards %}
+                            <div class="col billing-col">
+
+                                <label class="billing-box {% if default == card.id %} billing-default {% endif %}" for="creditcard{{card.id}}">
+                                    <h4>{% if card.brand %} {{card.brand}}{% endif %}</h4>
+                                    {% if card.brand == 'Visa' %} 
+                                    <div class="img-wrap">
+                                        <img src="{% static 'admin-assets/images/rvt/payment/visa.jpg' %}/" class="">
+                                    </div>
+                                    {% elif card.brand == 'Mastercard' %}
+                                    <div class="img-wrap">
+                                        <img src="{% static 'admin-assets/images/rvt/payment/mastercard.jpg' %}/" class="">
+                                    </div>
+                                    {% endif %}
+                                    </a>
+                                    <div class="card-num">**** **** **** {{card.last4}}</div>
+                                    <div class="d-flex mt-3">
+                                        {% if not default == card.id %}
+                                        <a class="set-card-default" href ="{% url 'enduser:set_default_card' %}?id={{card.id}}">Set Card as Default</a>
+                                        {% endif %}
+                                        <a href="{% url 'enduser:deletecard' %}?card_id={{card.id}}" onclick="return confirm('Are you sure you want to delete this card?');" class="remove"><i class="fas fa-minus"></i></a>
+                                    </div>
+                                    <a href="{% url 'enduser:deletecard' %}?card_id={{card.id}}" onclick="return confirm('Are you sure you want to delete this card?');" class="remove"><i class="fas fa-minus"></i></a>
+                                </label>
+                            </div>
+                         
+                            {% endfor %}
+                            <div class="col billing-col" >
+                                <a  data-toggle="modal"  href="#deleteModal">
+                                    <div class="add-payment justify-content-center align-items-center d-flex">
+                                        <span><i class="fal fa-plus"></i></span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="v-pills-notifications" role="tabpanel"
+                    aria-labelledby="v-pills-notifications-tab">
+                    <div class="profile-tab-wrap">
+                        <div class="header-email">
+                            <h5>Notifications Preferences</h5>
+                        </div>
+                        <br>
+                        <div class="notification-list switch-check">
+                            
+                              <div class="d-md-flex justify-content-between notification-wrap align-items-center">
+                                <h5>Mobile Push Notifications</h5>
+                                <div class="check-wrap">
+                                    {% if request.user.is_push == 0 %}
+                                        <input type="checkbox" name="push_notification" value="push_notification" id="push_notification" onchange="GetNotification('push_notification')" >
+                                    {% else %}
+                                        <input type="checkbox" name="push_notification" value="push_notification" id="push_notification" onchange="GetNotification('push_notification')" checked>
+                                    {% endif %}
+                                    
+                                    <label for="push_notification"></label>
+                                </div>
+                            </form>
+
+                            </div>
+                            <div class="d-md-flex justify-content-between notification-wrap align-items-center">
+                                <h5>Email Notification</h5>
+                                <div class="check-wrap">
+                                    {% if request.user.is_email == 0 %}
+                                        <input type="checkbox" name="email_notification" value="email_notification" id="email_notification" onchange="GetNotification('email_notification')">
+                                    {% else %}
+                                        <input type="checkbox" name="email_notification" value="email_notification" id="email_notification" onchange="GetNotification('email_notification')" checked>
+                                    {% endif %}
+                                        <label for="email_notification"></label>
+                                </div>
+                            </div>
+                            <div class="d-md-flex justify-content-between notification-wrap align-items-center">
+                                <h5>Text Updates</h5>
+                                <div class="check-wrap">
+                                    {% if request.user.is_text == 0 %}
+                                        <input type="checkbox" name="text_notification" value="text_notification" id="text_notification" onchange="GetNotification('text_notification')">
+                                    {% else %}
+                                        <input type="checkbox" name="text_notification" value="text_notification" id="text_notification" onchange="GetNotification('text_notification')" checked>
+                                    {% endif %}
+                                        <label for="text_notification"></label>
+                                </div>
+                            </div>
+                            {% comment %} <div class="d-md-flex justify-content-between notification-wrap align-items-center">
+                                <h5>Allow Direct Messages </h5>
+                                <div class="check-wrap">
+                                    {% if request.user.is_direct_message == 0 %}
+                                        <input type="checkbox" name="d_notification" value="d_notification" id="d_notification" onchange="GetNotification('d_notification')">
+                                    {% else %}
+                                        <input type="checkbox" name="d_notification" value="d_notification" id="d_notification" onchange="GetNotification('d_notification')" checked>
+                                    {% endif %}
+                                        <label for="d_notification"></label>
+                                </div>
+                            </div> {% endcomment %}
+                          
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade {% if request.GET.thirdTab  %} show active{% endif %}" id="v-pills-bank" role="tabpanel" aria-labelledby="v-pills-bank-tab">
+                    <div class="profile-tab-wrap">
+                        <h4 class="tab-heading">Connect Stripe Account</h4>
+                     <div class="billing-row row">
+                        {% for bank in stripe_bank_accounts %}
+                        <div class="col billing-col">
+                            <label class="billing-box billing-default" for="creditcard{{card.id}}">
+                                <h4>{% if card.brand %} {{card.brand}}{% endif %}</h4>
+                                
+                                <div class="card-num">{{bank.bank_name}}</div><br>
+                                <div class="card-num">{{bank.routing_number}}</div>
+                                <a href="{% url 'accounts:deletebank' %}?bank_id={{bank.account}}" onclick="return confirm('Are you sure you want to delete this bank?');" class="remove"><i class="fas fa-minus"></i></a>
+                            </label>
+                        </div>
+                        {% endfor %}
+                        {% if not stripe_bank_accounts  %}
+                            <div class="col billing-col" >
+                                <a href="{{BANK_ADD_URL}}">
+                                <div class="add-payment justify-content-center align-items-center d-flex">
+                                    <span><i class="fal fa-plus"></i></span>
+                                </div>
+                            </a>
+                            </div>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade {% if petTab %} show active {% endif %}" id="v-pills-pets" role="tabpanel" aria-labelledby="v-pills-pets-tab">
+                    <div class="profile-tab-wrap">
+                        <div class="d-flex align-items-center justify-content-between mb-20">
+                            <h4 class="tab-heading">Pets</h4>
+                            <div class="button-wrap">
+                                <a class="btn btn-theme" href="{% url 'enduser:add_pet' %}">Add New <i class="fal fa-long-arrow-right ml-10"></i></a>
+                            </div>
+                        </div>
+                        <div class="pets-list">
+                            {% if pets %}
+                                {% for pet in pets %}
+                                <div class="d-md-flex pet-media align-items-center">
+                                    <div class="img-wrap">
+                                        {% if pet.image.all %}
+                                            <a href = "{% url 'enduser:pet_profile' pet.id%}"><img src="{{ pet.image.all.first.file.url }}"></a>
+                                        {% else %}
+                                            <a href = "{% url 'enduser:pet_profile' pet.id%}"><img src="{% static 'admin-assets/images/pet-default.jpeg' %}"></a>
+                                        {% endif %}
+
+                                    </div>
+                                    <div class="dropdown">
+                                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="far fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                            <a class="dropdown-item" href="{% url 'enduser:edit_pet' pet.id%}">
+                                                <img src="{% static 'admin-assets/images/rvt/edit.png' %}">
+                                                Edit</a>
+                                            <a href = "{% url 'enduser:remove_pet'%}?id={{pet.id}}"  class="dropdown-item">
+                                                <img src="{% static 'admin-assets/images/rvt/trash.png' %}">
+                                                    Delete</a>
+                                        </div>
+                                    </div>
+                                    <div class="media-body pl-md-15 pt-15 pt-md-0">
+                                        <div class="pet-profile-wrap">
+                                            <div class="heading">
+                                                <h3>{% if pet.name %} {{pet.name}} {% else %} {% endif %} <span class="type">{{pet.pet_type.name}}</span></h3>
+                                                <div class="pet-mata">
+                                                    <ul>
+                                                        <li><strong>Age -</strong> {% if pet.age %}{{pet.age}} {% else %} {% endif %}</li>
+                                                        <li><strong>Size -</strong> {% if pet.size %}{{pet.size}} pounds {% else %} {% endif %}</li>
+                                                        <li><strong>Breeds -</strong> {% if pet.breed %}{{pet.breed}}{% else %} {% endif %} </li>
+                                                        <li><strong>Sex -</strong> {% if pet.pet_gender == 1 %}Male{% elif pet.pet_gender == 2 %}Female{% else %} {% endif %} </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                        <div class="d-md-flex pet-media align-items-center">
+                            <div class="media-body pl-md-15 pt-15 pt-md-0">
+                                <div class="pet-profile-wrap">
+                                    <div class="heading">
+                                        <h3 align="center">No Pet Found</span></h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="v-pills-edit-profile" role="tabpanel"
+                    aria-labelledby="v-pills-edit-profile-tab">
+                    <div class="profile-tab-wrap">
+                        <div class="form-wrapper theme-form">
+                            <form autocomplete="off" id="update-profile" action="{% url 'enduser:user_profile' %}" method="POST" onsubmit="return CheckLatLong()">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> First Name</label>
+                                            <input type="text" id="first_name" name="first_name" maxlength= "50" onkeypress="return /[a-zA-Z\s]/i.test(event.key)" class="form-control" {% if user.first_name %} value="{{user.first_name}}" {% else %} placeholder="Enter First Name" {% endif %}>
+                                            <p class="error"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Last Name</label>
+                                            <input type="text" id="last_name" maxlength= "50" onkeypress="return /[a-zA-Z\s]/i.test(event.key)" name="last_name" class="form-control" {% if user.last_name %} value="{{user.last_name}}" {% else %} placeholder="Enter Last Name" {% endif %}>
+                                            <p class="error"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                                            <input type="text" name="email" class="form-control" value="{{user.email}}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-phone-alt"></i> Phone Number</label>
+                                            <small>(include Country code)</small>
+
+                                            <input autocomplete="off" type="text" id="mobile" name="mobile_no" onkeypress="return /[0-9]/i.test(event.key)" maxlength="12" class="form-control" {% if user.mobile_no %} value="{{user.mobile_no}}" {% else %} placeholder="Enter Mobile Number" {% endif %}>
+                                            <p class="mobile_error"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                                            <small>(select autocompleted google address)</small>
+                                            <input autocomplete="off" type="text" name="address" maxlength="150" id="address" class="form-control" {% if user.address %} value="{{user.address}}" {% else %} placeholder="Enter Address" {% endif %}>
+                                            <input type="hidden" name="latitude" id = "lat" class="form-control" {% if user.latitude %} value="{{user.latitude}}" {% else %}{% endif %}>
+                                            <input type="hidden" name="longitude" id = "long" class="form-control" {% if user.longitude %} value="{{user.longitude}}" {% else %}{% endif %}>
+                                            <p class="address-error error" style="color: red;"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> City/Town</label>
+                                            <input autocomplete="off" type="text" name="city" maxlength="60"  id = "city" class="form-control" {% if user.city %} value="{{user.city}}" {% else %} placeholder="Enter City" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> State</label>
+                                            <input autocomplete="off" type="text" name="state" maxlength="60"  id = "state" class="form-control" {% if user.state %} value="{{user.state}}" {% else %} placeholder="Enter State" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> Country</label>
+                                            <input autocomplete="off" type="text"  maxlength="60"  name="country" id = "country" class="form-control" {% if user.country %} value="{{user.country}}" {% else %} placeholder="Enter State" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-info-circle"></i> About Me</label>
+                                            <textarea class="form-control" rows="3" maxlength= "1000"
+                                                name="about_me">{% if user.about_me %}{{user.about_me}}{% else %}{% endif %}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="button-wrap mt-15 mt-md-25 mt-xl-60 text-right">
+                                    <a href="{% url 'enduser:user_profile' %}" class="btn btn-cancel"><i class="fal fa-long-arrow-left"></i> Cancel</a>
+                                    <button class="btn btn-theme ml-10">Save <i class="fal fa-long-arrow-right"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade addformModal" id="deleteModal" tabindex="-1" data-backdrop="static" data-keyboard="false" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-custom-width" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="modal-body">
+                <form onsubmit="Loader(this.id)" id="add-card" action="{% url 'enduser:add_card' %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="heading">
+                        <p class="text-center">Add New Card</p>
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control" onkeypress="return /[a-zA-z\s]/i.test(event.key)" name="card_holder_name" maxlength="100" placeholder="Card Holder Name">
+                    </div>
+                    <div class="form-group">
+                        <input class="form-control"  name="ac_no" onkeypress="return /[0-9]/i.test(event.key)" maxlength="19" placeholder="Card Number" id="debit">
+                        <p class="er" style="color:red"></p>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input class="form-control"  name="expire_date" maxlength="7" id="ex_date" placeholder="Expire Date">
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <input class="form-control"  name="cvv" maxlength="3" placeholder="CVV">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="button-wrap d-md-flex text-center justify-content-center">
+                        <button class="btn btn-theme-alt rounded"><i class="fas fa-save mr-6"></i> Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% comment %} <div class="modal fade addformModal" id="DeleteProfile" tabindex="-1" role="dialog" aria-labelledby="addServiceTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <div class="modal-header">
+                <p class="text-center">Delete Account</p>
+            </div>
+            <div class="modal-body p-2">
+                <div class="text-wrap text-center">
+                    <div class="heading p-2 mb-0" >
+                        <p class="text-center" style="font-size: 20px;">Are you sure you want to delete your account?</p>
+                    </div>
+                    <div class="button-wrap">
+                        <a class="btn btn-theme"  href="{% url 'accounts:delete_user' %}" role="tab">Delete Account</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div> {% endcomment %}
+
+<div class="modal fade" id="rvt_complete_profile_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          {% comment %} <h5 class="modal-title" id="exampleModalLongTitle">Please complete your profile</h5> {% endcomment %}
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body text-center">
+            <p class="list-group-item list-group-item-warning">Please edit your profile and add your home address in order to complete the application.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning btn-block" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}
+<script>
+    function CheckLatLong(){
+        $('#address').change(function(){
+            $('.address-error').html("");
+        })
+
+        if ($('#lat').val() && $('#long').val()){
+            $('.address-error').html("");
+            Loader();
+            return true;
+        } else {
+            $('.address-error').html("Please type the address and select from dropdown");
+            $('#lat').val("");
+            $('#long').val("");
+            return false;
+        }
+    }
+</script>
+<script type="text/javascript">
+    var app;
+    (function () {
+        'use strict';
+        app = {
+            monthRegex: /^\d\d$/, // regex to match "MM"
+            el_expDate: '#ex_date',
+        };
+        app.addListeners = function () {
+            $(app.el_expDate).on('keydown', function (e) {
+               // app.removeSlash(e);
+            });
+            $(app.el_expDate).on('keyup', function (e) {
+                app.addSlash(e);
+            });
+            $(app.el_expDate).on('blur', function (e) {
+                app.populateDate(e);
+            });
+            $(app.el_cvv + ', ' + app.el_expDate).on('keypress', function (e) {
+                return e.charCode >= 48 && e.charCode <= 57;
+            });
+        };
+        app.addSlash = function (e) {
+            var isMonthEntered = app.monthRegex.exec(e.target.value);
+            if (e.key >= 0 && e.key <= 9 && isMonthEntered) {
+                e.target.value = e.target.value + " / ";
+            }
+        };
+        app.populateDate = function (e) {
+            var month, year;
+            if (e.target.value.length == 7) {
+                month = parseInt(e.target.value.slice(0, -5));
+                year = "20" + e.target.value.slice(5);
+
+                if (app.checkMonth(month)) {
+                    $(app.el_monthSelect).val(month);
+                } else {
+                    $(app.el_monthSelect).val(0);
+                }
+
+                if (app.checkYear(year)) {
+                    $(app.el_yearSelect).val(year);
+                } else {
+                    $(app.el_yearSelect).val(0);
+                }
+            }
+        };
+        app.init = function () {
+            $(document).find(app.el_cardNumber).each(function () {
+                var $elem = $(this);
+                if ($elem.is('input')) {
+                    $elem.on('input', function () {
+                        app.monitorCcFormat($elem);
+                    });
+                }
+            });
+            app.addListeners();
+        }();
+
+    })();
+</script>
+{% include "user/includes/footer.html" %}
+<script>
+    $(document).ready(function () {
+        $("#ac_no").keyup(function () {
+            var ac_no = $('#ac_no').val();
+            if (ac_no != '' && ac_no != 'undefined' && ac_no != ' ') {
+                $.ajax({
+                    url: "{% url 'accounts:card_validation' %}",
+                    type: 'GET',
+                    data: { 'card_id': ac_no },
+                    success: function (data) {
+                        if (data.exists == "1") {
+                            $(".er").html("Card Already exists");
+                            $(".btn").prop('disabled', true);
+                        }
+                        else {
+                            $(".er").html("");
+                            $(".butn").prop('disabled', false);
+                            $(".btn").prop('disabled', false);                      
+                        }
+                    }
+                });
+            }
+            else {
+                $(".er").html("");
+                $(".btn").prop('disabled', false);
+            }
+        });
+
+    });
+</script>
+<script type="text/javascript">
+    $("#update-profile").validate({
+        rules: {
+            mobile_no: {
+                number: true,
+                minlength: 5,
+                maxlength: 15
+            },
+        },
+        messages: {
+            mobile_no: {
+                number: "Please enter valid numner",
+                minlength: "Please enter at least 5 digits",
+                maxlength: "Please enter no more than 15 digits."
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#mobile").keyup(function () {
+            var mobile = $('#mobile').val();
+            if (mobile != '' && mobile != 'undefined' && mobile != ' ') {
+                $.ajax({
+                    url: "{% url 'rvt_lvt:mobile_validation' %}",
+                    type: 'GET',
+                    data: { 'mobile_id': mobile },
+                    success: function (data) {
+                        if (data.exists == 0) {
+
+                            $(".mobile_error").html("");
+                            $(".btn").prop('disabled', false);
+                        }
+                        else {
+                            $(".mobile_error").html("Mobile number already exist ");
+                            $(".btn").prop('disabled', true);
+                        }
+                    }
+                });
+            }
+            else {
+                $(".mobile_error").html("");
+            }
+        });
+    });
+</script>
+<script type="text/javascript">
+    // enable spacing for credit card number     
+    $('#debit').on('keyup', function (e) {
+        var val = $(this).val();
+        var newval = '';
+        val = val.replace(/\s/g, '');
+        for (var i = 0; i < val.length; i++) {
+            if (i % 4 == 0 && i > 0) newval = newval.concat(' ');
+            newval = newval.concat(val[i]);
+        }
+        $(this).val(newval);
+    });
+</script>
+<script type= 'text/javascript'>
+    $("#add-card").validate({
+    
+        rules:{
+            cat_id:{
+                required:true,
+            },
+            card_holder_name:{
+                required:true,
+            },
+            ac_no:{
+                required:true,
+            },
+            expire_date:{
+                required:true,
+            },
+            cvv:{
+                required:true,
+                maxlength:3,
+            },
+        },
+        messages:{
+            cat_id:{
+                required:"Please select card type",
+            },
+            card_holder_name:{
+                required:"Please enter your name",
+            },
+            ac_no:{
+                required:"Please enter your Card number",
+            },
+            expire_date:{
+                required:"Please enter the expiring date of the card",
+            },
+            cvv:{
+                required:"Please enter the CVV",
+                maxlength:"You can't add more then 3 digits",
+            },
+        },
+    });
+    </script>
+    <script type="text/javascript">
+        // enable spacing for credit card number     
+        $('#card_no').on('keyup', function (e) {
+            var val = $(this).val();
+            var newval = '';
+            val = val.replace(/\s/g, '');
+
+            for (var i = 0; i < val.length; i++) {
+                if (i % 4 == 0 && i > 0) newval = newval.concat(' ');
+                newval = newval.concat(val[i]);
+            }
+
+            $(this).val(newval);
+        });
+    </script>
+<script type="text/javascript">
+    var app;
+    (function () {
+        'use strict';
+        app = {
+            monthRegex: /^\d\d$/, // regex to match "MM"
+            el_expDate: '#ex_date',
+        };
+
+        app.addListeners = function () {
+            $(app.el_expDate).on('keydown', function (e) {
+                app.removeSlash(e);
+            });
+            $(app.el_expDate).on('keyup', function (e) {
+                app.addSlash(e);
+            });
+            $(app.el_expDate).on('blur', function (e) {
+                app.populateDate(e);
+            });
+            $(app.el_cvv + ', ' + app.el_expDate).on('keypress', function (e) {
+                return e.charCode >= 48 && e.charCode <= 57;
+            });
+        };
+        app.addSlash = function (e) {
+            var isMonthEntered = app.monthRegex.exec(e.target.value);
+            if (e.key >= 0 && e.key <= 9 && isMonthEntered) {
+                e.target.value = e.target.value + " / ";
+            }
+        };
+        app.populateDate = function (e) {
+            var month, year;
+            if (e.target.value.length == 7) {
+                month = parseInt(e.target.value.slice(0, -5));
+                year = "20" + e.target.value.slice(5);
+
+                if (app.checkMonth(month)) {
+                    $(app.el_monthSelect).val(month);
+                } else {
+                    $(app.el_monthSelect).val(0);
+                }
+
+                if (app.checkYear(year)) {
+                    $(app.el_yearSelect).val(year);
+                } else {
+                    $(app.el_yearSelect).val(0);
+                }
+            }
+        };
+        app.init = function () {
+
+            $(document).find(app.el_cardNumber).each(function () {
+                var $elem = $(this);
+                if ($elem.is('input')) {
+                    $elem.on('input', function () {
+                        app.monitorCcFormat($elem);
+                    });
+                }
+            });
+            app.addListeners();
+        }();
+
+    })();
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&libraries=places"></script>
+<script>
+    var autocomplete = new google.maps.places.Autocomplete($("#address")[0], {});
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        var len = place.address_components.length;
+        var state = ''
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'rvt_lvt:get_user_state_rvt' %}",
+            enctype: 'multipart/form-data',
+            async: false,
+            data: { "lat": place.geometry.location.lat(), "long": place.geometry.location.lng() },
+            success: function (data) {
+                $('#state').val(data['state'])
+                $('#city').val(data['city'])
+                $('#country').val(data['country'])
+            }
+        });
+        $('#lat').val(place.geometry.location.lat())
+        $('#long').val(place.geometry.location.lng())
+        for (let i = 0; i < place.address_components.length; i++) {
+
+            if (place.address_components[i]["types"][0] == "country") {
+                $('#country').val(place.address_components[i].long_name);
+            }
+            if (place.address_components[i]["types"][0] == "locality") {
+                $('#city').val(place.address_components[i].long_name)
+            }
+
+            if (place.address_components[i]["types"][0] == "postal_town") {
+                if ($('#city').val() == "") {
+                    $('#city').val(place.address_components[i].long_name)
+                }
+            }
+            if (place.address_components[i]["types"][0] == "administrative_area_level_1") {
+                $('#state').val(place.address_components[i].long_name)
+            }
+        }
+    });  
+
+</script>
+ <script type= 'text/javascript'>
+    $("#becomervt").validate({
+        rules:{
+            year_of_experience:{
+                required:true,
+            },
+            registration_no:{
+                required:false,
+            },
+            expiry_date:{
+                required:true,
+            },
+            resume:{
+                required:true,
+            },
+            
+           
+        },
+        messages:{
+            year_of_experience:{
+                required:"Please select your experience",
+            },
+            registration_no:{
+                required:"Please enter your registration number",
+            },
+            resume:{
+                required:"Please upload resume",
+            },
+            expiry_date:{
+                required:"Please select the expiry date",
+            },
+            
+        },
+    });
+    </script> 
+    <script>
+        $("#chooseFile").change(function () {
+            var fileExtension = ['pdf', 'jpg', 'png','jpeg'];
+            if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                $("#resume_er").html("Please upload file in these format only (pdf,jpg, jpeg, png)");
+                $(".butn").prop('disabled', true);
+            }
+            else{
+                $("#resume_er").html("");
+                $(".butn").prop('disabled', false);
+            }
+            $('#upload_file_name').html($('#chooseFile')[0]['files'][0].name);
+        });
+      </script>
+
+
+<script>
+function GetID(id){
+    $.get("{% url 'enduser:set_default_card' %}",{card_id:id}).done(function(data){
+        location.reload()
+    })
+}
+</script>
+
+
+<script>
+    $(function () {
+        var dtToday = new Date();
+        var month = dtToday.getMonth() + 1;
+        var day = dtToday.getDate();
+        var year = dtToday.getFullYear();
+        if (month < 10)
+            month = '0' + month.toString();
+        if (day < 10)
+            day = '0' + day.toString();
+
+        var maxDate = year + '-' + month + '-' + day;
+        $('#expiry_date').attr('min', maxDate);
+    });
+</script>
+
+
+<script>
+    function GetNotification(myid){
+        let ids = "#" + myid
+        let value = $(ids).val()
+        
+          $.ajax({
+            url: "{% url 'rvt_lvt:push_notification_status' %}",
+            type: 'GET',
+            data: {"value":value},
+            success: function (data) {
+            
+            },
+        })
+    }
+
+</script>

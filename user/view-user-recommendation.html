@@ -1,0 +1,26 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+<div class="modal-body">
+    {% if recommendation %}
+        <div class="form-group">
+            <label for="title"><h4>Title</h4></label>
+            <p>{{recommendation.title}}</p>
+        </div>
+      
+         <div class="form-group">
+            <label for="title"><h4>Description</h4></label>
+            <p>{{recommendation.description}}</p>
+        </div> 
+        <div class="form-group">
+            <label for="title"><h4>Service</h4></label>
+            <p>{{recommendation.service.title}}</p>
+        </div>
+  
+ 
+        {% endif %}
+
+</div>
+
+
+{% endblock %}
+{% include "/includes/footer.html" %}

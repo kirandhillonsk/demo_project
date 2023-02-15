@@ -1,0 +1,311 @@
+{% include "user/includes/header.html" %}
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'assets/css/pages-css/find-rvt.css' %}" />
+<style>
+    .find-rvt-page .search-wrap input.form-control{
+        background-color: #fff;
+        border: 1px solid #cfc7d3;
+    }
+    .service_image {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        max-width: 100% !important;
+    }
+    .service-box-wrap {
+      position: relative; 
+    }
+    
+    .service_image_wrapper {
+      position:relative;
+    }
+    
+    .caption {
+      font-size:12px;
+      position: absolute;
+      top:0; bottom:0;left:0;right:0;
+      display: table;
+      vertical-align:middle;
+      opacity:0;
+      margin: auto;
+      width:100%;
+    }
+    
+    .caption {
+      text-align:center;
+      transition: .5s ease-in-out all;
+    }
+    
+    .service_image_wrapper:hover img {
+      opacity:0.1;
+    }
+    .service_image_wrapper:hover .caption{
+      opacity:1;
+    }
+    .site_color{
+        color: #7b2bbe !important
+        }
+    
+    .caption:first-letter {
+        text-transform: uppercase;
+    }
+    .service-box-wrap {
+        width: 75px !important;
+    }
+
+    @media (max-width: 800px) {
+        div#map-view {
+            height: 700px !important;
+        }
+    }
+</style>
+<div class="find-rvt-page">
+    <div class="row">
+        <div class="col-lg-7 mb-30 mb-lg-0">
+            <div class="search-wrap">
+                <form onsubmit="Loader(this.id)" action="{% url 'enduser:find_nearby_rvts' %}" method='GET'>
+                    <div class="row form-row">
+                        <div class="col-12">
+                            <div class="mb-10">
+                                <input type="text" name="search_service" class="form-control" 
+                                {% if latitude  %}
+                                placeholder={{address}} 
+                                {% else %}
+                                placeholder="Search Service" 
+                                {% endif %}
+                                
+                                
+                                {% if search_service %}value="{{search_service}}" {% endif %}>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="mb-10 position-relative">
+                                <div class="icon">
+                                    <img src="{% static 'admin-assets/images/user/service-category.png' %}" class="">
+                                </div>
+                                <select class="form-control services" id="service-dropdownn"
+                                    onchange="this.form.submit()" name="search_service_select">
+                                    <option value="">Select Service</option>
+                                    {% for category in services_list %}
+                                    <option {% if search_service_select == category.title %}selected{% endif %}
+                                        value="{{category.title}}">{{category.title}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mb-10 position-relative">
+                                <div class="icon">
+                                    <img src="{% static 'admin-assets/images/user/location.png' %}" class="">
+                                </div>
+                                <input style="background-image: none;" type="text" class="form-control services" 
+                                {% if address %}value="{{address}}" {% endif %} id="address" maxlength="150"
+                                    name="address" placeholder="Enter Address">
+                                <input type="hidden" value="{{latitude}}" name="latitude" id="search_lat">
+                                <input type="hidden" value="{{longitude}}" name="longitude" id="search_long">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <button class="btn btn-theme btn-sm" style="padding: 16px 15px;"
+                                type="submit">Search</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="search-list">
+                <h5 class="results-count"><span>{{rvt_count}} Results</span> available</h5>
+                <input type="hidden" class="form-control" id="addresss" placeholder="Enter Address To Search" name="address">
+                <div class="search-list-wrap" id="tbody">
+                    {% if rvt_user %}
+                    {% for user in rvt_user %}
+                    <div class="search-list-inner d-md-flex">
+                        <input class="userID" type="hidden" value="{{user.id}}">
+                        <div class="img-wrap text-center">
+                            {% if user.profile_pic %}
+                            <img src="{{user.profile_pic.url}}" class="">
+                            {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" class="">
+                            {% endif %}
+                            <!--div id="price{{user.id}}"></div-->
+                        </div>
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <h4>{% if user.first_name %}{{user.first_name}}{% else %} {% endif %}</h4>
+                                    <ul class="users-mata">
+                                        <li>{% if user.city %}{{user.city}}{% else %}City not available {% endif %},
+                                            {% if user.state %}{{user.state}}{% else %} State not available{% endif %}</li>
+                                    </ul>
+                                    <div class="rating">
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                        <i class="fas fa-star"></i>
+                                    </div>
+                                </div>
+                                <div class="button-wrap">
+                                    <a href="{% url 'enduser:user_rvt_profile' user.id %}"
+                                        class="btn btn-theme">View Profile <i
+                                            class="fal fa-long-arrow-right ml-6"></i></a>
+                                </div>
+                            </div>
+                            <div class="services-list text-primary" id="service_data{{user.id}}">
+                            </div>
+                            <div class="text-wrapper">
+                                <p style="word-wrap: anywhere;">{% if user.about_me %}{{user.about_me}}{% else %} No
+                                    description found {% endif %}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="search-list-inner d-md-flex">
+                        <div class="text-wrap media-body">
+                            <div class="heading d-md-flex justify-content-between">
+                                <div class="heading-text">
+                                    <p style="color: #5c2580">Whoops! No RVT found in 
+                                        {% if  latitude %}
+                                        your location
+                                        {% else %}
+                                        Current Location 
+                                        {% endif %}
+                                        yet.
+                                        
+                                        <br>
+                                        Check back soon or try seaching neaby cities on the location seach above.</p> 
+                                    
+                                        <br>
+                                        {% comment %} <a class="text-center mt-4 float-right" href="{% url 'enduser:find_nearby_rvts'%}" ><i class="fas fa-refresh"></i> Click to Explore all RVTs</a> {% endcomment %}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
+
+
+                    {% endif %}
+                </div>                
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="map-wrap">
+                <div id="map" style="width: 98%;height: 98%;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script>
+    $(".userID").each(function () {
+        var user_id = user = $(this).val();
+        $.ajax({
+            type: "GET",
+            url: "{% url 'frontend:service_list' %}",
+            data: { 'user_id': user_id },
+            success: function (data) {
+                $('#service_data' + user_id).html('')
+                $('#price' + user_id).html('')
+
+                for (var i = 0; i < data.services.length; i++) {
+                    if (data.image[i]) {
+                        image = data.image[i]
+                    } else {
+                        image = '{% static "assets/images/services/services-theme/ear.png" %}'
+                    }
+                    var y = `<div class="service-box-wrap">
+                        <div class="service_image_wrapper"> 
+                             <img class="service_image" src="`+ image + `" >
+                             <div class="caption site_color">
+                                 `+ data.services[i] + `<br>(`+ data.pets[i] +`)
+                             </div>
+                         </div>
+                     </div>`;
+                    $('#service_data' + user_id).append(y)
+                }
+                var x = '<p class="rating pl-2 pr-2" style="width: 100%">$' + data.price + ' / Service </p>';
+                $('#price' + user_id).append(x)
+            }
+        });
+    });
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&libraries=places"></script>
+<script type="text/javascript">
+    var locations = [
+        {% for i in map_rvt %}
+    ['', '{{i.created_by.latitude}}', '{{i.created_by.longitude}}', 4],
+        {% endfor %}
+    ];
+
+    var info_list = [
+    {% for i in map_rvt %}
+    `<div class="d-flex align-items-center map-data">
+        <div id="content" class="map-data-img">
+           {% if i.created_by.profile_pic %}
+                 <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %}><img src=" {{i.created_by.profile_pic.url}}" class="rounded-circle object-cover"></a>
+            {% else%}
+                <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %}><img src="{% static 'admin-assets/images/default.png' %}" class="rounded-circle object-cover"></a>
+            {% endif %}
+        </div>
+
+        <div id="bodyContent" class="map-data-content">
+            <a {% if i.created_by %} href="{% url 'enduser:user_rvt_profile' i.created_by.id %}" {% endif %} ><h6 id="firstHeading" class="firstHeading">{% if i.created_by.first_name %}{{i.created_by.first_name|title}} {% elif i.created_by.last_name %}{{i.created_by.last_name|title}}{% endif %}</h6></a>
+            <!--span class="d-block service-name">{% if i.category.title %}{{i.category.title}}{% else %}{{i.title}}{% endif %}...</span-->
+            <p class="location d-flex align-items-center"><i class="fas fa-map-marker-alt"></i> {% if i.created_by.address %} {{i.created_by.city}},{{i.created_by.state}} {% else %}-{% endif %}</p>
+            <div class="d-flex align-items-center">
+                <p class="pricing"><span>$</span>Start from <b>${{i.price}}</b></p>
+                <p class="ml-auto rating">{% if i.created_by.average_rating %}<i class="fas fa-star"></i> {{i.created_by.average_rating}}{% endif %}</p>
+            </div>
+        </div>
+        </div>
+    </div>`,
+    {% endfor %}
+    ]
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 3,
+        center: new google.maps.LatLng(
+            {% if latitude and longitude %}
+            {{latitude}}, {{longitude}}
+            {% elif request.user.latitude and request.user.longitude %}
+            {{request.GET.latitude}}, {{request.GET.longitude}}
+            {% else %}
+            49.2608724, -123.113952
+            {% endif %}
+        ),
+        mapTypeId: google.maps.MapTypeId.ROADMAP
+    });
+
+    var infowindow = new google.maps.InfoWindow();
+
+    var marker, i;
+
+    for (i = 0; i < locations.length; i++) {
+        marker = new google.maps.Marker({
+            position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+            map: map
+        });
+
+        google.maps.event.addListener(marker, 'click', (function (marker, i) {
+            return function () {
+                infowindow.setContent(info_list[i]);
+                infowindow.open(map, marker);
+            }
+        })(marker, i));
+    }
+</script>
+
+<script>
+    var options = {
+        types: ['(cities)'],
+        componentRestrictions: { country: ["in", "us"] }
+    };
+    var autocomplete = new google.maps.places.Autocomplete($("#address")[0], {});
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        $('#search_lat').val(place.geometry.location.lat())
+        $('#search_long').val(place.geometry.location.lng())
+    });  
+</script>
