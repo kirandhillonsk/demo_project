@@ -1,0 +1,137 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+            <div class="col-lg-10">
+                <div class="row form-row">
+                    <div class="col-lg-4">
+                    <form onsubmit="Loader(this.id)" action= "{% url 'superuser:multiple_search_custom' %}"  method="GET">
+                        <div class="searchpicker mb-10 mb-lg-0">
+                            <input type="text" placeholder="Search" value="{{search}}"  name ="title" class="form-control"> 
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="calendar-picker">
+                                <div class="form-group datepicker-field position-relative" >
+                                    <input type="date" id ="input_date" name="date" class="form-control"  placeholder="Date">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                            <select class="form-control" name='is_appointment'>
+                                <option value="">Status</option>
+                                <option value="4">Assigned</option>
+                                <option value="0">Not Assigned</option>
+                            </select>
+                            <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                                <div class="d-flex align-items-center">
+                                    <button type="submit" class="btn btn-theme mr-15">GO</button>
+                                    <button class="btn btn-link p-0" name="reset" value="reset">Reset Filter</button>
+
+                                </div>
+                        </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        </div>
+    </div>
+</div>
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">User</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Pet Type</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Assigned To</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if custom_request %}
+                    {% for custom in custom_request %}
+                    
+                    <tr>
+                        <td>{{custom.date|date:"d M, Y" }}</td>
+                        <td class="text-primary">{{custom.created_by.first_name}}</td>
+                        <td>{{custom.title}}</td>
+                        <td>{{custom.pet_type.name}}</td>
+                        <td>{{custom.description}}</td>
+                        <td>
+                           {{custom.location}}
+                        </td>
+                        <td>
+                        {% if not custom.assigend_to %}
+                          <p class="badge badge-danger custom-btn w-100"><span style="color:white">Not Assigned<span></p>
+                        {% else %}
+                            <p class="badge badge-success custom-btn w-100"><span style="color:white">Assigned<span></p>
+                        {% endif %}
+                        </td>
+                        <td>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{custom.assigend_to.first_name}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <td colspan="7" align="center">No data found<td/>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% if transactions.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {% if transactions.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.previous_page_number }}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo;</span>
+        </li>
+        {% endif %}
+        {% for i in transactions.paginator.page_range %}
+        {% if transactions.number == i %}
+        <li class="page-item active">
+            <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if transactions.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.next_page_number }}">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}

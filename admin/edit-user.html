@@ -1,0 +1,96 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/profile.css' %}" />
+
+<div class="profile-page-wrapper">
+    <div class="row">
+        <div class="col-lg-7 col-xxl-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-details" role="tabpanel"
+                    aria-labelledby="v-pills-details-tab">
+                    <div class="profile-tab-wrap">
+                        <h4 class="tab-heading">My Details</h4>
+                        <div class="form-wrapper theme-form">
+                            <form onsubmit="Loader(this.id)" id="update-profile" action="{% url 'superuser:admin_profile' %}" method="POST" >
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Username</label>
+                                            <input type="text" id="username" name="username" class="form-control" {% if user.username %} value="{{user.username}}" {% else %} placeholder="Enter Username" {% endif %}>
+                                            <p class="error"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                                            <input type="text" name="email" class="form-control"
+                                            value="{{user.email}}" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                                            <input autocomplete="off" type="text" name="address" class="form-control"
+                                            {% if user.address %} value="{{user.address}}" {% else %} placeholder="Enter Address" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> City/Town</label>
+                                            <input autocomplete="off" type="text" name="city" class="form-control"
+                                            {% if user.city %} value="{{user.city}}" {% else %} placeholder="Enter City" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> State</label>
+                                            <input autocomplete="off" type="text" name="state" class="form-control"
+                                            {% if user.state %} value="{{user.state}}" {% else %} placeholder="Enter State" {% endif %}>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="button-wrap mt-15 mt-md-25 mt-xl-60 text-right">
+                                    <a href="#" class="btn btn-cancel"><i class="fal fa-long-arrow-left"></i> Cancel</a>
+                                    <button class="btn btn-theme ml-10">Save <i
+                                            class="fal fa-long-arrow-right"></i></button>
+                                </div>
+                            <form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $(document).ready(function () {
+      $("#username").keyup(function () {
+          var username = $('#username').val();
+          if (username != '' && username != 'undefined' && username != ' ') {
+              $.ajax({
+                  url: "{% url 'accounts:username_validation' %}",
+                  type: 'GET',
+                  data: { 'username_id': username },
+                  success: function (data) {
+                      if (data.exists == 1 ) {
+                          $(".error").html("Username already exists");
+                          $(".btn").prop('disabled', true);
+                      }
+                      else {
+                          $(".error").html("");
+                          $(".btn").prop('disabled', false);
+                      }
+                  }
+              });
+          }
+          else {
+              $(".error").html("");
+            }
+      });
+  });
+</script>

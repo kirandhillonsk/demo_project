@@ -1,0 +1,280 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/profile.css' %}" />
+<div class="profile-page-wrapper">
+    <div class="row">
+        <div class="col-lg-5 col-xxl-4">
+            <div class="profile-left-wrapper">
+                <div class="top-info">
+                    <div class="info-media d-md-flex align-items-center">
+
+                            <div class="img-wrapper">
+                                {% if user.profile_pic %}
+                                <img src="{{user.profile_pic.url}}" class="rounded-circle object-cover">
+                                {% else %}
+                                <img src="{% static 'admin-assets/images/default.png' %}/"
+                                    class="rounded-circle object-cover">
+                                {% endif %}
+                            </div>
+                        <div class="media-body pl-0 pl-md-25 pt-10 pt-md-0">
+                            <h4>{% if user.first_name %}{{user.first_name}}{% else %} {% endif %}{% if user.last_name %}
+                                {{user.last_name}}{% else %} {% endif %}</h4>
+                            <ul class="mata">
+                                <li class="d-flex bdge mb-2">
+                                    <div class="icon d-flex" style="width: 100%;">
+                                        {% if user.badge.image %}
+                                        <img class="mr-2" style="margin-left: -3px; width: 20px;" src="{{user.badge.image.url}}">
+                                        <div class="data-name">{{user.badge.title}}</div>
+                                        {% endif %}
+                                    </div>
+                                </li>
+                                {% if user.state_id == 1 %}
+                                <li class="d-flex status active">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Active</div>
+                                </li>
+                                {% elif user.state_id == 2  %}
+                                <li class="d-flex status inactive">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Inactive</div>
+                                </li>
+                                {% else %}
+                                <li class="d-flex status inactive">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Deleted</div>
+                                </li>
+                                {% endif %}
+                                <li class="d-flex location">
+                                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="data-name">{% if user.state and user.city %}{{user.state}},{{user.city}}{% else %} - {% endif %}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+    
+                    <div class="data-wrap text-center">
+                        <div class="row form-row">
+                            <div class="jobs-completed col-6">
+                                <h5>{% if appointments_complete_count %}{{appointments_complete_count}}{% else %}0{% endif %}</h5>
+                                <p>Jobs Completed</p>
+                            </div>
+                            <div class="jobs-rating col-6">
+                                {% if user.average_rating%}
+                                <h5>{{user.average_rating}}</h5>
+                                {% else %}
+                                <h5>0</h5>
+                                {% endif %}
+                                <p>Ratings</p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="data-wrap text-center">
+                        <div class="row form-row">
+                            {% if user.state_id == 1 %}
+                            <div class="jobs-completed col-6">
+                                <a href="{% url 'enduser:user_status_change' %}?user_id={{user.id}}">
+                                    <p style="color:white" class="badge badge-info custom-btn w-100">
+                                    Deactivate Account</p>
+                                </a>
+                            </div>
+                            <div class="jobs-rating col-6">
+                                <a href="{% url 'accounts:delete_user' %}?user_id={{user.id}}">
+                                    <p style="color:white" class="badge badge-danger custom-btn w-100">Delete Account</p>
+                                </a>
+                            </div>
+                            {% elif user.state_id == 2  %}
+                            <div class="jobs-completed col-6">
+                                <a href="{% url 'enduser:user_status_change' %}?user_id={{user.id}}">
+                                    <p style="color:white" class="badge badge-success custom-btn w-100">
+                                    Activate Account</p>
+                                </a>
+                            </div>
+                            <div class="jobs-rating col-6">
+                                <a href="{% url 'accounts:delete_user' %}?user_id={{user.id}}">
+                                    <p style="color:white" class="badge badge-danger custom-btn w-100">Delete Account</p>
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 col-xxl-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-details" role="tabpanel"
+                    aria-labelledby="v-pills-details-tab">
+                    <div class="profile-tab-wrap">
+                        <h4 class="tab-heading">User Details</h4>
+                        <div class="form-wrapper theme-form">
+                            <form onsubmit="Loader(this.id)" id="update-profile" action="{% url 'superuser:edit_user_info' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> First Name</label>
+                                            <input type="text"   name="first_name" class="form-control" {% if user.first_name %} value="{{user.first_name}}" {% else %}
+                                                placeholder="Enter First Name" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Last Name</label>
+                                            <input type="text"  name="last_name" class="form-control" {% if user.last_name %} value="{{user.last_name}}" {% else %}
+                                                placeholder="Enter Last Name" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                                            <input autocomplete="off" type="text" name="email" class="form-control" value="{{user.email}}"
+                                                readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-phone-alt"></i> Phone Number</label>
+                                            <small>(include Country code)</small>
+                                            <input  autocomplete="off" type="text" id="mobile" name="mobile_no" class="form-control" {% if user.mobile_no %} value="{{user.mobile_no}}" {% else %}
+                                                placeholder="Mobile Number" {% endif %} >
+                                            <p class="mobile_error"></p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                                            <input autocomplete="off" type="text" name="address" id='address'  class="form-control" {% if user.address %} value="{{user.address}}" {% else %} placeholder="Enter Address" {% endif %}>
+                                            <input type="hidden" name="longitude" id = "long" class="form-control" {% if user.longitude %} value="{{user.longitude}}" {% else %}{% endif %}>
+                                            <input type="hidden" name="latitude" id = "lat" class="form-control" {% if user.latitude %} value="{{user.latitude}}" {% else %}{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> City/Town</label>
+                                            <input autocomplete="off" type="text" name="city" id='city'  class="form-control" {% if user.city %} value="{{user.city}}" {% else %} placeholder="Enter City" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> State</label>
+                                            <input autocomplete="off" type="text" name="state" id="state" class="form-control" {% if user.state %} value="{{user.state}}" {% else %} placeholder="Enter State" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-info-circle"></i> About Me</label>
+                                            <textarea autocomplete="off" class="form-control"  rows="3" name="about_me">{% if user.about_me %}{{user.about_me}}{% else %}{% endif %}</textarea>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" value="{{user.id}}" name="user_id">
+                                    </div>
+                                <div class="button-wrap mt-15 mt-md-25 mt-xl-60 text-right">
+                                    <a href="{% url 'superuser:users_list' %}" class="btn btn-cancel"><i class="fal fa-long-arrow-left"></i> Back</a>
+                                    <button class="btn btn-theme ml-10">Save <i
+                                        class="fal fa-long-arrow-right"></i></button>
+                                    
+                                </div>
+                            <form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#update-profile").validate({
+        rules: {
+            mobile_no: {
+                number: true,
+                minlength: 5,
+                maxlength: 15
+            },
+        },
+        messages: {
+            mobile_no: {
+                number: "Please enter valid numner",
+                minlength: "Please enter at least 5 digits",
+                maxlength: "Please enter no more than 15 digits."
+            }
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $("#mobile").keyup(function () {
+            var mobile = $('#mobile').val();
+            if (mobile != '' && mobile != 'undefined' && mobile != ' ') {
+                $.ajax({
+                    url: "{% url 'rvt_lvt:mobile_validation' %}",
+                    type: 'GET',
+                    data: { 'mobile_id': mobile },
+                    success: function (data) {
+                        if (data.exists == 0) {
+
+                            $(".mobile_error").html("");
+                            $(".btn").prop('disabled', false);
+                        }
+                        else {
+                            $(".mobile_error").html("Mobile number already exist ");
+                            $(".btn").prop('disabled', true);
+                        }
+                    }
+                });
+            }
+            else {
+                $(".mobile_error").html("");
+            }
+        });
+    });
+</script>
+
+<script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&libraries=places"></script>
+<script>
+    var autocomplete = new google.maps.places.Autocomplete($("#address")[0], {});
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        var len = place.address_components.length;
+        var state = ''
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'rvt_lvt:get_user_state_rvt' %}",
+            enctype: 'multipart/form-data',
+            async: false,
+            data: { "lat": place.geometry.location.lat(), "long": place.geometry.location.lng() },
+            success: function (data) {
+                $('#state').val(data['state'])
+                $('#city').val(data['city'])
+                $('#country').val(data['country'])
+            }
+        });
+        $('#lat').val(place.geometry.location.lat())
+        $('#long').val(place.geometry.location.lng())
+        for (let i = 0; i < place.address_components.length; i++) {
+
+            if (place.address_components[i]["types"][0] == "country") {
+                $('#country').val(place.address_components[i].long_name);
+            }
+            if (place.address_components[i]["types"][0] == "locality") {
+                $('#city').val(place.address_components[i].long_name)
+            }
+
+            if (place.address_components[i]["types"][0] == "postal_town") {
+                if ($('#city').val() == "") {
+                    $('#city').val(place.address_components[i].long_name)
+                }
+            }
+            if (place.address_components[i]["types"][0] == "administrative_area_level_1") {
+                $('#state').val(place.address_components[i].long_name)
+            }
+        }
+    }); 
+</script>
+

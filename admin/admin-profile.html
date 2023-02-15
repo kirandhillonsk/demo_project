@@ -1,0 +1,169 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/profile.css' %}" />
+
+<div class="profile-page-wrapper">
+    <div class="row">
+        <div class="col-lg-5 col-xxl-4">
+            <div class="profile-left-wrapper">
+                <div class="top-info">
+                    <div class="info-media d-md-flex align-items-center">
+                        <form onsubmit="Loader(this.id)" action="{% url 'superuser:admin_profile_image' %}" method="POST" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <div class="img-wrapper">
+                                {% if user.profile_pic %}
+                                    <img src="{{user.profile_pic.url}}" class="rounded-circle object-cover">
+                                {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}/" class="rounded-circle object-cover">
+                                {% endif %}                                <label for="uploadDP"><i class="fas fa-camera" style="font-size: 16px;"></i></label>
+                                <input type="file" name="profile_pic" id="uploadDP" onchange="this.form.submit()">
+                            </div>
+                        </form>
+                        <div class="media-body pl-0 pl-md-25 pt-10 pt-md-0">
+                            <h4>{% if user.username %}{{user.username}}{% else %} {% endif %}</h4>
+                            <h5>{% if user.first_name%}{{user.first_name}}{% else %} - {% endif %}
+                                {% if user.last_name%}{{user.last_name}}{% else %} - {% endif %}<h5>
+                            <ul class="mata">
+                                <li class="d-flex status active">
+                                    <div class="icon"><span class="status-circle"></span></div>
+                                    <div class="data-name">Active</div>
+                                </li>
+                                <li class="d-flex location">
+                                    <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div class="data-name">{% if user.state and user.city %}{{user.state}},{{user.city}}{% else %} - {% endif %}</div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="tabs-wrapper">
+                    <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <a class="nav-link active" id="v-pills-details-tab" data-toggle="pill" href="#v-pills-details"
+                            role="tab" aria-controls="v-pills-details" aria-selected="true">
+                            <div class="d-flex">
+                                <div class="icon-wrap">
+                                    <i class="far fa-user"></i>
+                                </div>
+                                <div class="media-body pl-10 pl-md-20">
+                                    <h4>Your Profile</h4>
+                                    <p>Details about your personal information</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-7 col-xxl-8">
+            <div class="tab-content" id="v-pills-tabContent">
+                <div class="tab-pane fade show active" id="v-pills-details" role="tabpanel"
+                    aria-labelledby="v-pills-details-tab">
+                    <div class="profile-tab-wrap">
+                        <h4 class="tab-heading">My Details</h4>
+                        <div class="form-wrapper theme-form">
+                            <form onsubmit="Loader(this.id)" id="update-profile" action="{% url 'superuser:admin_profile' %}" method="POST" >
+                                {% csrf_token %}
+                                <div class="form-row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Username</label>
+                                            <input type="text" readonly maxlength = "50" id="username" name="username" class="form-control" {% if user.username %} value="{{user.username}}" {% else %} placeholder="Enter Username" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Firstname</label>
+                                            <input type="text" maxlength = "50" id="firstname" name="firstname" class="form-control" {% if user.first_name %} value="{{user.first_name}}" {% else %} placeholder="Enter Firstname" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-user"></i> Lastname</label>
+                                            <input type="text" maxlength = "50" id="lastname" name="lastname" class="form-control" {% if user.last_name %} value="{{user.last_name}}" {% else %} placeholder="Enter Lastname" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-envelope"></i> Email Address</label>
+                                            <input readonly type="text" name="email" class="form-control"
+                                            value="{{user.email}}">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> Address</label>
+                                            <input type="text" maxlength = "150" name="address" id="address" class="form-control"
+                                            {% if user.address %} value="{{user.address}}" {% else %} placeholder="Enter Address" {% endif %}>
+                                            <input type="hidden" name="longitude" id = "long" class="form-control" {% if user.longitude %} value="{{user.longitude}}" {% else %}long{% endif %}>
+                                            <input type="hidden" name="latitude" id = "lat" class="form-control" {% if user.latitude %} value="{{user.latitude}}" {% else %}lat{% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> City/Town</label>
+                                            <input type="text" maxlength = "50" name="city" id="city" class="form-control"
+                                            {% if user.city %} value="{{user.city}}" {% else %} placeholder="Enter City" {% endif %}>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label><i class="fas fa-map-marker-alt"></i> State</label>
+                                            <input type="text" maxlength = "50" name="state" id="state" class="form-control"
+                                            {% if user.state %} value="{{user.state}}" {% else %} placeholder="Enter State" {% endif %}>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="button-wrap mt-15 mt-md-25 mt-xl-60 text-right">
+                                    <a href="#" class="btn btn-cancel"><i class="fal fa-long-arrow-left"></i> Cancel</a>
+                                    <button class="btn btn-theme ml-10">Save <i
+                                            class="fal fa-long-arrow-right"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&libraries=places"></script>
+<script>
+    var autocomplete = new google.maps.places.Autocomplete($("#address")[0], {});
+    google.maps.event.addListener(autocomplete, 'place_changed', function () {
+        var place = autocomplete.getPlace();
+        var len = place.address_components.length;
+        var state = ''
+        $.ajax({
+            type:'GET',
+            url: "{% url 'rvt_lvt:get_user_state_rvt' %}",
+            enctype: 'multipart/form-data',
+            async: false,
+            data: {"lat":place.geometry.location.lat() ,"long":place.geometry.location.lng()},
+            success: function(data){
+                $('#state').val(data['state'])
+                $('#city').val(data['city'])
+                $('#country').val(data['country'])
+            }
+        });
+        $('#lat').val(place.geometry.location.lat())
+        $('#long').val(place.geometry.location.lng())
+        for(let i=0; i<place.address_components.length ; i++){
+            if (place.address_components[i]["types"][0] == "locality"){
+                $('#city').val(place.address_components[i].long_name)
+            }
+            if ( place.address_components[i]["types"][0] == "postal_town"){
+                if($('#city').val() == ""){
+                    $('#city').val(place.address_components[i].long_name)
+                }
+            }
+            if(place.address_components[i]["types"][0] =="administrative_area_level_1"){
+                $('#state').val(place.address_components[i].long_name)
+            }
+        }
+    });  
+</script>
+

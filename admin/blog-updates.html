@@ -1,0 +1,117 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+
+            <div class="col-lg-3 col-xl-4">
+                <form onsubmit="Loader(this.id)" action="{% url 'blog:search_blog' %}" method="GET">
+                    {% csrf_token %}
+                    <div class="searchpicker mb-10 mb-lg-0 d-flex align-items-center">
+                        <input type="text" name="search" value="{{search}}" placeholder="Search"  class="form-control">
+                          <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                                <div class="d-flex align-items-center">
+                        <button type="submit" class="btn btn-theme mr-15">GO</button>
+                        <button  name ="reset" value ="reset" class ="btn btn-link p-0" style="flex-shrink:0; margin-left:15px">Reset filter</button>
+                        </form>
+                    </div>
+                    </div>
+                    </div>
+            </div>
+
+            <div class="col-xl-5 col-lg-7 mb-10 mb-lg-0">
+                <div class="row form-row">
+
+                </div>
+            </div>
+            <div class="col-lg-2 col-xl-3 text-right">
+                <a href="{% url 'blog:add_blog' %}" class="btn btn-theme pl-lg-40 pr-lg-40">Add Blog</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Description</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Created on</th>
+                    <th scope="col" class="author">Author</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if blogs %}
+                    {% for blog in blogs %}
+                    <tr>
+                        <td>
+                            <p class="description">{{blog.description | truncatechars:65 | safe}}</p>
+                        </td>
+                        <td class="text-primary">{{blog.title}}</td>
+                        {% if blog.category == '1' %}
+                            <td class="text-primary">WHATS NEW</td>
+                        {% elif blog.category == '2' %}
+                            <td class="text-primary">PET RESOURCE</td>
+                        {% elif blog.category == '3' %}
+                            <td class="text-primary">CONTINUE EDUCATION</td>
+                        {% endif %}
+                        <td>
+                            <span class="text-dark">{{blog.created_on}}</span>
+                            <p>Published</p>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                    <p class="text-primary font-lg-18">{{blog.created_by.username}}</p>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'blog:edit_blog' blog.id %}" class="action-btn mr-15 mr-md-30">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <a id="delete-btn" data-attr="{{blog.id}}" class="action-btn">
+                                    <img src="{% static 'admin-assets/images/icons/trash.svg' %}" alt="">
+                                </a>
+
+                            </div>
+
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="6" align="center">No Blog Found</td>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $(document).on('click', '#delete-btn', function () {
+        if (confirm("Are you sure to delete this blog")) {
+            var id = $(this).attr('data-attr');
+            $.ajax({
+                url: "{% url 'blog:delete_blog' %}",
+                type: 'get',
+                data: {
+                    'id': id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+    });
+</script>

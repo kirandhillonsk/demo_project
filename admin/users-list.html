@@ -1,0 +1,292 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<style>
+    .btn-impersonate {
+        font-size: 12px;
+        padding: 6px 14px;
+        text-align: center;
+    }
+</style>
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <form onsubmit="Loader(this.id)" action="{% url 'superuser:users_search' %}" method="GET">
+            <div class="row align-items-center">
+                <div class="col-lg-4">
+                    <div class="searchpicker">
+                        <input type="text" placeholder="Search" name="user_name" value="{{first_name}}" class="form-control">
+                    </div>
+                </div>
+       
+                <div class="col-lg-6">
+                    <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                        <select class="form-control" name="state_id">
+                            <option value="">Status</option>
+                            <option {% if state_id == 1 or state_id == '1' %}selected{% endif %} value="1">Active</option>
+                            <option {% if state_id == 2 or state_id == '2' %}selected{% endif %}value="2">InActive</option>
+                            <option {% if state_id == 3 or state_id == '3' %}selected{% endif %}value="3">Deleted</option>
+                            
+                        </select>
+                        <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-theme mr-15">GO</button>
+                                <button type="submit" name="reset" value='reset' class="btn btn-link p-0">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-2" style="display: flex;justify-content: right;">
+                    <a onclick="Loader()" href="{% url 'superuser:reset_customerids' %}" class="btn btn-theme">Reset Customer Id's</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="author">Profile</th>
+                    <th scope="col">Email</th>
+                    <th scope="col"></th>
+                    <th scope="col">Stripe Customer ID</th>
+                    <th scope="col">Stripe Connect ID</th>
+                    <th scope="col">User Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Last Active</th>
+                    <th scope="col">Date Joined</th>
+                    <th scope="col">Edit</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if users %}
+                    {% for user in users %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if user.profile_pic %}
+                                    <img src="{{user.profile_pic.url}}" width="48px" height="48px"
+                                        class="rounded-circle object-cover" alt="">
+                                    {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px"
+                                        class="rounded-circle object-cover" alt="">
+                                    {% endif %}
+                                    <div class="media-body pl-10 text-wrap">
+                                        <p class="text-primary font-lg-18">{% if user.first_name %}{{user.first_name}}{% else %}-{% endif %}
+
+                                        </p>
+                                        
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if user.email %}
+                                <a href="mailto:{{user.email}}">{{user.email}}</a>
+
+                                {% else %}-{% endif %}
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-impersonate " href="/superuser/impersonate/{{user.id}}/"> Impersonate</a>
+                            </td>
+
+                            <td>
+                                {% if user.customer_id  %}
+                                    <p>{{user.customer_id}}</p>
+                                {% else %}
+                                  <p> - </p>
+                                {% endif %}
+                                </td>
+                            
+                                <td>
+                                    {% if user.bank_account_id  %}
+                                        <p>{{user.bank_account_id}}</p>
+                                    {% else %}
+                                      <p>-</p>
+                                    {% endif %}
+                                    </td>
+
+                            <td>
+                            {% if user.applied_for == "3"  %}
+                                <p>RVT</p>
+                            {% else %}
+                              <p>User</p>
+                            {% endif %}
+                            </td>
+                            <td>
+                                {% if user.state_id == 1 %}
+                                    <p>Active</p>
+                                {% elif user.state_id == 2 %}
+                                    <p>Inactive</p>
+                                {% elif user.state_id == 3 %}
+                                    <p>Deleted</p>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.last_login%}
+                                <script>
+                                    var date = ConvertGTime("{{ user.last_login|date:'Y-m-d' }}", "{{user.last_login|time:'H:i'}}");
+                                    document.write(date);
+                                </script>
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <script>
+                                    var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                                    document.write(date);
+                                </script>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a href="{% url 'superuser:edit_user_info' %}?user={{user.id}}" class="action-btn mr-15 mr-md-30">
+                                        <i class="fa fa-pencil"></i>
+                                    </a>
+                                     {% if user.role_id == 3 %}
+                                    <a data-toggle="modal" onclick ="GetUserID('{{user.id}}')" data-target="#addtags" class="btn btn-theme pl-lg-40 pr-lg-40" alt="">
+                                        Assign Badge
+                                    </a> 
+                                    {% endif %}
+                                </div>
+                            </td>
+                           
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="6" align="center">No User Found<td>
+                {% endif %}
+            </tbody>
+        </table>
+        <!-- Modal -->
+        <div class="modal fade addformModal" id="addtags" tabindex="-1" role="dialog" aria-labelledby="addtags"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered delete-modal-width" role="document">
+                <div class="modal-content">
+                    <form onsubmit="Loader(this.id)" id="badge" action="{% url 'superuser:assign_badge'  %}" method="POST">
+                        {% csrf_token %}
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <input type="hidden" id="UserID" name="user_id">
+                        <div class="modal-body delete-wrap text-center">
+                            <div class="icon-wrap">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="text-wrap">
+                                <h4>You are about to assign the Tag to RVT</h4>
+                                <div class="row">
+                                    <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <select class="form-control" name="badge_input">
+                                            <option value="">Select Tag</option>
+                                            {% for tag in badge %}
+                                            <option value="{{tag.id}}">{{tag.title}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    </div>
+                                </div>
+                            
+                            </div>
+                            <div class="modal-actions">
+                                <a data-dismiss="modal" aria-label="Close" class="btn-cancel btn rounded">Back</a>
+                                <button type="submit" class="btn-delete btn rounded">Assign</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        {% if users.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if users.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ users.previous_page_number }}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+                {% for i in users.paginator.page_range %}
+                {% if users.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if users.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ users.next_page_number }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    </div>
+</div>
+
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $(document).on('click', '#delete-btn', function () {
+        if (confirm("Are you sure to delete this user")) {
+            var id = $(this).attr('data-attr');
+            $.ajax({
+                url: "{% url 'superuser:users_delete' %}",
+                type: 'get',
+                data: {
+                    'id': id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+    });
+</script>
+
+<script>
+function GetUserID(id)
+{
+$('#UserID').val(id)
+}
+</script>
+
+<script type="text/javascript">
+    $("#badge").validate({
+        rules: {
+          badge_input: {
+                required: true,
+            },
+         
+        },
+        messages: {
+          badge_input: {
+                required: "Please select badge",
+          }
+        }
+    });
+  </script>

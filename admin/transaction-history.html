@@ -1,0 +1,143 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/appointment-details.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+            <div class="col-lg-10">
+                <div class="row form-row">
+                    <div class="col-lg-4">
+                    <form onsubmit="Loader(this.id)" action= "{% url 'accounts:search_transactions' %}"  method="GET">
+                        <div class="searchpicker mb-10 mb-lg-0">
+                            <input type="text" placeholder="Search" value="{{transaction_id}}" name ="search" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="calendar-picker">
+                                <div class="form-group datepicker-field position-relative" >
+                                    <input type="date" value="{{created_on}}" id ="input_date" name="date_filter" class="form-control"  placeholder="Date">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                            <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-theme mr-15">GO</button>
+                                    <button class="btn btn-link p-0" name="reset" value="reset">Reset Filter</button>
+
+                                </div>
+                            </form>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Transaction ID</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Currency</th>
+                    <th scope="col">Payer</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% if transactions %}
+                    {% for transaction in transactions %}
+                    <tr>
+                        <td>{{transaction.created_on|date:"d M, Y" }}</td>
+                        <td class="text-primary">{{transaction.transaction_id}}</td>
+                        <td>${{transaction.amount}}</td>
+                        <td>{{transaction.currency|upper}}</td>
+                        <td>{% if transaction.created_by.first_name %} {{transaction.created_by.first_name}} {% else %}{{transaction.created_by.username}}{% endif %}</td>
+                        <td>
+                            {% if transaction.payment_type == 1 %}
+                            <span class="badge badge-dark p-2" style="width: 100px">PAYMENT</span>
+                            {% elif transaction.payment_type == 2 %}
+                            <span class="badge badge-primary p-2" style="width: 100px">PAYOUT</span>
+                            {% elif transaction.payment_type == 3 %}
+                            <span class="badge badge-warning p-2" style="width: 100px">REFUND</span>
+                            {% endif %}
+                        </td>
+                        
+                        <td>
+                            {% if transaction.payment_status == 'True' %}
+                                <span class="badge badge-success p-2">Success</span>
+                            {% elif transaction.payment_status == 'succeeded' %}
+                                <span class="badge badge-success p-2">Success</span>
+                            {% else %}
+                                <span class="badge badge-danger p-2">Failed</span>
+                            {% endif %}
+                        </td>
+                        <td><a href="{% url 'accounts:view_transactions' transaction.id%}"><i class='fa fa-eye'></i><a></td>
+                        
+                      
+                        
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <td colspan="7" align="center">No data found<td/>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+{% if transactions.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {% if transactions.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.previous_page_number }}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo;</span>
+        </li>
+        {% endif %}
+        {% for i in transactions.paginator.page_range %}
+        {% if transactions.number == i %}
+        <li class="page-item active">
+            <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if transactions.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.next_page_number }}">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}

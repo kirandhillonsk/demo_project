@@ -1,0 +1,232 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/services.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<style>
+    .services-list .services-wrap .serv-inner .img-wrap img {
+        max-width: 100px;
+    }
+</style>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <form onsubmit="Loader(this.id)" action="{% url 'superuser:search_sub_admin' %}" method="GET">
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-xl-4">
+                    <div class="searchpicker">
+                        <input type="text"  name="email" placeholder="Search" value="{{search}}" class="form-control">
+                    </div>
+                </div>
+                <div class="col-xl-5 col-lg-7 mb-10 mb-lg-0">
+                    <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                        <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-theme mr-15">GO</button>
+                                <button type="submit" name="reset" value="reset" class="btn btn-link p-0">Reset Filter</button>
+                            
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+    </div>
+    <div class="services-list row custom-gutters-10">
+        {% for admin in sub_admins %}
+            <div class="col-lg-3 col-md-4 col-sm-6 mb-15 mb-md-20">
+                <div class="services-wrap d-flex align-items-center justify-content-center text-center">
+                    <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="far fa-ellipsis-v"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                         
+                            <a class="dropdown-item" href="{% url 'superuser:delete_sub_admin' %}?id={{admin.id}}" onclick="return confirm('Are you sure you want to delete this item?');"><img src="{% static 'admin-assets/images/icons/trash.svg' %}">
+                                Delete</a>
+                        </div>
+                    </div>
+                    <div class="serv-inner">
+                        <div class="img-wrap">
+                         
+                        
+                        </div>
+                        <div class="text-wrap serv-email">
+                            <p class="font-lg-20 text-primary">{{admin.email}}</p>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+
+        <div class="col-lg-3 col-md-4 col-sm-6 mb-15 mb-md-20">
+            <a href=""
+                class="services-wrap add-service-wrap d-flex align-items-center justify-content-center text-center"
+                data-toggle="modal" data-target="#addService">
+                <div class="serv-inner">
+                    <div class="img-wrap">
+                        <img src="{% static 'admin-assets/images/services/add.svg' %}">
+                    </div>
+                    <div class="text-wrap">
+                        <p class="font-lg-18 text-primary">Add Sub-Admin</p>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade addformModal" data-backdrop="static" data-keyboard="false" id="addService" tabindex="-1" role="dialog" aria-labelledby="addServiceTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+           
+            <div class="modal-body">
+                <form onsubmit="Loader(this.id)" id="add-subadmin" action="{% url 'superuser:add_sub_admin' %}" method="POST"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="heading">
+                        <p class="text-center">Add Sub-Admin</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" name="email" class="form-control" placeholder="Email" maxlength="35" minlength="8">
+                    </div>
+                    <p>Default Password</p>
+                     <div class="form-group position-relative">
+                     
+                    <input type="password" name="password" class="form-control" placeholder="Default Password" maxlength="35" minlength="8">
+                      <span class="fal toggle-password fa-eye-slash" style="position: absolute;top: 19px;right: 16px;"></span>
+
+                    </div>
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Save & Send Email</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade addformModal" data-backdrop="static" data-keyboard="false" id="editService" tabindex="-1" role="dialog" aria-labelledby="addServiceTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+           
+            <div class="modal-body">
+                <form onsubmit="Loader(this.id)" id="add-admin" action="{% url 'superuser:sub_admin_edit' %}" method="POST"  enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="heading">
+                        <p class="text-center">Edit Sub Admin</p>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email" name="email" id="email" maxlength="60" class="form-control" placeholder="Email" required>
+                    </div>
+                    <p>Default Password</p>
+                     <div class="form-group">
+                        <input type="password" value="admin@123" name="password" class="form-control" placeholder="Default Password" maxlength="35" minlength="8">
+                    </div>
+                    
+                    <input type="hidden" id="id" name="user_id" >
+                
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Update & Send Email</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $("#chooseFile").change(function () {
+        var fileExtension = ['jpg', 'png','jpeg'];
+        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            $(".file_er").html("Please upload file in these format only (pdf,jpg, jpeg, png)");
+            $(".btn").prop('disabled', true);
+        }
+        else{
+            $(".file_er").html("");
+            $(".btn").prop('disabled', false);
+        }
+    });
+</script>
+<script>
+    $("#editchooseFile").change(function () {
+        var fileExtension = ['jpg', 'png','jpeg'];
+        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            $(".file_er").html("Please upload file in these format only (pdf,jpg, jpeg, png)");
+            $(".btn").prop('disabled', true);
+        }
+        else{
+            $(".file_er").html("");
+            $(".btn").prop('disabled', false);
+        }
+    });
+  </script>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-subadmin").validate({
+        rules: {
+            email: {
+                required: true,
+            },
+            password: {
+                required: true,
+                minlength:8,
+            },
+ 
+            
+        },
+        messages: {
+            email: {
+                required: "Please enter the email",
+            },
+             password: {
+                required: "Please enter the password",
+                minlength:"Minimum password length is 8"
+            },
+           
+        }
+    });
+</script>
+<script>
+    function code(clicked_name) {
+        x = clicked_name
+        $.ajax({
+            url: "{% url 'superuser:pervious_sub_admin_data' %}",
+            type: 'GET',
+            data: { 'user_id': x },
+            success: function (data) {
+                $("#id").val(data.id);
+                $("#email").val(data.email);
+            }
+        });
+    }
+    function reply(clicked_id) {
+        x = clicked_id
+        var elem = document.getElementById("category_id");
+        elem.value = x;
+    }
+</script>
+
+<script>
+ $(".toggle-password").click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var type = $(this).hasClass("fa-eye") ? "text" : "password";
+        $(this).closest('div').find(".form-control").attr("type", type);
+    });
+</script>

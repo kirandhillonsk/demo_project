@@ -1,0 +1,130 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load humanize %}
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% for tr in transaction%}
+
+                        <div class="profile-tab d-flex position-relative">
+                            <div class="profile-personal-info w-100">
+                                <h4 class="text-primary mb-4">Transaction Information</h4>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Id <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>{{tr.id}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Transaction Id <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>{{tr.transaction_id}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Amount <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>${{tr.amount}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Currency <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span style="text-transform: uppercase;">{{tr.currency}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Payer <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span style="text-transform: uppercase;">{% if tr.created_by.first_name %}{{tr.created_by.first_name}}{% else %}{{ tr.created_by.username}}{% endif %}</span>
+                                    </div>
+                                </div>
+                              
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Transaction Status <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>
+                                    {% if tr.payment_status == 'True' %}
+                                        <span class="badge badge-success p-2">Success</span>
+                                    {% elif tr.payment_status == 'succeeded' %}
+                                        <span class="badge badge-success p-2">Success</span>
+                                    {% else %}
+                                        <span class="badge badge-danger p-2">Failed</span>
+                                    {% endif %}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                  
+                                    <div class="col-12 col-sm-8 col-lg-9"><span style="text-transform: uppercase;">{{tr.created_for.first_name}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Type <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9">
+                                        {% if tr.payment_type == 1 %}
+                                        <span class="badge badge-dark p-2" style="width: 100px">PAYMENT</span>
+                                        {% elif tr.payment_type == 2 %}
+                                        <span class="badge badge-primary p-2" style="width: 100px">PAYOUT</span>
+                                        {% elif tr.payment_type == 3 %}
+                                        <span class="badge badge-warning p-2" style="width: 100px">REFUND</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Created On <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>
+                                        <script>
+                                            var d = ConvertGTime("{{ tr.created_on|date:'Y-m-d' }}", "{{ tr.created_on|time:'H:i' }}");
+                                            document.write(d);
+                                        </script>
+                                    </span>
+                                    </div>
+                                </div>
+                                {% if not tr.created_by_id == 1 %}
+                                {% if tr.receipt_url %}
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Reciept URL <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9">
+                                    <span>   
+                                        <a href="{{tr.receipt_url}}" target="_blank">{{tr.receipt_url}}</a></span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}

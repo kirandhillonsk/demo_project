@@ -1,0 +1,254 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+
+        <div class="row align-items-center">
+
+            <div class="col-lg-3 col-xl-4">
+                <form onsubmit="Loader(this.id)" action="{% url 'superuser:search_help_type' %}" method="GET">
+                    <div class="searchpicker mb-10 mb-lg-0 d-flex align-items-center">
+                        <input type="text" value="{{search}}" name="search" placeholder="Search" class="form-control">
+                        <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-theme mr-15">GO</button>
+                                <button type="submit" name="reset" value="reset" class="btn btn-link p-0"
+                                    style="flex-shrink:0; margin-left:15px">Reset Filter</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-xl-3 col-lg-7 mb-10 mb-lg-0">
+            </div>
+            <div class="col-lg-2 col-xl-5 text-right">
+                <button data-toggle="modal" data-target="#addHelpTopic" class="btn btn-theme pl-lg-40 pr-lg-40">Add
+                    Help Type</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="author">Id</th>
+                    <th scope="col">Help Topic</th>
+                    <th scope="col">Created On</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if help_type %}
+                {% for help in help_type %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+
+                            <div class="media-body pl-10 text-wrap">
+                                <p class="text-primary font-lg-18">{% if help.id %}{{help.id}}{% else %}-{% endif %}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {{ help.title}}
+                    </td>
+                    <td>
+                        {% if user.last_login%}
+                        <script>
+                            var date = ConvertGTime("{{ help.created_on|date:'Y-m-d' }}", "{{help.created_on|time:'H:i'}}");
+                            document.write(date);
+                        </script>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <a href="{% url 'superuser:delete_help_type' %}?id={{help.id}}"
+                                onclick="return confirm('Are you sure you want to delete this help type?');"
+                                class="action-btn">
+                                <img src="{% static 'admin-assets/images/icons/trash.svg' %}" alt="">
+                            </a>
+                            <a data-toggle="modal" onclick="reply({{help.id}});code({{help.id}});"
+                                data-target="#EditHelpTopic" class="dropdown-item" href="#"><img
+                                    src="{% static 'admin-assets/images/icons/pen.svg' %}"></a>
+
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <td colspan="7" align="center">No Data Found
+                <td>
+                    {% endif %}
+            </tbody>
+        </table>
+        {% if help_type.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if help_type.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ help_type.previous_page_number }}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+                {% for i in help_type.paginator.page_range %}
+                {% if help_type.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if help_type.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ help_type.next_page_number }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+
+    </div>
+</div>
+<!--Modal For Help Topics-->
+<div class="modal fade addformModal" id="EditHelpTopic" data-keyboard="false" data-backdrop="static" tabindex="-1"
+    role="dialog" aria-labelledby="EditHelpTopic" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal"
+                aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="edit_help_type" action="{% url 'superuser:edit_help_type' %}"
+                method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Edit Help Type</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="title" name="help_title" value="{{name}}" maxlength="100"
+                            class="form-control" placeholder="Help Type">
+                        <input type="hidden" id="help_id" name="help_id">
+                    </div>
+
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Save</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div><!--Modal For Help Topics-->
+<div class="modal fade addformModal" id="addHelpTopic" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="addHelpTopic"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="help" action="{% url 'superuser:help_type' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Add Help Type</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text"  name="title" class="form-control" placeholder=" Title" >
+                    </div>
+                   
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Save</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $(document).on('click', '#delete-btn', function () {
+        if (confirm("Are you sure to delete this user")) {
+            var id = $(this).attr('data-attr');
+            $.ajax({
+                url: "{% url 'superuser:users_delete' %}",
+                type: 'get',
+                data: {
+                    'id': id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+    });
+</script>
+
+
+
+<script>
+    function reply(clicked_id) {
+        x = clicked_id
+        var elem = document.getElementById("help_id");
+        elem.value = x;
+    }
+</script>
+
+
+
+<script>
+    $('#edit_help_type').validate({
+        rules: {
+            help_title: {
+                required: true,
+                maxlength: 80
+            }
+        },
+        messages: {
+            help_title: {
+                required: "Please Enter The Help Type",
+                maxlength: "You cannot add title of more than 80 characters"
+            }
+        }
+
+    });
+</script>
+<script>
+    function code(clicked_name) {
+
+        x = clicked_name
+        $.ajax({
+            url: "{% url 'superuser:previous_helpype_data' %}",
+            type: 'GET',
+            data: { 'help_id': x },
+            success: function (data) {
+                $("#id").val(data.id);
+                $("#title").val(data.title);
+            }
+        });
+    }
+</script>

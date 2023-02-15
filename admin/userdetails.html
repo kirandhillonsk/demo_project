@@ -1,0 +1,80 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+        <!--**********************************
+            Content body start
+        ***********************************-->
+        <div class="content-body">
+            <div class="container-fluid">
+                <div class="page-titles">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item"><a href="javascript:void(0)">User</a></li>
+						<li class="breadcrumb-item active"><a href="javascript:void(0)">Profile</a></li>
+					</ol>
+                </div>
+                <div class="row">                  
+                    <div class="col-xl-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="profile-tab">
+                                    <div class="profile-personal-info">
+                                        <h4 class="text-primary mb-4">Personal Information</h4>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                            <h5 class="f-w-500">Name <span class="pull-right">:</span>
+                                            </h5>
+                                            </div>
+                                            <div class="col-9"><span>{{ userdetail }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <h5 class="f-w-500">Email <span class="pull-right">:</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-9"><span>{{ userdetail }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <h5 class="f-w-500">Availability <span class="pull-right">:</span></h5>
+                                            </div>
+                                            <div class="col-9"><span>{{ userdetail }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <h5 class="f-w-500">Age <span class="pull-right">:</span>
+                                                </h5>
+                                            </div>
+                                            <div class="col-9"><span>{{ userdetail.dob }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <h5 class="f-w-500">Location <span class="pull-right">:</span></h5>
+                                            </div>
+                                            <div class="col-9"><span>{{ userdetail.address }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <h5 class="f-w-500">Year Experience <span class="pull-right">:</span></h5>
+                                            </div>
+                                            <div class="col-9"><span>07 Year Experiences</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--**********************************
+            Content body end
+        ***********************************-->
+       
+{% endblock %}
+{% include "admin-includes/footer.html" %}

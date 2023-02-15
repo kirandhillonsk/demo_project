@@ -1,0 +1,274 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/faq-management.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+                <div class="col-lg-3 col-xl-4">
+                    <form onsubmit="Loader(this.id)" action="{% url 'faq:search_faq' %}" method="GET">
+                        {% csrf_token %}
+                        <div class="searchpicker mb-10 mb-lg-0 d-flex align-items-center">
+                            <input type="text"  name="search" placeholder="Search" value="{{search}}" class="form-control">
+                             <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                            <button type ="submit" class="btn btn-theme mr-15">GO</button>
+                            <button type ="submit" name="reset" value ="reset" class ="btn btn-link p-0" style="flex-shrink:0; margin-left:15px">Reset filter</button>
+                        </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="col-xl-5 col-lg-7 mb-10 mb-lg-0">
+                </div>
+            <div class="col-lg-2 col-xl-3 text-right">
+                <button data-toggle="modal" data-target="#addFAQ" class="btn btn-theme pl-lg-40 pr-lg-40">Add
+                    New</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="faq-card">
+    {% if faqs %}
+        {% for faq in faqs %}
+        <div class="list-wrap">
+            <div class="heading-wrap">
+                <h2 class="d-inline">{{faq.title}}</h2><a onclick="codeee({{faq.id}});reply({{faq.id}})" data-toggle="modal" data-target="#" class="action-btn"> </a>
+            </div>
+            <div class="text-wrap d-lg-flex">
+                <div class="text-inner">
+                    <p style="word-wrap: anywhere;">{{faq.description}}</p>
+                </div>
+                <div class="category-wrap">
+                    <span>{% if faq.category.title %}{{faq.category.title}}{% else %} - {% endif %}</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <p align="center" class="p-4" style="font-size:16px">No Data Found</p>
+    {% endif %}
+</div>
+
+<!-- Modal -->
+<div class="modal fade addformModal" id="addFAQ" tabindex="-1" role="dialog" aria-labelledby="addFAQTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="add-faq" action="{% url 'faq:add_faq' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Add new FAQ</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" maxlength="80" name="title" maxlength="100" class="form-control" placeholder="FAQ Title" >
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" name="user_type">
+                                    <option value="">Select User Type</option>
+                                    <option value="2">User</option>
+                                    <option value="3">RVT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" name="category">
+                                    <option value="">FAQ Category</option>
+                                    {% if category %}
+                                    {% for categories in category %}
+                                    <option value="{% if categories.id %}{{categories.id}}">{{categories.title}}{% else %}{% endif %}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" maxlength="300" name="description" rows="3" placeholder="Detail"></textarea>
+                    </div>
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Post</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Edit Modal -->
+<div class="modal fade addformModal" id="editFAQ" tabindex="-1" role="dialog" aria-labelledby="editFAQTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="edit-faq" action="{% url 'faq:edit' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Edit FAQ</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" name="title" id="title" maxlength="100" class="form-control" placeholder="FAQ Title">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" id= "user_cat" name="user_type">
+                                    <option id="user_type" value="">Select User Type</option>
+                                    <option value="2">User</option>
+                                    <option value="3">RVT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" id="cat" name="category">
+                                    <option value="">Select Category</option>
+                                    <option value="2">Category 1</option>
+                                    <option value="3">Category 2</option>
+                                    <option value="4">Category 3</option>
+                                    <option value="5">Category 4</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" maxlength="300" id="description" name="description" rows="3" placeholder="Details"></textarea>
+                        <input type="hidden" id="faq_id" value="" name="faq_id" value="" class="form-control">
+                    </div>
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Edit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-faq").validate({
+        rules: {
+          title: {
+                required: true,
+            },
+            description: {
+                required: true,
+            },
+            user_type: {
+                required: true,
+            },
+            category: {
+                required: true,
+            }
+        },
+        messages: {
+          title: {
+                required: "Please enter title",
+            },
+            description: {
+                required: "Please enter description",
+            },
+            user_type: {
+                required: "Please select user",
+            },
+            category: {
+                required: "Please select category",
+            }
+        }
+    });
+  </script>
+<script type="text/javascript">
+    $("#edit-faq").validate({
+        rules: {
+          title: {
+                required: true,
+            },
+            description: {
+                required: true,
+            }
+        },
+        messages: {
+          title: {
+                required: "Please enter title",
+            },
+            description: {
+                required: "Please enter description",
+            }
+        }
+    });
+  </script>
+  <script>
+    function codeee(clicked_name) {
+        x = clicked_name
+        $.ajax({
+            url: "{% url 'faq:previous_faq_data' %}",
+            type: 'GET',
+            data: { 'faq_id': x },
+            success: function (data) {
+                $("#id").val(data.id);
+                $("#title").val(data.title);
+                $("#description").val(data.description);
+                $("#category").val(data.category);
+                $("#user_type").val(data.user_type);
+                var select = document.getElementById("cat");
+                if (data.category == 1){
+                    var r = ["Category 1","Category 2","Category 3","Category 4"];
+                    var r2 = ["1","2","3","4"];
+                }
+                else if (data.category == 2){
+                    var r = ["Category 2","Category 1","Category 3","Category 4"];
+                    var r2 = ["2","1","3","4"];
+                }
+                else if (data.category == 3){
+                    var r = ["Category 3","Category 1","Category 2","Category 4"];
+                    var r2 = ["3","1","2","4"];
+                }
+                else if (data.category == 4){
+                    var r = ["Category 4","Category 1","Category 2","Category 3"];
+                    var r2 = ["4","1","2","3"];
+                }                
+                select.innerHTML = "";
+                for (var i = 0; i < r.length; i++) {
+                    var opt = r[i];
+                    var ids = r2[i]
+                    select.innerHTML += "<option value=\"" + ids + "\">" + opt + "</option>";
+                }
+                var select2 = document.getElementById("user_cat");
+                if (data.user_type == 2){
+                    var s = ["User" , "RVT"];
+                    var s2 = ["2","3"];
+                }
+                else if (data.user_type == 3){
+                    var s = ["RVT","User"];
+                    var s2 = ["3" , "2"];
+                }
+                select2.innerHTML = "";
+                for (var i = 0; i < s.length; i++) {
+                    var opt = s[i];
+                    var ids = s2[i]
+                    select2.innerHTML += "<option value=\"" + ids + "\">" + opt + "</option>";
+                }
+            }
+        });
+        };
+    function reply(clicked_id) {
+        x = clicked_id
+        var elem = document.getElementById("faq_id");
+        elem.value = x;
+    }
+</script>

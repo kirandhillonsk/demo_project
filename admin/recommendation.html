@@ -1,0 +1,376 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/faq-management.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+                <div class="col-lg-3 col-xl-4">
+                    <form onsubmit="Loader(this.id)" action="{% url 'superuser:search_recommendation' %}" method="GET">
+                        {% csrf_token %}
+                        <div class="searchpicker mb-10 mb-lg-0 d-flex align-items-center">
+                            <input type="text" value="{{search}}" name="search" placeholder="Search" class="form-control">
+                            <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-theme mr-15">GO</button>
+                            <button type="submit" name="reset" value="reset" class="btn btn-link p-0" style="flex-shrink:0; margin-left:15px">Reset Filter</button>
+                        </div></div></div>
+                    </form>
+                </div>
+                <div class="col-xl-3 col-lg-7 mb-10 mb-lg-0">
+                </div>
+                
+            
+            <div class="col-lg-2 col-xl-5 text-right">
+                <button data-toggle="modal" data-target="#addRecommandation" class="btn btn-theme pl-lg-40 pr-lg-40">Add
+                    Recommendation</button>
+                    
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if recommendation %}
+                    {% for rec in recommendation %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="media-body pl-10 text-wrap">
+                                        <p class="text-primary font-lg-18">{% if rec.title %}{{rec.title}}{% else %}-{% endif %}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <p class="font-lg-18">{% if rec.description %}{{rec.description}}{% else %}-{% endif %}</p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <td colspan="2" align="center">No User Found</td>
+                {% endif %}
+            </tbody>
+        </table>
+
+
+
+<!-- Modal -->
+<div class="modal fade addformModal" id="addRecommandation" tabindex="-1" role="dialog" aria-labelledby="addRecommandation"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="add-recommendation" action="{% url 'superuser:create_recommendation' %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Add new Recommendation</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" maxlength="80" name="title" maxlength="100" class="form-control" placeholder=" Title" >
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" name="user_type" onchange="GetUser()"  id="selected_type" >
+                                    <option value="">Select User Type</option>
+                                    <option value="1">User</option>
+                                    <option value="2">RVT</option>
+                                </select>
+                            </div>
+                        </div>
+                     
+                        <div class="col-lg-6" id ="service_div">
+                            <div class="form-group">
+                                <select class="form-control" name="category">
+                                    <option value="">Select Recommendation Service</option>
+                                    {% if category %}
+                                    {% for categories in category %}
+                                    <option value="{% if categories.id %}{{categories.id}}">{{categories.title}}{% else %}{% endif %}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                               
+                                </select>
+                            </div>
+                        </div>
+                           <div class="col-lg-12">
+                            <div class="form-group">
+                                <select class="form-control" name="help_type">
+                                    <option value="">Select Help Type</option>
+                                    {% for topic in help_topics %}
+                                    <option value="{{topic.id}}">{{topic.title}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" maxlength="300" name="description" rows="3" placeholder="Detail"></textarea>
+
+                    </div>
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Post</button>
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade addformModal" id="editFAQ" tabindex="-1" role="dialog" aria-labelledby="editFAQTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" onclick="return location.reload()" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="edit-recommendation" action="{% url 'superuser:edit_recommendation' %}" method="POST">
+
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Edit Recommendation</p>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" value="" name="title" id="r_title" maxlength="100" class="form-control" placeholder=" Title">
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <select class="form-control" name="user_type"  onchange="GetUsertype()"  id="r_user_type">
+                                    <option id="user_type" value="">Select User Type</option>
+                                    <option {% if 1 == r_user_type %}selected{% endif %} value="1">User</option>
+                                    <option {% if 2 == r_user_type %}selected{% endif %} value="2">RVT</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-6" id ="edit_service_div">
+                            <div class="form-group">
+                                <select class="form-control" name="category"  id="r_service">
+                                    <option value="">Select Category</option>
+                                    {% if category %}
+                                    {% for categories in category %}
+                                    <option value="{% if categories.id == r_service %}selected{% endif %}{% if categories.id %}{{categories.id}}">{{categories.title}}{% else %}{% endif %}</option>
+                                    {% endfor %}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                               
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <select class="form-control" name="help_type" id="r_help_type">
+                                    <option value="">Select Help Type</option>
+                                    {% for topic in help_topics %}
+                                    <option value="{% if topic.id == r_help_type %}selected{% endif %}{{topic.id}}">{{topic.title}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control"  id="r_description" name="description" rows="3" placeholder="Details"></textarea>
+                        <input type="hidden" id="recommendation_id" value="" name="recommendation_id" value="" class="form-control">
+
+                    </div>
+                    <div class="button-wrap">
+
+                    </div>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-recommendation").validate({
+        rules: {
+          title: {
+                required: true,
+            },
+            description: {
+                required: true,
+            },
+            user_type: {
+                required: true,
+            },
+            category: {
+                required: true,
+            },
+            help_type: {
+                required: true,
+            }
+
+            
+        },
+        messages: {
+          title: {
+                required: "Please enter title",
+            },
+            description: {
+                required: "Please enter description",
+            },
+            user_type: {
+                required: "Please select user",
+            },
+            category: {
+                required: "Please select category",
+            },
+            help_type: {
+                required: "Please select help type",
+            }
+        }
+    });
+  </script>
+
+
+<script>
+    $("#edit-recommendation").validate({
+        rules: {
+            title: {
+                  required: true,
+                  maxlength:100,
+              },
+              description: {
+                  required: true,
+                  maxlength: 300,
+              },
+              user_type: {
+                  required: true,
+              },
+              category: {
+                  required: true,
+              }
+          },
+          messages: {
+            title: {
+                  required: "Please enter title",
+                  maxlength:"You cannot add title of more than 80 characters"
+              },
+              description: {
+                  required: "Please enter description",
+                  maxlength: "You cannot add description of more than 300 characters"
+              },
+              user_type: {
+                  required: "Please select user type",
+              },
+              category: {
+                  required: "Please select category",
+              }
+          }
+    });
+</script>
+
+  
+<script>
+  function reply(clicked_id,title,description,service,help_type,user_type) {
+    x = clicked_id
+    var elem = document.getElementById("recommendation_id");
+    elem.value = x;
+    y = title
+    var elem = document.getElementById("r_title");
+    elem.value = y;
+    z = description
+    var elem = document.getElementById("r_description");
+    elem.value = z;
+    s= service
+    var elem = document.getElementById("r_service");
+    elem.value = s;
+    h= help_type
+    var elem = document.getElementById("r_help_type");
+    elem.value = h;
+    u =user_type
+    var elem = document.getElementById("r_user_type");
+    elem.value = u;
+
+
+   
+}
+</script>
+
+
+<script>
+  function GetUser() {
+   var elem = document.getElementById("selected_type").value;
+    
+    if (elem == "2"){
+        $('#service_div').css('display','block');
+        }
+    else{
+        $('#service_div').css('display','none');
+    }   
+}
+</script>
+
+<script>
+  function GetUsertype() {
+   var elem = document.getElementById("selected_user").value;
+    if (elem == "2"){
+        $('#edit_service_div').css('display','block');
+        }
+    else{
+        $('#edit_service_div').css('display','none');
+    }   
+}
+</script>
+
+
+
+<script>
+    function GetUserEdittype(){
+        var val=document.getElementById("selected_user").value;
+        if (val == "2"){
+            $('#edit_service_div').css('display','block');
+            }
+        else{
+            $('#edit_service_div').css('display','none');
+        } 
+    }
+</script>
+
+
+
+
+<script>
+    $('#help').validate({
+        rules: {
+            title:{
+                required:true,
+                maxlength: 80
+            }
+        },
+        messages:{
+            title:{
+                required:"Please Enter The title",
+                maxlength:"You cannot add title of more than 80 characters"
+            }
+        }
+
+    });
+</script>

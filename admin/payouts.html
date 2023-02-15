@@ -1,0 +1,165 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/appointment-details.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+            <div class="col-lg-10">
+                <div class="row form-row">
+                    <div class="col-lg-4">
+                    <form onsubmit="Loader(this.id)" id="searchForm" action= "{% url 'accounts:search_transactions' %}"  method="POST">
+                        <div class="searchpicker mb-10 mb-lg-0">
+                            <input type="text" placeholder="Search" name ="search" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="calendar-picker">
+                                <div class="form-group datepicker-field position-relative" >
+                                    <input type="date" id ="input_date" name="date_filter" class="form-control"  placeholder="Date">
+                                </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                            <select class="form-control" name='status'>
+                                <option value="">Status</option>
+                                <option value="2">Release</option>
+                                <option value="1">Not Release </option>
+                            </select> 
+                            <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                                <div class="d-flex align-items-center">
+                                    <button class="btn btn-theme mr-15">GO</button>
+                                    <button class="btn btn-link p-0" value="reset">Reset Filter</button>
+
+                                </div>
+                            </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">RVT</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% if payouts %}
+                    {% for payout in payouts %}
+                    <tr>
+                    <input type="hidden" id="rvt_id" value="{{transaction.created_for.id}}">
+                        <td>{{payout.created_on|date:"d M, Y" }}</td>
+                        <td>${{ payout.amount }}</td>
+                        <td class="text-primary">{{payout.user.first_name}}</td>
+                        <td>
+                            {% if payout.payment_status == '0' %}
+                            Not Released
+                            {% elif payout.payment_status == '1' %}
+                            Released
+                            {% endif %}
+                        </td>
+                        <td><a data-toggle="modal" data-target="#release_payment" class="btn-cancel btn mt-10">Release Payment</a></td>
+                        <td><a href=""><i class='fa fa-eye'></i><a></td> 
+                        
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                <td colspan="5" align="center">No data found<td/>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="modal fade addformModal" id="release_payment" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered delete-modal-width" role="document">
+        <div class="modal-content">
+             <form onsubmit="Loader(this.id)" id="searchForm" action="" method="POST"> 
+
+                {% csrf_token %}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <input type="hidden" id="rvt" name="rvt_id">
+                <div class="modal-body delete-wrap text-center">
+                    <div class="icon-wrap">
+                    <i class="fas fa-check"></i>
+                    </div>
+                    <div class="text-wrap">
+                    <h4>You are about to release this payment</h4>
+                    <p>Are you sure to release this appointment payment ?</p>
+                    </div>
+                    <div class="modal-actions">
+                        <a data-dismiss="modal" aria-label="Close" class="btn-cancel btn rounded">Back</a>
+                        <button class="btn-delete btn rounded">Release</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% if transactions.has_other_pages %}
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        {% if transactions.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.previous_page_number }}">&laquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&laquo;</span>
+        </li>
+        {% endif %}
+        {% for i in transactions.paginator.page_range %}
+        {% if transactions.number == i %}
+        <li class="page-item active">
+            <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+        </li>
+        {% else %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        {% if transactions.has_next %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?page={{ transactions.next_page_number }}">&raquo;</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">&raquo;</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+var rvt_id=$('#rvt_id').val()
+$('#rvt').val(rvt_id)
+
+</script>

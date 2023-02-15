@@ -1,0 +1,88 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<script>
+    function ConvertGTime(createdate, createtime) {
+        var d = createdate + "T" + createtime + "Z";
+        const date = d;
+        const local = moment.utc(date).local().format("Do MMM  YYYY hh:mm A");
+        return local;
+    }
+</script> 
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<div class="inner-page">
+<form onsubmit="Loader(this.id)" id="searchForm" action = "{% url 'accounts:search_newsletter_subscription' %}" method="POST">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center">
+            
+            <div class="col-lg-4">
+                <form action = "{% url 'accounts:search_newsletter_subscription' %}">
+                <div class="searchpicker">
+                    <input type="text" placeholder="Search" name="search" class="form-control">
+                </div>
+            </div>
+            <div class="col-lg-8">
+                <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                
+                    <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                        <div class="d-flex align-items-center">
+                            <button type="submit" class="btn btn-theme mr-15">GO</button>
+                            <button class="btn btn-link p-0">Reset Filter</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        </div>
+    </div>
+</form>
+
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Date Subscribed</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if subscribed_user %}
+            {% for user in subscribed_user %}
+                <tr>
+                    <td>{{user.id}}</td>
+                    <td><a href="">{% if user.email %} {{user.email}} {% endif %}</a></td>
+                    <td>Subscribed</td>
+                    <td>
+                        <script>
+                            var date = ConvertGTime("{{user.created_on|date:'Y-m-d' }}", "{{ user.created_on|time:'H:i' }}");
+                            document.write(date);
+                        </script>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <a onclick="return confirm('Are you sure you want to delete this Subscription?');" href="{% url 'accounts:delete_subscription' %}?id={{user.id}}" class="action-btn">
+                                <img src="{% static 'admin-assets/images/icons/trash.svg' %}" alt="">
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
+            {% endfor %}
+            {% else %}
+            <td colspan="6" align="center">No User Found<td>
+
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+

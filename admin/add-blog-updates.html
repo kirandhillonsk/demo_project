@@ -1,0 +1,102 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/add-news-update.css' %}" />
+
+<div class="add-news-card p-3 p-lg-4">
+    <form onsubmit="Loader(this.id)" id="add-blog" action={% url 'blog:add_blog' %} method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row custom-gutters-10">
+            <div class="col-lg-12 col-xxl-9 mb-md-20 mb-20 mb-lg-0">
+                <div class="form-wrapper">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="title" maxlength="240" placeholder="Please Enter Title">
+                            </div>
+                        </div>
+                        
+                        <div class="col-6">
+                            <div class="form-group">
+                                <select class="form-control" name="category" >
+                                    <option value="">Blog Category</option>
+                                    <option value="1">Whats New</option>
+                                    <option value="2">Pet Resource</option>
+                                    <option value="3">Continue Education</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="file" class="form-control" name="image" id="blogimage" placeholder="Blog Description">
+                                <p class="er" style="color:red"></p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea class="form-control" name="description" maxlength="10000" placeholder="Please Enter Description"
+                            rows="5" id="blog_description"></textarea>
+                    </div>
+
+                    <div class="button-wrap text-right">
+                        <button class="btn btn-theme">Post</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-blog").validate({
+        rules: {
+            title: {
+                required: true,
+            },
+            description: {
+                required: true,
+            },
+            image: {
+                required: true,
+            },
+            category: {
+                required: true,
+            }
+        },
+        messages: {
+            title: {
+                required: "Please enter title",
+            },
+            description: {
+                required: "Please enter description",
+            },
+            image: {
+                required: "Please select image",
+            },
+            category: {
+                required: "Please select category"
+            }
+        }
+    });
+</script>
+<script>
+    $("#blogimage").change(function () {
+        var fileExtension = ['jpeg', 'jpg', 'png'];
+        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            $(".er").html("Please upload file in these format only (jpg, jpeg, png)");
+            $(".btn").prop('disabled', true);
+        }
+        else{
+            $(".er").html("");
+            $(".btn").prop('disabled', false);
+        }
+    });
+</script>
+<script src="https://cdn.ckeditor.com/ckeditor5/34.2.0/classic/ckeditor.js"></script>
+<script>
+    CKEDITOR.replace('blog_description');
+</script> 

@@ -1,0 +1,348 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+<style>
+    .service-wrapper img{
+        width: 100%;
+        height: 100%;
+    }
+    .radio-error .error{
+        position: absolute;
+        top: 25px;
+        width: 180px !important;
+    }
+    .service-box img{
+        max-width: 100%;
+        max-height: 100%;
+    }
+    @media (max-width: 800px) {
+        .service-box .media-body{
+            margin-left: 10px !important;
+        }
+    }
+    .radio-error{
+        margin-left: auto;
+        display: flex;
+        flex-direction: column;
+    }
+</style>
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/appointment-details.css' %}" />
+<link rel="stylesheet" href="{% static 'admin-assets/rvt-css/my-services.css' %}">
+<div class="appointment-details-wrap">
+    <div class="confirmation-box d-flex flex-wrap justify-content-between align-items-center">
+        {% if appointment.status == '1' %}
+        <span class="confirmation"><i class="far fa-check"></i> Confirmed</span>
+        {% elif appointment.status == '2' %}
+        <span class="confirmation"><i class="far fa-check"></i> Completed</span>
+        {% elif appointment.status == '3' %}
+        <span class="confirmation"><i class="fas fa-times"></i></i> Cancelled</span>
+            {% if appointment.cancel_remarks %}
+            <div>
+                <p><span style="font-size: 16px;color: #be36ee;font-weight: 500;">Cancellation Reason:</span> {{appointment.cancel_remarks}}</p>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="profile-content">
+        <div class="row mb-15 mb-md-20">
+            <div class="col-lg-5">
+                <div class="d-md-flex profile-media">
+                    <div class="img-wrap">
+                        {% if appointment.created_by.profile_pic %}
+                        <img src="{{appointment.created_by.profile_pic.url}}">
+                        {% else %}
+                        <img src="{% static 'admin-assets/images/default.png' %}">
+                        {% endif %}
+                        {% if appointment.created_by.status %}
+                        <span class="status active"></span>
+                        {% else %}
+                        <span class="status inactive"></span>
+                        {% endif %}
+                    </div>
+                    <div class="text-wrap media-body">
+                        <h4>{{appointment.created_by.first_name}} {{appointment.created_by.last_name}}</h4>
+                        <ul class="mata-list">
+                            <li><i class="far fa-calendar-week"></i> {{appointment.date}}</li>
+                            <li><i class="far fa-clock"></i> {{appointment.start_time|date:"g:i a"}} - {{appointment.end_time|date:"g:i a"}}</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7">
+                <ul class="mata-list list-right">
+                    <li><i class="fas fa-map-marker-alt"></i>{% if appointment.created_by.address %}
+                        {{appointment.created_by.address}} <br>({{distance}},{{time}}){% else %} - {% endif %}</li>
+                    <li><i class="fas fa-phone-alt"></i> <a href="">{% if appointment.created_by.mobile_no %}
+                            {{appointment.created_by.mobile_no}} {% else %} - {% endif %}</a></li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <a href="{{appointment.created_by.email}}">{{appointment.created_by.email}}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="button-wrap text-right">
+            {% if appointment.status == '1' %}
+            <a data-toggle="modal" data-target="#cancelModal" class="btn-cancel btn mt-10"><i class="far fa-times-circle"></i> Cancel</a>
+            <a data-toggle="modal" data-target="#completeModal" class="btn-theme btn mt-10"><i class="fas fa-check"></i> Mark Complete</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="service-wrapper">
+        {% if cus_service %}
+        <h3 class="serv-heading">Custom Services</h3>
+        <div class="service-list-wrapper row mb-20 mb-md-30 ml-1">
+            {% for sert in cus_service %}
+            {{sert.title}}
+            {% endfor %}
+        </div>
+        {% elif service or rvt_cus_service %}
+        <h3 class="serv-heading">Services</h3>
+        <div class="service-list-wrapper row mb-20 mb-md-30">
+            {% for srv in service %}
+            <div class="col-lg-4 mb-20 mb-lg-0">
+                <div class="service-box d-flex align-items-center mb-20">
+                    <div class="icon d-flex align-items-center justify-content-center">
+                        {% if srv.category.image %}
+                        <img src="{{srv.category.image.url}}">
+                        {% else %}
+                        <img src="{% static '' admin-assets/images/service-default.jpeg %}">
+                        {% endif %}
+                    </div>
+
+                    <div class="media-body pl-0 pl-md-15 pr-0 pr-md-10 pt-10 pb-10 pt-md-0 pb-md-0">
+                        <h5>{{srv.category.title}}</h5>
+                        <h6 class="mt-1" style="color:white">({{srv.pet.name}})</h6>
+                    </div>
+                    <h4>${{srv.price}}</h4>
+                </div>
+            </div>
+            {% endfor %}
+             {% for cus in rvt_cus_service %}
+            <div class="col-lg-4 mb-20 mb-lg-0">
+                <div class="service-box d-flex align-items-center mb-20">
+                    <div class="icon d-flex align-items-center justify-content-center">
+                        {% if cus.image %}
+                        <img src="{{cus.image.url}}">
+                        {% else %}
+                        <img src="{% static 'admin-assets/images/service-default.jpeg' %}">
+                        {% endif %}
+                    </div>
+
+                    <div class="media-body pl-0 pl-md-15 pr-0 pr-md-10 pt-10 pb-10 pt-md-0 pb-md-0">
+                        <h5>{{cus.title}}</h5>
+                        <h6 class="mt-1" style="color:white">({{cus.pet_type.name}})</h6>
+                    </div>
+                    <h4>${{cus.price}}</h4>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+        {% endif %}
+        </div>
+        <span>
+            (Appointment Cost: ${{appointment.actual_amount}}, 
+             space& Fido Service Fee: ${{appointment.tax_amount}}, 
+           Travelling Fee: ${{appointment.mileage_fee}})
+           </span>
+           <hr>
+        <h3 class="serv-heading">Job Description</h3><br>
+        <div class="text-wrap mb-20 mb-md-30 ml-2">
+            <p>{% if appointment.description %}{{appointment.description}}{% else %}
+                No description found{% endif %}</p>
+        </div>
+        {% if not cus_service %}
+        <h3 class="serv-heading">Pets</h3>
+        <div class="pets-slider">
+            {% for pet in pets %}
+            <div class="item">
+                <div class="pet-wrap">
+                    <div class="img-wrap">
+                        {% if pet.image.all.first %}
+                        <img src="{{ pet.image.all.first.file.url }}">
+                        {% else %}
+                        <img src="{% static 'admin-assets/images/pet-default.png' %}">
+                        {% endif %}
+                    </div>
+                    <p>{{pet.name}}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        <div class="notes-wrap">
+            <div class="d-flex justify-content-between align-items-center mb-15 mb-lg-25">
+                <h3 class="serv-heading">Notes</h3>
+            </div>
+            <div class="notes-list">
+                {% if notes %}
+                {% for note in notes %}
+                <div class="notes-inner">
+                    <div class="notes-mata d-md-flex align-items-end justify-content-between">
+                        <div class="info-wrap d-flex">
+                            <div class="media-body">
+                                <h6 class="d-flex align-items-center"> 
+                                    <div class="img-warp" style="height:100px; width:100px;">
+                                        {% if note.created_by.profile_pic %}
+                                            <img src="{{note.created_by.profile_pic.url}}" width=50px>
+                                        {% else %}
+                                            <img src="{% static 'admin-assets/images/default.png' %}">
+                                        {% endif %}
+                                    </div>
+                                    <div class="text-wrap ml-1" style="width: 90%;">
+                                        <p style="margin-bottom: 20px;font-size: 18px;color: #5c2580;">
+                                            {{note.created_by.first_name}} on {{note.created_on}}</p>
+                                        {% if note.text %}{{note.text}}{% endif %}
+                                    </div>
+                                </h6>
+                            </div>
+                        </div>
+                            <div class="visiblity">
+                            <p class="text-primary"><i class="fal fa-globe-europe"></i>{% if note.type == '1' %} Public {% else %} Private {% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+                </a>
+                {% endfor %}
+                {% else %}
+                <div class="text-wrap">
+                    <p align="center">No Notes Posted Yet</p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="form-wrapper pt-15 pt-md-25">
+                <form onsubmit="Loader(this.id)" id="add-notes" action="{% url 'rvt_lvt:add_notes' %}" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <textarea class="form-control" rows="3" name="text" placeholder="Type your text here..."></textarea>
+                        <input type="hidden" class="form-control" value="{{appointment.id}}" name="id" >
+                    </div>
+                    <div class="form-group row mb-4 radio-error">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" checked value="1" name="type" id="public">
+                            <label class="form-check-label" for="public">Public</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" value="2" name="type" id="private" >
+                            <label class="form-check-label" for="private">Private</label>
+                        </div>
+                    </div>
+                    <button class="btn btn-theme mt-4 btn-sm" id='bttn'><i class="fas fa-save mr-10"></i> Save Notes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade addformModal" id="completeModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered delete-modal-width" role="document">
+        <div class="modal-content">
+            <form id="completeappoointment" action="{% url 'rvt_lvt:mark_event_complete' %}" method="POST">
+                {% csrf_token %}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <input type="hidden" value="{{appointment.id}}" name="id" >
+                <div class="modal-body delete-wrap text-center">
+                    <div class="icon-wrap">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="text-wrap">
+                        <p>Are you sure you want to mark this appointment as completed?</p>
+                    </div>
+                    <div class="modal-actions">
+                        <input type="hidden" id="service_id_delete" name="service_id">
+                        <a data-dismiss="modal" aria-label="Close" class="btn-cancel btn rounded">No</a>
+                        <button class="btn-delete btn rounded" onclick="LoaderNew();">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+</div>
+</div>
+<div class="modal fade addformModal" id="cancelModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered delete-modal-width" role="document">
+        <div class="modal-content">
+            <form onsubmit="Loader(this.id)" id="cancelmodalLoader" action="{% url 'rvt_lvt:rvt_cancel_appointment'  %}?id={{appointment.id}}" method="POST">
+                {% csrf_token %}
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <input type="hidden" value="{{appointment.id}}" name="appointment_id">
+                <div class="modal-body delete-wrap text-center">
+                    <div class="icon-wrap">
+                        <i class="fas fa-times"></i>
+                    </div>
+                    <div class="text-wrap">
+                        <h4>Are you sure you want to cancel this appointment?</h4>
+                    </div>
+                    <div class="modal-actions">
+                        <div class="form-group">
+                            <textarea class="form-control" rows="3" name="cancel_remarks" maxlength = "200" placeholder="Cancelation reason"></textarea>
+                        </div>
+                        <a data-dismiss="modal" aria-label="Close" class="btn-cancel btn rounded">No</a>
+                        <button class="btn-delete btn rounded" onclick="LoaderNew();">Yes</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "user/includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-notes").validate({
+        rules: {
+            text: {
+                required: true,
+            }
+        },
+        messages: {
+            text: {
+                required: "Please enter something",
+            }
+        }
+    });
+</script>
+<script>
+    $('.pets-slider').slick({
+        slidesToShow: 7,
+        arrows: false,
+        slidesToScroll: 1,
+        dots: true,
+        responsive: [
+            {
+                breakpoint: 1500,
+                settings: {
+                    slidesToShow: 5
+                }
+            },
+            {
+                breakpoint: 1200,
+                settings: {
+                    slidesToShow: 4
+                }
+            },
+            {
+                breakpoint: 992,
+                settings: {
+                    slidesToShow: 3
+                }
+            },
+            {
+                breakpoint: 768,
+                settings: {
+                    slidesToShow: 2
+                }
+            },
+            {
+                breakpoint: 420,
+                settings: {
+                    slidesToShow: 1
+                }
+            }
+        ]
+    });
+</script>

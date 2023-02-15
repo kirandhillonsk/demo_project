@@ -1,0 +1,106 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load humanize %}
+ 
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="profile-tab d-flex position-relative">
+                            <div class="profile-personal-info w-100">
+                                <h4 class="text-primary mb-4">Announcement Details</h4>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Id <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>{{announcement.id}}</span>
+                                    </div>
+                                </div>
+                               
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Title <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>{% if announcement.title  %}{{announcement.title}}{% endif %}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Details <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span style="text-transform: uppercase;">{% if announcement.description  %}{{announcement.description}}{% endif %}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Date <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span style="text-transform: uppercase;">    <script>
+                                    var date = ConvertGTime("{{ announcement.created_on|date:'Y-m-d' }}", "{{announcement.created_on|time:'H:i'}}");
+                                    document.write(date);
+                                    </script>
+                                </span>
+                                    </div>
+                                </div>
+                              
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Status <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>
+                                    {% if announcement.status == 0 %}
+                                        <span class="badge badge-success p-2">Draft</span>
+                                    {% elif  announcement.status == 1 %}
+                                        <span class="badge badge-success p-2">Send</span>
+                                    {% endif %}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                  
+                                </div>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Target <span class="d-none d-sm-block float-sm-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9">
+                                        {% if announcement.target == "1" %}
+                                        <span class="badge badge-dark p-2" style="width: 100px">User</span>
+                                        {% elif announcement.target  == "2" %}
+                                        <span class="badge badge-primary p-2" style="width: 100px">RVT</span>
+                                        {% elif announcement.target  == "3" %}
+                                        <span class="badge badge-warning p-2" style="width: 100px">All User</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row mb-3 mb-sm-2">
+                                    <div class="col-12 col-sm-4 col-lg-3">
+                                        <h5 class="f-w-500">Announement Image<span class="d-none d-sm-block float-sm-right"></span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-12 col-sm-8 col-lg-9"><span>
+                                    </span>
+                                    </div>
+                                </div><br>
+                                {% if announcement.image %}<img src="{{announcement.image.url}}" height="300px" width="300px"> {% else %} No Image Found {% endif %}
+                             
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}

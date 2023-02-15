@@ -1,0 +1,132 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <form onsubmit="Loader(this.id)" action="{% url 'superuser:search_announcement' %}" method="GET">
+        {% csrf_token %}
+            <div class="row align-items-center">
+                <div class="col-lg-3 col-xl-4">
+                    <div class="searchpicker">
+                        <input type="text" placeholder="Search" name="announcement" value="{{announcements}}" class="form-control">
+                    </div>
+                </div>
+                <div class="col-xl-5 col-lg-7 mb-10 mb-lg-0">
+                    <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                        <select class="form-control" name="status">
+                            <option value="">Status</option>
+                            <option value="0">Draft</option>
+                            <option value="1">Sent</option>
+                        </select>
+                        <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                            <div class="d-flex align-items-center">
+                                <button type="submit" class="btn btn-theme mr-15">GO</button>
+                                <button type="submit" value = "reset" name="reset"  class="btn btn-link p-0">Reset Filter</button>
+                            </div>
+                        </form>
+
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-xl-3 text-right">
+                    <a href="{% url 'superuser:add_announcement' %}" class="btn btn-theme pl-lg-40 pr-lg-40">Add Announcements</a>
+                </div>
+            </div>
+    </div>
+</div>
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Title</th>
+                    <th scope="col">Details</th>
+                    <th scope="col">Date Added</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Target</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if announcement %}
+                    {% for i in announcement %}
+                    <tr>
+                        <td>
+                            {{i.title }}
+                        </td>
+                        <td>
+                            <p class="description"> {{i.description | truncatechars:50}} </p>
+                        </td>
+                        <td>
+                            <p>
+                                <script>
+                                    var date = ConvertGTime("{{ i.created_on|date:'Y-m-d' }}", "{{ i.created_on|time:'H:i' }}");
+                                    document.write(date);
+                                </script>
+                            </p>
+                        </td>
+                        <td>
+                            <form onsubmit="Loader(this.id)" action="{% url 'superuser:change_status' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{i.id}}"  name="status_id">
+                                <select class="form-control" onchange="this.form.submit()" name="select_status">
+                                    <option value="0" {% if i.status == 0 %}selected {% endif %}>Draft</option>
+                                    <option value="1" {% if i.status == 1 %}selected {% endif %}>Sent</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <form  onsubmit="Loader(this.id)" action="{% url 'superuser:change_target' %}" method="POST">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{i.id}}" name="id" >
+                                <select class="form-control" onchange="this.form.submit()" name="select_target">
+                                    <option value="2" {% if i.target == "2" %}selected {% endif %}>RVT's</option>
+                                    <option value="1" {% if i.target == "1" %}selected {% endif %} >Users</option>
+                                    <option value="3" {% if i.target == "3" %}selected {% endif %}>All</option>
+                                </select>
+                            </form>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <a href="{% url 'superuser:view_announcement'%}?id={{i.id}}"><i class="fa fa-eye"></i></a>
+                                <a style="margin-left:25px" href="{% url 'superuser:edit_announcement' %}?id={{i.id}}" class="action-btn">
+                                    <i class="fa fa-pencil"></i>
+                                </a>                                
+                                <a style="margin-left:25px" href="{% url 'superuser:delete_announcement' %}?id={{i.id}}" onclick="return confirm('Are you sure you want to delete this announcement?');"  class="action-btn">
+                                    <img src="{% static 'admin-assets/images/icons/trash.svg' %}" alt="">
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <td align="center" colspan="7">No Announcement Found</td>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $(document).on('click', '#delete-btn', function () {
+        if (confirm("Are you sure to delete this announcement")) {
+            var id = $(this).attr('data-attr');
+            $.ajax({
+                url: "{% url 'superuser:delete_announcement' %}",
+                type: 'get',
+                data: {
+                    'id': id
+                },
+                success: function (result) {
+                    location.reload();
+                }
+            });
+        }
+    });
+</script>

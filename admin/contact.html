@@ -1,0 +1,55 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+        </div>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Email ID</th>
+                    <th scope="col">Mobile No</th>
+                    <th scope="col">Subject</th>
+                    <th scope="col">Message</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% if contact %}
+                {% for contacts in contact %}
+                    <tr>
+                        <td>{% if contacts.created_on %}   
+                            <script>
+                            var date = ConvertGTime("{{ contacts.created_on|date:'Y-m-d' }}", "{{contacts.created_on|time:'H:i'}}");
+                            document.write(date);
+                        </script> {% else %} {% endif %}</td>
+                    
+                        <td class="text-primary">{% if contacts.email %} {{ contacts.email  }}{% else %} {% endif %}</td>
+                        
+                        <td>{% if contacts.mobile_no %}{{contacts.mobile_no}}{% else %} {% endif %}</td>
+                        <td>{% if contacts.subject %}{{contacts.subject}}{% else %} {% endif %}</td>
+                        <td>
+                            <p class="description">{% if contacts.message %}{{contacts.message}}{% else %} {% endif %}</p>
+                        </td>
+
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <td align="center" colspan="6">No Data Found</td>
+            {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}

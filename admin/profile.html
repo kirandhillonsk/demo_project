@@ -1,0 +1,234 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load humanize %}
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-xl-12">
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="float-right">
+                            {% if user.is_superuser %}
+                            <div class="addlocation">
+                                <a class="mr-2" href="{% url 'accounts:Edit_User' %}?id={{user.id}}">Edit Profile</a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="profile-tab d-flex position-relative">
+                            <div class="profile-imgbox">
+                                {% if user.profile_pic %}
+                                <img src="{{ user.profile_pic.url }}" alt="image">
+                                {% else %}
+                                <img src="{% static 'admin-asset/images/dp.png' %}" alt="image">
+                                {% endif %}
+                            </div>
+                            <div class="profile-personal-info w-100">
+                                <h4 class="text-primary mb-4">Personal Information</h4>
+                                <div class="row mb-2">
+                                    <div class="col-3">
+                                        <h5 class="f-w-500">Username <span class="pull-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-9"><span>{{user.username}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-3">
+                                        <h5 class="f-w-500">Email <span class="pull-right">:</span>
+                                        </h5>
+                                    </div>
+                                    <div class="col-9"><span>{{user.email}}</span>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-3">
+                                        <h5 class="f-w-500">Role <span class="pull-right">:</span></h5>
+                                    </div>
+                                    {% if user.role_id == 1 %}
+                                    <div class="col-9"><span>Admin</span></div>
+                                    {% else %}
+                                    <div class="col-9"><span>User</span></div>
+                                    {% endif %}
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-3">
+                                        <h5 class="f-w-500">State <span class="pull-right">:</span></h5>
+                                    </div>
+                                    {% if user.state_id == 1 %}
+                                    <div class="col-9"><span class="badge badge-success">Active</span></div>
+                                    {% elif user.state_id == 2 %}
+                                    <div class="col-9"><span class="badge badge-warning">Inactive</span></div>
+                                    {% else %}
+                                    <div class="col-9"><span class="badge badge-danger">Deleted</span></div>
+                                    {% endif %}
+                                </div>
+                                {% if user.role_id == 2 %}
+                                {% if ratings %}
+                                <h4 class="text-primary mb-3" style="margin-top:40px">Ratings and Reviews</h4>
+                                {% for r in ratings %}
+                                <ul style="margin-left:20px">
+                                    <li style="list-style-type: disc;">
+                                        <div class="row mb-2">
+                                            <div class="col-3">
+                                                <span class="f-w-500">{{r.comment}}
+                                                </span>
+                                            </div>
+                                            <div class="col-9"><span>
+                                                    {% if r.rating == 0 %}
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    {% elif r.rating == 1 %}
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    {% elif r.rating == 2 %}
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    {% elif r.rating == 3 %}
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    {% elif r.rating == 4 %}
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star"></span>
+                                                    {% else %}
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    <span class="fa fa-star checked"></span>
+                                                    {% endif %}
+
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                                {% endfor %}
+
+                                {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-12">
+                {% if user.is_superuser is False %}
+                <div class="card">
+                    <div class="btn-list border-0 d-flex justify-content-end align-items-center">
+                        {% if user.state_id == 3 %}
+                        <div class="addlocation mr-2 ">
+                            <a href="{% url 'accounts:change_status_active' %}?id={{user.id}}"
+                                class="btn-success">Active</a>
+                        </div>
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_inactive' %}?id={{user.id}}">Inactive</a>
+                        </div>
+
+                        {% elif user.state_id == 1 %}
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_inactive' %}?id={{user.id}}">Inactive</a>
+                        </div>
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_delete' %}?id={{user.id}}"
+                                class="btn-danger">Delete</a>
+                        </div>
+                        {% elif user.state_id == 2 %}
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_active' %}?id={{user.id}}"
+                                class="btn-success">Activate</a>
+                        </div>
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_delete' %}?id={{user.id}}"
+                                class="btn-danger">Delete</a>
+                        </div>
+                        {% else %}
+                        <div class="addlocation mr-2">
+                            <a href="{% url 'accounts:change_status_delete' %}?id={{user.id}}"
+                                class="btn-danger">Delete</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card card-table">
+                    <div class="card-body">
+                        <nav class="custom-navbox">
+                            <div class="nav nav-tabs" role="tablist">
+                                <a class="nav-item nav-link active" data-toggle="tab" href="#home">Activities</a>
+                            </div>
+                        </nav>
+                        <div class="tab-content">
+                            <div class="tab-pane fade in active show" id="home">
+                                <div class="admin-comments">
+                                    <div class="activity-table">
+                                    {% if activity %}
+                                        <ul class="list-group">
+                                        {% for a in activity %}
+                                            <li class="list-group-item">
+                                                <ul class="list-unstyled d-flex">
+                                                    <li>
+                                                        <div class="comment-image">
+                                                            {% if a.created_by.profile_pic %}
+                                                            <img src="{{a.created_by.profile_pic.url}}"  class="img-responsive" width="50"  height="50" alt="" />
+                                                            {% else %}
+                                                            <img src="{% static 'admin-asset/images/dp.png' %}"  class="img-responsive" width="50"  height="50" alt="" />
+                                                            {% endif %}
+                                                        </div>
+                                                    </li>
+                                                    <li class="ml-2">
+                                                        <div>
+                                                            <p class="mb-0">{{a.title}}<i class="fas fa-angle-double-right ml-2 mr-2"></i>
+                                                                <a href="#">{{a.description}}</a>
+                                                            </p>
+                                                        </div>
+                                                        <div class="mic-info">
+                                                            <p>By <a href="#">{{a.created_by.username}}</a>
+                                                               {{a.created_on| naturaltime}}</p>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        {% endfor %}
+                                        </ul>
+                                    {% else %}
+                                    <p>No Activity Found</p>
+                                    {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+               
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}

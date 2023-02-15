@@ -1,0 +1,196 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/newsletter-subscription.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+            <div class="col-lg-10">
+                <div class="row form-row">
+                    <div class="col-lg-4">
+                        <div class="searchpicker mb-10 mb-lg-0">
+                        <form onsubmit="Loader(this.id)" action = "{% url 'superuser:search_appointments' %}" method="GET">
+                            <input type="text" id="" value="{{created_for__first_name}}"  name = "username" placeholder="Search" class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="calendar-picker">
+                                <input type="date" placeholder="" value="{{date}}" name="date" class="form-control" >
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <select class="form-control" name="status" onchange="this.form.submit()">
+                            <option value="">Select Status</option>
+                            <option {% if status == '1' %}selected{% endif %} value="1">Confirmed</option>
+                            <option {% if status == '3' %}selected{% endif %} value="3">Cancelled</option>
+                            <option {% if status == '2' %}selected{% endif %} value="2">Completed</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="d-sm-flex align-items-center mt-10 mt-lg-0">
+                            <div class="action-wrap media-body pl-0 pl-sm-15 mt-10 mt-sm-0">
+                                <div class="d-flex align-items-center">
+                                    <button type="submit" class="btn btn-theme mr-15">GO</button>
+                                    <button value="reset" name = "reset" class="btn btn-link p-0">Reset Filter</button>
+                                </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-2 text-right">
+            
+        </div>
+    </div>
+</div>
+
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">APPT #</th>
+                    <th scope="col">RVT</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Total Paid</th>
+                    <th scope="col">Appointment Cost</th>
+                    <th scope="col">Service Fee</th>
+                    <th scope="col">Traveling Fees</th>
+                    <th scope="col">Client</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody id ="tbody">
+                
+                {% if appointments %}
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{appointment.id}}</td>
+                        <td>
+                            <div class="align-items-center d-flex">
+                                {% if appointment.created_for.profile_pic %}
+                                    <img src="{{appointment.created_for.profile_pic.url}}" width="48px" height="48px" class="rounded-circle object-cover">
+                                {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px" class="rounded-circle object-cover">
+                                {% endif %}
+                                <p class="text-primary font-lg-18 ml-2" style="margin-right: 50px;">{{appointment.created_for.first_name}}</p>
+                            </div>
+                        </td>
+
+                        <td>{% if appointment.date %}{{appointment.date}}{% else %} - {% endif %}</td>
+
+                        <td>{% if appointment.start_time %}{{appointment.start_time|date:"g:i a"}} {% else %} - {% endif %}- {% if appointment.end_time %}{{appointment.end_time|date:"g:i a"}}{% else %} - {% endif %}</td>
+                        <td>
+                            {% if appointment.status == '1' %}
+                            <span class="confirmation btn btn-primary" style="min-width: 115px;padding:8px;"><i class="far fa-check"></i> Confirmed</span>
+                            {% elif appointment.status == '2' %}
+                            <span class="confirmation btn btn-success" style="min-width: 115px;padding:8px;"><i class="far fa-check"></i> Completed</span>
+                            {% elif appointment.status == '3' %}
+                            <div class="d-flex">
+                                <span type="button" data-toggle="collapse" data-target="#cancelNotes{{appointment.id}}" aria-expanded="false" aria-controls="cancelNotes" class="confirmation btn btn-danger" style="min-width: 115px;padding:8px;"><i class="fas fa-times"></i></i> Cancelled</span>
+                                {% if appointment.cancel_remarks %}
+                                <div class="dropdown">
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                        <i class='fa fa-info-circle'></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton1" style="box-shadow: 0 0 10px rgb(0 0 0 / 30%);max-width: 300px;">
+                                        <div>
+                                            <p class="text-primary font-lg-16">Cancellation Reason: </p>  {{appointment.cancel_remarks}}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            {% endif %}
+                        </td>
+                        <td>{% if appointment.created_for.address %}{{appointment.created_for.address|truncatechars:30}} {% else %} - {% endif %}</td>
+
+                        <td>{% if appointment.amount %}${{appointment.amount}}{% else %} - {% endif %}</td>
+                        <td>{% if appointment.actual_amount %}${{appointment.actual_amount}}{% else %} - {% endif %}</td>
+                        <td>{% if appointment.tax_amount %}${{appointment.tax_amount}}{% else %} - {% endif %}</td>
+                        <td>{% if appointment.mileage_fee %}${{appointment.mileage_fee}}{% else %} - {% endif %}</td>
+
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if appointment.created_by.profile_pic %}
+                                    <img src="{{appointment.created_by.profile_pic.url}}" width="48px" height="48px" class="rounded-circle object-cover">
+                                {% else %}
+                                    <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px" class="rounded-circle object-cover">
+                                {% endif %}
+                                <p class="text-primary font-lg-18 ml-2" style="margin-right: 50px;">{% if appointment.created_by.first_name %}{{appointment.created_by.first_name}}{% else %} - {% endif %}</p>
+                            </div>
+                        </td>
+                        <td>
+                         <div class="dropdown">
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="far fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuButton">
+                                    <a class="btn btn-theme w-100 mt-10" href="{% url 'superuser:User_AppointmentDetails' %}?id={{appointment.id}}">Appointment</a>
+                                </div>
+                         
+
+                            </div> 
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <td align="center" colspan="12">No Appointment Found</td>
+                {% endif %}
+            </tbody>
+        </table>
+          {% if appointments.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if appointments.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ appointments.previous_page_number }}">&laquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&laquo;</span>
+                </li>
+                {% endif %}
+                {% for i in appointments.paginator.page_range %}
+                {% if appointments.number == i %}
+                <li class="page-item active">
+                    <span class="page-link">{{ i }} <span class="sr-only">(current)</span></span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% endif %}
+                {% endfor %}
+                {% if appointments.has_next %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ appointments.next_page_number }}">&raquo;</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">&raquo;</span>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+</script>
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}

@@ -1,0 +1,107 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/add-news-update.css' %}" />
+
+<div class="add-news-card p-3 p-lg-4">
+    <form onsubmit="Loader(this.id)" id="edit-announcement" action="{% url 'superuser:edit_announcement' %}" method="POST" enctype="multipart/form-data" >
+        {% csrf_token %}
+        <div class="row custom-gutters-10">
+            <div class="col-lg-12 col-xxl-9 mb-md-20 mb-20 mb-lg-0">
+                <div class="form-wrapper">
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="text" value="{% if announcement.title %} {{announcement.title}} {% endif %}" class="form-control" name="title" maxlength="100" placeholder="Title">
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <input type="file" id="chooseFile" class="form-control" value="{{announcement.image.ur}}" name="image" placeholder="image">
+                                <p class="resume_er" style="color:red"></p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <select class="form-control" name="status" >
+                                    <option value="">Select Status</option>
+                                    <option {% if announcement.status == 0 %} selected {% endif %} value="0">Draft</option>
+                                    <option {% if announcement.status == 1 %} selected {% endif %} value="1">Sent</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <select class="form-control" name="target" >
+                                    <option value="">Select Target</option>
+                                    <option {% if announcement.target == "2" %} selected {% endif %}   value="2">RVT's</option>
+                                    <option {% if announcement.target == "1" %} selected {% endif %}   value="1">User</option>
+                                    <option {% if announcement.target == "3" %} selected {% endif %}  value="3">All</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control"  name="description" placeholder="Description"
+                            rows="5">{% if announcement.description %}{{announcement.description}} {% endif %}</textarea>
+                    </div>
+                    <input type ="hidden" value="{{announcement.id}}" name="id">
+                    <div class="button-wrap text-right">
+                        <button class="btn btn-theme">Post</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+<script>
+    $("#chooseFile").change(function () {
+        var fileExtension = [, 'jpg', 'png','jpeg'];
+        if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+            $(".resume_er").html("Please upload file in these format only (jpg, jpeg, png)");
+            $(".error").html("");
+            $(".btn").prop('disabled', true);
+        }
+        else{
+            $(".resume_er").html("");
+            $(".btn").prop('disabled', false);
+        }
+    });
+    </script>
+<script type="text/javascript">
+    $("#edit-announcement").validate({
+        rules: {
+            title: {
+                required: true,
+            },
+            description: {
+                required: true,
+            },
+            status: {
+                required: true,
+            },
+            target: {
+                required: true,
+            },
+        },
+        messages: {
+            title: {
+                required: "Please enter title",
+            },
+            description: {
+                required: "Please enter description",
+            },
+            status: {
+                required: "Please select status",
+            },
+            target: {
+                required: "Please select target",
+            },
+        }
+    });
+</script>

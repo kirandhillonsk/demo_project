@@ -1,0 +1,138 @@
+{% include "admin-includes/header.html" %}
+{% block content %}
+{% load static %}
+{% load extras %}
+
+<link rel="stylesheet" href="{% static 'admin-assets/css/help-request.css' %}" />
+
+
+<div class="inner-page">
+    <div class="search-wrap top-search mb-20 mb-md-20">
+        <div class="row align-items-center form-row">
+            <div class="col-lg-10">
+                <div class="row form-row align-items-center">
+                    <div class="col-lg-4">
+                        <div class="searchpicker mb-10 mb-lg-0">
+                            <form onsubmit="Loader(this.id)" action="{% url 'accounts:search_name' %}" method="GET">
+                                <input type="text" name="search_by_name" placeholder="Search" value="{{search}}"
+                                    class="form-control">
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <button type="submit" class="btn btn-theme mr-15">GO</button>
+                        <button type="submit" value='reset' name="reset" class="btn btn-link p-0">Reset Filter</button>
+                    </div>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-2 text-right">
+            </div>
+        </div>
+    </div>
+</div>
+<div class="theme-table">
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col" class="author">Author</th>
+                    <th scope="col">Complain</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if helps %}
+                {% for help in helps %}
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            {% if help.created_by.profile_pic %}
+                            <img src="{{ help.created_by.profile_pic.url }}" width="48px" height="48px"
+                                class="rounded-circle object-cover" alt="">
+                            {% else %}
+                            <img src="{% static 'admin-assets/images/default.png' %}" width="48px" height="48px"
+                                class="rounded-circle object-cover" alt="">
+                            {% endif %}
+                            <div class="media-body pl-10 text-wrap">
+                                <p class="text-primary font-lg-18">
+                                    {% if help.created_by.first_name %}{{help.created_by.first_name}}{% else %} {% endif %}</p>
+                                    {% if help.created_by.role_id == 2 %}
+                                    <p>Regular User</p>
+                                    {% else %}
+                                    {% endif %}
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <p class="description">{% if help.complain %}{{help.complain}}{% else %} {% endif %}</p>
+                    </td>
+                    <td>
+                        <p class="assigned font_500 font-16 text-danger mb-10">Not yet Assigned</p>
+                    </td>
+                    <td>
+                        <button data-toggle="modal" data-target="#assignModal" onclick="GetID({{help.id}})" class="btn btn-theme">Assign</button>
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <td align="center" colspan="6">No Data Found</td>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+<div class="modal fade addformModal" id="assignModal" tabindex="-1" role="dialog" aria-labelledby="assignModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            <form onsubmit="Loader(this.id)" id="add-services" action="{% url 'accounts:assign_help_request' %}" method="GET">
+                <input type="hidden" id="help_id" name="help_id">
+                <div class="modal-body">
+                    <div class="heading">
+                        <p class="text-center">Assign Help Request</p>
+                    </div>
+                    <div class="form-group">
+                        <select class="form-control" name="user_id">
+                            <option value="">SELECT</option>
+                            {% for users in user %}
+                            <option value="{{users.id}}">{{users.email}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="button-wrap">
+                        <button class="btn btn-theme w-100">Assign</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}
+{% include "admin-includes/footer.html" %}
+{% include "admin-includes/footer.html" %}
+<script type="text/javascript">
+    $("#add-services").validate({
+        rules: {
+            user_id: {
+                required: true,
+            },
+        },
+        messages: {
+            user_id: {
+                required: "Please select a user",
+            }
+        }
+    });
+
+    function GetID(id){
+        $('#help_id').val(id);
+    }
+</script>
