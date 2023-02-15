@@ -1,0 +1,75 @@
+{% load static %}
+<!-- @copyright : ToXSL Technologies Pvt. Ltd. < www.toxsl.com >
+@author     : Shiv Charan  spaceeta < shiv@toxsl.com >
+
+All Rights Reserved.
+Proprietary and confidential :  All information contained herein is, and remains
+the property of ToXSL Technologies Pvt. Ltd. and its partners.
+Unauthorized copying of this file, via any medium is strictly prohibited. -->
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <!-- Metas -->
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="@toxsltech">
+  <!-- Title  -->
+  <title> spaceand Fido</title>
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="{% static 'assets/images/fav.png' %}" />
+  <!-- Bootstrap Css -->
+  <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}" />
+  <!-- Plugins -->
+  <link rel="stylesheet" href="{% static 'assets/css/helpers-plugin.css' %}" />
+
+  <!-- Slick Slider -->
+  <link rel="stylesheet" href="{% static 'assets/plugins/slick/slick-theme.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/plugins/slick/slick.css' %}" />
+
+  <!-- Style Css -->
+  <link rel="stylesheet" href="{% static 'assets/css/style.css' %}" />
+  <!-- responsive Css -->
+  <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}" />
+  <!-- fontawesome Css -->
+  <link rel="stylesheet" href="{% static 'assets/fonts/fontawesome/css/all.min.css' %}" />
+  <!-- jquery JS -->
+  <script src="{% static 'assets/js/jquery.slim.min.js' %}"></script>
+  <!-- bootstrap JS -->
+  <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+  <!-- Slick -->
+  <script src="{% static 'assets/plugins/slick/slick.min.js' %}"></script>
+  <link rel="stylesheet" href="{% static 'admin-assets/css/flash.css' %}" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-KMGEG5CPC9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-KMGEG5CPC9');
+  </script>
+
+</head>
+
+<body class="login-header">
+  <!-- Start Page Wrapper -->
+  <main class="page-wrapper">
+    {% if messages %}
+    <div class="flash animate--drop-in-fade-out">
+    {% for message in messages %}
+        <div class="flash__icon">
+            <i class="icon far fa-check-circle"></i>
+        </div>
+        
+        <p class="flash__body">
+            {{ message }}
+        </p>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    

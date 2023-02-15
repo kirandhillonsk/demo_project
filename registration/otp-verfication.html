@@ -1,0 +1,74 @@
+{% load static %}
+{% include 'registration/includes/header.html' %}
+{% block content %}
+
+<style>
+    .er{
+      color : red;   
+    }
+ </style>
+<div id="main-wrapper">
+    <section class="contactussec ptb72">
+       <div class="container">
+
+                <div class="row"> 
+                    <div class="contactus-formbox">                   
+                        <div class="mb60 section-title text-center">                          
+                            <h2>Forgot Password</h2>                           
+                        </div>
+                    <form onsubmit="Loader(this.id)" id="form-validate"  method="POST" action="{% url 'accounts:OTP_Verfication' %}" class="contact-us-form login-form" >
+                    {% csrf_token %}
+                      <div class="form-group">
+                      <input type="text" hidden name="id" value="{{ id }}">
+                        <input type="number" class="form-control" maxlength="8" required   name="otp" onkeyup ="verifyPassword()" placeholder="Enter OTP" id="otp">
+                        <p class="er"></p>
+                            <div class="text-danger" id="msg">
+                            </div>
+                      </div>
+                      <p class="er"></p>
+                      
+                      <div class="form-group mb-8">
+                      <button type='submit'>Verify</button>
+                       
+                     </form>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.3/dist/jquery.validate.js"></script>
+	
+ <script type="text/javascript">
+    $("#form-validate").validate({
+        rules: {
+   
+               otp: {
+                required: true,
+                maxlength:12,
+            },
+        },
+        messages: {
+            
+            otp: {
+                required: "Please enter OTP",
+            },
+        }
+    });
+</script>
+<script>
+    function verifyPassword() {  
+        var otp = document.getElementById("otp").value;  
+        var otpv = document.getElementById("otpv").value;   
+        if(otp != otpv) {  
+            document.getElementById("msg").innerHTML = "OTP does not Match!";  
+            return false;  
+        }  
+        else{
+            document.getElementById("msg").innerHTML = "OTP Matched!";
+            return true;
+        }  
+    }  
+</script>  
+{% endblock %}
+{% include 'registration/includes/footer.html' %}

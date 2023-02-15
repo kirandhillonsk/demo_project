@@ -1,0 +1,47 @@
+{% load static %}
+
+</main>
+<!-- common -->
+<script src="https://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
+
+
+
+<script type="text/javascript">
+    jQuery.validator.addMethod("noSpace", function(value, element) { 
+        return value.indexOf(" ") < 0 && value != ""; 
+      }, "Space are not allowed");
+
+    $("#login").validate({
+        rules: {
+            email: {
+                required: true,
+                email: true,
+                noSpace: true
+            },
+            password: {
+                required: true,
+            },
+        },
+        messages: {
+            email: {
+                required: "Please enter email address",
+                email: "Please enter a valid email address, make sure there are no spaces."
+            },
+            password: {
+                required: "Please enter password",
+            },
+        }
+    });
+    
+    $(".toggle-password").click(function () {
+        $(this).toggleClass("fa-eye fa-eye-slash");
+        var type = $(this).hasClass("fa-eye") ? "text" : "password";
+        $(this).closest('div').find(".form-control").attr("type", type);
+    });
+
+
+</script>
+
+</body>
+</html>

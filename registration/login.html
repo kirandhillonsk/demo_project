@@ -1,0 +1,155 @@
+{% load static %}
+{% include 'registration/includes/header.html' %}
+{% block content %}
+{% load socialaccount %}
+
+<style type="text/css">
+    .icon-find img {
+        position: absolute;
+        left: 20px;
+        top: 20px;
+        bottom: 0;
+        margin: initial;
+    }
+
+    .icon-find i.fa-eye,
+    .icon-find i.fal.fa-eye-slash {
+        position: absolute;
+        left: auto;
+        top: 0px;
+        right: 14px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 25px;
+        top: 21px;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    .tab-sign {
+        padding: 12px 40px;
+        border: 1px solid #ced4da;
+        font-weight: 400;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        width: 330px;
+        max-width: 100%;
+    }
+
+    .tab-sign .image-main {
+        width: 25px;
+        height: 25px;
+        margin-right: 10px;
+    }
+
+    .sign-up-wrap {
+        position: relative;
+        color: #ced4da;
+    }
+
+    .sign-up-wrap::after {
+        border-bottom: 1px solid #ced4da;
+        content: "";
+        position: absolute;
+        width: 100%;
+        top: 50%;
+        z-index: -1;
+        left: 0;
+    }
+
+    .sign-up-email.my-5.font-22 {
+        background-color: #fff;
+        z-index: 1;
+        width: 250px;
+        margin: 0 auto;
+    }
+</style>
+
+<div class="login-register">
+    <div class="container-fluid p-0">
+        <div class="row no-gutters">
+            <div class="col-lg-6 pl-20 pr-20 pl-md-50 pr-md-50 pl-xl-100 pr-xl-100">
+                <div class="h-100 d-flex align-items-center">
+                    <form autocomplete="off" onsubmit="Loader(this.id)" id="login" action="{% url 'accounts:web_login' %}" method="POST"
+                        class="theme-from w-100 pt-100 pb-100 pt-lg-50 pb-lg-50">
+                        {% csrf_token %}
+                        <div class="form-header text-center">
+                            <a href="{% url 'frontend:index' %}"><img src="{% static 'assets/images/logo.png' %}"
+                                    alt=" spaceandFido"></a>
+                            <p class="font-40 mb-10">Log In</p>
+                            <p class="font-lg-22 font-16">New to  spaceand Fido? <a
+                                    href="{% url 'accounts:web_signup' %}">Sign Up For
+                                    Free</a></p>
+                            <a href="{% provider_login_url 'google' %}">
+                                <div class="tab-sign btn font-22 "><img src="{% static 'assets/images/google.png' %}"
+                                    alt="google" class="image-main">
+                                    <div>Login with Google</div>
+                                </div>
+                            </a>
+                            <div class="sign-up-wrap">
+                                <div class="sign-up-email my-5 font-22">Or login with email</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-18" for="email">Email address</label>
+                            <div class="icon-find">
+                                <img src="{% static 'assets/images/envelope.png' %}" alt="">
+                                {% if email %}
+                                <input type="text" name="email" class="form-control" id="email" maxlength="50"
+                                    aria-describedby="emailHelp" value="{{ email }}">
+                                {% else %}
+                                <input type="text" name="email" class="form-control" id="email" maxlength="50"
+                                    aria-describedby="emailHelp" placeholder="Enter email">
+                                {% endif %}
+                            </div>
+                            <p class="er"></p>
+                        </div>
+                        <div class="form-group">
+                            <label class="font-18" for="InputPassword1">Password</label>
+                            <div class="icon-find">
+                                <img src="{% static 'assets/images/password.png' %}" alt="">
+                                {% if password %}
+                                <input type="password" name="password" class="form-control pr-60"
+                                    id="password" value="{{ password }}" maxlength="35" minlength="8">
+                                {% else %}
+                                <input type="password" name="password" class="form-control pr-60"
+                                    id="password" placeholder="Enter password" maxlength="35" minlength="8">
+                                {% endif %}
+                                <span class="fal toggle-password fa-eye-slash"></span>
+                            </div>
+                        </div>
+                        <div class="row pt-15 mb-22">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <input type="checkbox" class="form-check-input" name="remember_me" id="Check1">
+                                    <label class="form-check-label font-18 text-dark" for="Check1">Remember me</label>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="text-right">
+                                    <a class="font-18 text-dark" href="{% url 'accounts:forgot_password_mail' %}">Forgot Password ?</a>
+                                </div>
+                            </div>
+                        </div>
+                        <input name='next_page' value="{{next_page}}" type="hidden">
+
+                        <button type="submit" class="butn butn-bg font_400 w-100 font-20 font-lg-22 pt-16 pb-16"><img
+                                class="mr-6" src="{% static 'assets/images/enter.png' %}" alt=""> Log In</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block">
+                <div class="lr-back">
+                    <img src="{% static 'assets/images/login-img.png' %}" alt=" spaceandFido">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% include 'registration/includes/footer.html' %}
